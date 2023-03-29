@@ -1,0 +1,27 @@
+name: dictionary_provider
+version: 0.0.1
+publish_to: none
+
+environment:
+  sdk: '>=2.19.3 <3.0.0'
+  flutter: ">=1.17.0"
+
+dependencies:
+  domain_models:
+    path: ../domain_models
+  key_value_storage:
+    path: ../key_value_storage
+  google_api_service:
+    path: ../google_api_service
+  db_service:
+    path: ../db_service
+  flutter:
+    sdk: flutter
+  path_provider: ^2.0.12
+  path: ^1.8.2
+
+
+dev_dependencies:
+#  flutter_test:
+#    sdk: flutter
+#  flutter_lints: ^2.0.0

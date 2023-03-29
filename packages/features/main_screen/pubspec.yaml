@@ -1,0 +1,35 @@
+name: main_screen
+description: main screen with choice of dictionaries and list of translations
+version: 0.0.1
+publish_to: none
+
+environment:
+  sdk: '>=2.19.3 <3.0.0'
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  dictionary_provider:
+    path: ../../dictionary_provider
+  user_repository:
+    path: ../../user_repository
+  domain_models:
+    path: ../../domain_models
+  components:
+    path: ../../components
+  flutter_bloc: ^8.1.2
+  equatable: ^2.0.5
+#  styled_text: ^7.0.0
+  permission_handler:
+#  file_picker: 5.2.6
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+flutter:
+
+
