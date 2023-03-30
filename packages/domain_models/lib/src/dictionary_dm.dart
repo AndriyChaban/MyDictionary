@@ -7,12 +7,13 @@ class DictionaryDM extends Equatable {
   final String indexLanguage;
   final String contentLanguage;
   final List<CardDM> cards;
-  bool active = false;
+  final bool active;
 
   DictionaryDM(
       {required this.name,
       required this.indexLanguage,
       required this.contentLanguage,
+      this.active = false,
       this.cards = const <CardDM>[]});
 
   @override

@@ -47,6 +47,7 @@ class _DictionaryTileState extends State<DictionaryTile> {
 
   @override
   Widget build(BuildContext context) {
+    print(widget.dictionary);
     return ListTile(
       key: ValueKey(widget.dictionary.name),
       leading: Text(widget.dictionary.name),

@@ -1,6 +1,5 @@
 import 'package:components/components.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:main_screen/main_screen.dart';
 
 class TranslationScreen extends StatelessWidget {
@@ -31,16 +30,19 @@ class TranslationScreen extends StatelessWidget {
           future: bloc!.listOfWordTranslations(word),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
-              return ListView.separated(
-                itemBuilder: (context, index) => StyledTranslationCard(
-                  onClick: null,
-                  headword: snapshot.data![index].headword,
-                  text: snapshot.data![index].text,
-                  isShort: false,
+              return Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: ListView.separated(
+                  itemBuilder: (context, index) => StyledTranslationCard(
+                    onClick: null,
+                    headword: snapshot.data![index].headword,
+                    text: snapshot.data![index].text,
+                    isShort: false,
+                  ),
+                  itemCount: snapshot.data!.length,
+                  separatorBuilder: (BuildContext context, int index) =>
+                      const DividerCommon(),
                 ),
-                itemCount: snapshot.data!.length,
-                separatorBuilder: (BuildContext context, int index) =>
-                    const DividerCommon(),
               );
             } else {
               return const CenteredLoadingProgressIndicator();

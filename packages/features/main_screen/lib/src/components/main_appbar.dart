@@ -1,3 +1,4 @@
+import 'package:domain_models/domain_models.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:main_screen/src/main_screen_bloc.dart';
@@ -69,7 +70,7 @@ class _MainAppBarState extends State<MainAppBar> {
                               .listOfAllActiveFromLanguages
                               .map((lang) => Center(
                                     child: Text(
-                                      lang,
+                                      lang.toCapital(),
                                       style: TextStyle(
                                           color: Theme.of(context).canvasColor),
                                     ),
@@ -91,7 +92,7 @@ class _MainAppBarState extends State<MainAppBar> {
                                   child: Padding(
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 16.0),
-                                    child: Text(lang),
+                                    child: Text(lang.toCapital()),
                                   ),
                                 ))
                             .toList()
@@ -122,7 +123,7 @@ class _MainAppBarState extends State<MainAppBar> {
                             .listOfAllActiveToLanguages()
                             .map((lang) => Center(
                                   child: Text(
-                                    lang,
+                                    lang.toCapital(),
                                     style: TextStyle(
                                         color: Theme.of(context).canvasColor),
                                   ),
@@ -136,7 +137,7 @@ class _MainAppBarState extends State<MainAppBar> {
                                 value: lang,
                                 child: Padding(
                                   padding: const EdgeInsets.all(16.0),
-                                  child: Text(lang),
+                                  child: Text(lang.toCapital()),
                                 ),
                               ))
                           .toList(),

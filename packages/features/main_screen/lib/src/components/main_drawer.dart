@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:main_screen/main_screen.dart';
 import 'package:main_screen/src/main_screen_bloc.dart';
 import 'package:main_screen/src/main_screen_event.dart';
-import 'package:permission_handler/permission_handler.dart';
+// import 'package:permission_handler/permission_handler.dart';
 
 class MainDrawer extends StatefulWidget {
   MainDrawer({Key? key, required this.goToView, required this.onAddDictionary})
@@ -68,7 +68,7 @@ class _MainDrawerState extends State<MainDrawer> {
                   background: Icon(
                     Icons.laptop_chromebook,
                     size: 200,
-                    color: Theme.of(context).backgroundColor,
+                    color: Theme.of(context).colorScheme.background,
                   ),
                   title: const Text('MyDictionary'),
                   centerTitle: true,

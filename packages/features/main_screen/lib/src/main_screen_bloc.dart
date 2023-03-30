@@ -1,6 +1,5 @@
 import 'package:dictionary_provider/dictionary_provider.dart';
 import 'package:domain_models/domain_models.dart';
-import 'package:flutter/foundation.dart';
 import 'package:main_screen/src/main_screen_event.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:user_repository/user_repository.dart';
@@ -148,8 +147,14 @@ class MainScreenBloc extends Bloc<MainScreenEvent, MainScreenState> {
         translateTo: state.toLanguage,
         startsWith: true);
     // print('results: $results');
+    final Map<String, CardDM> filteredResults = {};
+    for (CardDM result in results) {
+      filteredResults.putIfAbsent(result.headword, () => result);
+    }
     emitter(state.copyWith(
-        itemsList: results,
+        itemsList: filteredResults.values.toList()
+          ..sort((a, b) =>
+              a.headword.toLowerCase().compareTo(b.headword.toLowerCase())),
         searchTerm: event.searchTerm.toLowerCase(),
         isLoading: false,
         error: null));

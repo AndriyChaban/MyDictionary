@@ -16,7 +16,7 @@ class StyledTranslationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool test = false;
+    // bool test = false;
     final extraText = text
         .replaceAll('<m1>', '\t<m1>')
         .replaceAll('<m2>', '\t\t<m2>')
@@ -49,12 +49,15 @@ class StyledTranslationCard extends StatelessWidget {
       ),
       subtitle: isShort
           ? StyledText(
-              text: textExtract ?? 'null',
+              text: textExtract ?? text,
+              style: const TextStyle(height: 1.2),
+              maxLines: 3,
               tags: tags,
             )
           : StyledText.selectable(
               onTap: () {},
               text: isShort ? textExtract ?? 'null' : extraText,
+              style: const TextStyle(height: 1.2),
               // maxLines: 3,
               // scrollPhysics: const NeverScrollableScrollPhysics(),
               newLineAsBreaks: true,

@@ -112,6 +112,7 @@ class DictionaryProvider {
 
   Future<List<DictionaryDM>> get _listOfActiveDictionaries async {
     final dictionariesBox = await keyValueStorage.getDictionariesBox();
+    print(dictionariesBox.values.first.active);
     return dictionariesBox.values
         .where((dict) => dict.active == true)
         .map((dict) => dict.toDomainModel())
@@ -133,7 +134,7 @@ class DictionaryProvider {
     final queryFinal = startsWith
         ? queryStart.headwordStartsWith(word, caseSensitive: false)
         : queryStart.headwordEqualTo(word, caseSensitive: false);
-    final cards = queryFinal.offset(0).limit(20).findAllSync();
+    final cards = queryFinal.offset(0).limit(30).findAllSync();
     return cards
         .where((card) => card.headword != null && card.fullCardText != null)
         .map((card) => card.toDomainModel())

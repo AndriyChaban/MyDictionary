@@ -3,9 +3,6 @@ import 'package:dictionary_provider/dictionary_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:main_screen/src/main_screen_state.dart';
-import 'package:main_screen/src/views/dictionaries_view.dart';
-import 'package:main_screen/src/views/history_list.dart';
-import 'package:main_screen/src/views/search_view.dart';
 import 'package:user_repository/user_repository.dart';
 
 import 'components/main_appbar.dart';
@@ -38,7 +35,7 @@ class _MainScreenState extends State<MainScreen> {
   void _onAddDictionary(BuildContext context) {
     context
         .read<MainScreenBloc>()
-        .add(const MainScreenEventAddDictionary('assets/UniversalEsRu.dsl'));
+        .add(const MainScreenEventAddDictionary('assets/BusinessEnUk.dsl'));
   }
 
   @override
