@@ -65,7 +65,11 @@ class _MainScreenState extends State<MainScreen> {
                   onAddDictionary: () => _onAddDictionary(context),
                 ),
                 body: SafeArea(
-                  child: Center(child: widget.child),
+                  child: Builder(builder: (context) {
+                    Scaffold.of(context).closeDrawer();
+
+                    return Center(child: widget.child);
+                  }),
                 ),
               );
             }),

@@ -9,13 +9,16 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  styled_text: ^7.0.0
+#  styled_text: ^7.0.0
+#  xml: ^6.2.2
 
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.0
+
+
 
 
 flutter:

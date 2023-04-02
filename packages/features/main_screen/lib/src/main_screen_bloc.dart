@@ -30,6 +30,10 @@ class MainScreenBloc extends Bloc<MainScreenEvent, MainScreenState> {
         await _handleLanguageFromChange(event, emitter);
       } else if (event is MainScreenEventLanguageToChanged) {
         await _handleLanguageToChange(event, emitter);
+      } else if (event is MainScreenEventSwapLanguages) {
+        await _handleSwapLanguages(emitter);
+      } else if (event is MainScreenEventDictionaryStatusChanged) {
+        await _handleDictionaryStatusChanged(event, emitter);
       } else if (event is MainScreenEventFakeLoading) {
         await _handleFakeLoading(emitter);
       }
@@ -71,11 +75,15 @@ class MainScreenBloc extends Bloc<MainScreenEvent, MainScreenState> {
       fromLanguage = '';
       toLanguage = '';
     }
+    final historyCards =
+        await _getHistory(fromLanguage: fromLanguage, toLanguage: toLanguage);
     emitter(
       state.copyWith(
         toLanguage: toLanguage ?? '',
         fromLanguage: fromLanguage ?? '',
         dictionaryList: dictionaries,
+        searchTerm: '',
+        itemsList: historyCards,
         isLoading: false,
         error: null,
       ),
@@ -88,7 +96,6 @@ class MainScreenBloc extends Bloc<MainScreenEvent, MainScreenState> {
     emitter(state.copyWith(isLoading: true, error: null));
     await Future.delayed(const Duration(seconds: 1));
     try {
-      // await compute(dictionaryProvider.createDictionary, event.filePath);
       await dictionaryProvider.createDictionary(event.filePath);
       await _handleLoadingInitial(emitter);
     } catch (e) {
@@ -130,7 +137,8 @@ class MainScreenBloc extends Bloc<MainScreenEvent, MainScreenState> {
     if (event.searchTerm.isEmpty) {
       // TODO history!!!
       // TODO make a set of extracts, sorted by alphabet
-      emitter(state.copyWith(itemsList: [], searchTerm: '', error: null));
+      emitter(state.copyWith(
+          itemsList: await _getHistory(), searchTerm: '', error: null));
       return;
     }
     if (state.toLanguage.isEmpty || state.fromLanguage.isEmpty) {
@@ -140,22 +148,25 @@ class MainScreenBloc extends Bloc<MainScreenEvent, MainScreenState> {
     final term = event.searchTerm.toLowerCase().trim();
     if (term.replaceAll(RegExp(r'\s'), '').isEmpty) return;
     // get list of translations
-    emitter(state.copyWith(isLoading: true));
-    final results = await dictionaryProvider.getAllDictionariesWordTranslation(
-        word: term,
-        translateFrom: state.fromLanguage,
-        translateTo: state.toLanguage,
-        startsWith: true);
+    emitter(state.copyWith(isLoading: true, searchTerm: event.searchTerm));
+    final resultsDicts =
+        await dictionaryProvider.getAllDictionariesWordTranslation(
+            word: term,
+            translateFrom: state.fromLanguage,
+            translateTo: state.toLanguage,
+            startsWith: true);
     // print('results: $results');
-    final Map<String, CardDM> filteredResults = {};
-    for (CardDM result in results) {
-      filteredResults.putIfAbsent(result.headword, () => result);
-    }
+    // final resultsCards = <CardDM>[];
+    // for (DictionaryDM dict in resultsDicts) {
+    //   resultsCards.addAll(dict.cards);
+    // }
+    // final Map<String, CardDM> filteredResults = {};
+    // for (CardDM result in resultsCards) {
+    //   filteredResults.putIfAbsent(result.headword, () => result);
+    // }
     emitter(state.copyWith(
-        itemsList: filteredResults.values.toList()
-          ..sort((a, b) =>
-              a.headword.toLowerCase().compareTo(b.headword.toLowerCase())),
-        searchTerm: event.searchTerm.toLowerCase(),
+        itemsList: _getListOfFilteredSortedCardsFromDicts(resultsDicts),
+        // searchTerm: event.searchTerm.toLowerCase(),
         isLoading: false,
         error: null));
   }
@@ -163,23 +174,30 @@ class MainScreenBloc extends Bloc<MainScreenEvent, MainScreenState> {
   Future<void> _handleLanguageFromChange(
       MainScreenEventLanguageFromChanged event, Emitter emitter) async {
     if (state.fromLanguage == event.languageFrom) return;
-    emitter(state.copyWith(itemsList: [], searchTerm: ''));
+    // emitter(state.copyWith(itemsList: [], searchTerm: ''));
     final activeToLanguages =
         listOfAllActiveToLanguages(fromLanguage: event.languageFrom);
+    String toLanguage = activeToLanguages.contains(state.toLanguage)
+        ? state.toLanguage
+        : activeToLanguages.first;
     userRepository.saveFromLanguage(event.languageFrom);
-    userRepository.saveToLanguage(activeToLanguages.first);
+    userRepository.saveToLanguage(toLanguage);
     final results = state.searchTerm.isNotEmpty
         ? await dictionaryProvider.getAllDictionariesWordTranslation(
             word: state.searchTerm.toLowerCase(),
-            translateFrom: state.fromLanguage,
-            translateTo: state.toLanguage)
-        : <CardDM>[];
+            translateFrom: event.languageFrom,
+            translateTo: toLanguage)
+        : <DictionaryDM>[];
+    final itemsList = results.isEmpty
+        ? await _getHistory(
+            fromLanguage: event.languageFrom, toLanguage: toLanguage)
+        : _getListOfFilteredSortedCardsFromDicts(results);
     emitter(
       state.copyWith(
         isLoading: false,
-        itemsList: results,
+        itemsList: itemsList,
         fromLanguage: event.languageFrom,
-        toLanguage: activeToLanguages.first,
+        toLanguage: toLanguage,
       ),
     );
   }
@@ -193,12 +211,56 @@ class MainScreenBloc extends Bloc<MainScreenEvent, MainScreenState> {
             word: state.searchTerm.toLowerCase(),
             translateFrom: state.fromLanguage,
             translateTo: event.languageTo)
-        : <CardDM>[];
+        : <DictionaryDM>[];
+    final itemsList = results.isEmpty
+        ? await _getHistory(
+            fromLanguage: state.fromLanguage, toLanguage: event.languageTo)
+        : _getListOfFilteredSortedCardsFromDicts(results);
     emitter(state.copyWith(
       isLoading: false,
       toLanguage: event.languageTo,
-      itemsList: results,
+      itemsList: itemsList,
     ));
+  }
+
+  Future<void> _handleSwapLanguages(Emitter emitter) async {
+    if (state.toLanguage == state.fromLanguage) return;
+    emitter(state.copyWith(isLoading: true));
+    final results = state.searchTerm.isNotEmpty
+        ? await dictionaryProvider.getAllDictionariesWordTranslation(
+            word: state.searchTerm.toLowerCase(),
+            translateFrom: state.toLanguage,
+            translateTo: state.fromLanguage)
+        : <DictionaryDM>[];
+    final itemsList = results.isEmpty
+        ? await _getHistory(
+            fromLanguage: state.toLanguage, toLanguage: state.fromLanguage)
+        : _getListOfFilteredSortedCardsFromDicts(results);
+    userRepository.saveToLanguage(state.fromLanguage);
+    userRepository.saveFromLanguage(state.toLanguage);
+    emitter(state.copyWith(
+        isLoading: false,
+        searchTerm: results.isEmpty ? '' : state.searchTerm,
+        itemsList: itemsList,
+        fromLanguage: state.toLanguage,
+        toLanguage: state.fromLanguage));
+  }
+
+  Future<void> _handleDictionaryStatusChanged(event, emitter) async {}
+
+  List<CardDM> _getListOfFilteredSortedCardsFromDicts(
+      List<DictionaryDM> resultsDicts) {
+    final resultsCards = <CardDM>[];
+    for (DictionaryDM dict in resultsDicts) {
+      resultsCards.addAll(dict.cards);
+    }
+    final Map<String, CardDM> filteredResults = {};
+    for (CardDM result in resultsCards) {
+      filteredResults.putIfAbsent(result.headword, () => result);
+    }
+    return filteredResults.values.toList()
+      ..sort((a, b) =>
+          a.headword.toLowerCase().compareTo(b.headword.toLowerCase()));
   }
 
   List<String> get listOfAllActiveFromLanguages {
@@ -230,7 +292,32 @@ class MainScreenBloc extends Bloc<MainScreenEvent, MainScreenState> {
     }).toList();
   }
 
-  Future<List<CardDM>> listOfWordTranslations(String word,
+  void handleAddToHistory(
+      {required CardDM card,
+      String? fromLanguage,
+      String? toLanguage,
+      required String dictionaryName}) async {
+    dictionaryProvider.addCardToHistory(
+        card: card,
+        fromLanguage: fromLanguage ?? state.fromLanguage,
+        toLanguage: toLanguage ?? state.toLanguage,
+        dictionaryName: dictionaryName);
+  }
+
+  Future<List<CardDM>> _getHistory(
+      {String? fromLanguage, String? toLanguage}) async {
+    // if (state.fromLanguage.isEmpty && state.toLanguage.isEmpty) {
+    return (await dictionaryProvider.getHistoryCards(
+            fromLanguage: fromLanguage ?? state.fromLanguage,
+            toLanguage: toLanguage ?? state.toLanguage))
+        .reversed
+        .toList();
+    // } else {
+    //   return [];
+    // }
+  }
+
+  Future<List<DictionaryDM>> listOfWordTranslations(String word,
       {String? from, String? to}) async {
     final results = await dictionaryProvider.getAllDictionariesWordTranslation(
         word: word,

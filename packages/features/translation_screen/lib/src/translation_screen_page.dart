@@ -1,21 +1,31 @@
 import 'package:components/components.dart';
+import 'package:domain_models/domain_models.dart';
 import 'package:flutter/material.dart';
 import 'package:main_screen/main_screen.dart';
 
 class TranslationScreen extends StatelessWidget {
   final String word;
   final MainScreenBloc? bloc;
+  final void Function(String) onWordClicked;
+  final VoidCallback onAppBarBackPressed;
   const TranslationScreen({
     required this.word,
     Key? key,
-    this.bloc,
+    required this.bloc,
+    required this.onWordClicked,
+    required this.onAppBarBackPressed,
   }) : super(key: key);
   static const routeName = 'translation-screen';
 
   @override
   Widget build(BuildContext context) {
+    FocusScope.of(context).unfocus();
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          onPressed: onAppBarBackPressed,
+          icon: Icon(Icons.arrow_back_outlined),
+        ),
         title: Text(word.toString()),
         actions: [
           PopupMenuButton(itemBuilder: (context) {
@@ -30,19 +40,22 @@ class TranslationScreen extends StatelessWidget {
           future: bloc!.listOfWordTranslations(word),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
-              return Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: ListView.separated(
-                  itemBuilder: (context, index) => StyledTranslationCard(
-                    onClick: null,
-                    headword: snapshot.data![index].headword,
-                    text: snapshot.data![index].text,
+              final headword = snapshot.data!.first.cards.first.headword;
+              final text = snapshot.data!.first.cards.first.text;
+              final dictionaryName = snapshot.data!.first.name;
+              bloc!.handleAddToHistory(
+                  card: CardDM(headword: headword, text: text),
+                  dictionaryName: dictionaryName);
+              return ListView.separated(
+                itemBuilder: (context, index) => StyledTranslationCard(
+                    onClick: onWordClicked,
+                    headword: snapshot.data![index].cards.first.headword,
+                    text: snapshot.data![index].cards.first.text,
                     isShort: false,
-                  ),
-                  itemCount: snapshot.data!.length,
-                  separatorBuilder: (BuildContext context, int index) =>
-                      const DividerCommon(),
-                ),
+                    dictionaryName: snapshot.data![index].name),
+                itemCount: snapshot.data!.length,
+                separatorBuilder: (BuildContext context, int index) =>
+                    const DividerCommon(),
               );
             } else {
               return const CenteredLoadingProgressIndicator();

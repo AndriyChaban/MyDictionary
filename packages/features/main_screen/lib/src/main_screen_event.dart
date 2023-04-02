@@ -50,10 +50,10 @@ class MainScreenEventSwapLanguages extends MainScreenEvent {
   const MainScreenEventSwapLanguages();
 }
 
-class MainScreenEventDictionariesStatusChanged extends MainScreenEvent {
+class MainScreenEventDictionaryStatusChanged extends MainScreenEvent {
   final DictionaryDM changedDictionary;
 
-  const MainScreenEventDictionariesStatusChanged({
+  const MainScreenEventDictionaryStatusChanged({
     required this.changedDictionary,
   });
   @override

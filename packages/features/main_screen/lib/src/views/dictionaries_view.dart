@@ -3,6 +3,7 @@ import 'package:domain_models/domain_models.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:main_screen/src/main_screen_bloc.dart';
+import 'package:main_screen/src/main_screen_event.dart';
 
 import '../main_screen_state.dart';
 
@@ -18,13 +19,18 @@ class _DictionariesViewState extends State<DictionariesView> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<MainScreenBloc, MainScreenState>(
+      buildWhen: (oldState, newState) {
+        return oldState.dictionaryList != newState.dictionaryList;
+      },
       builder: (context, state) {
         final list =
             context.read<MainScreenBloc>().listOfAllMatchingDictionaries;
         return ListView.separated(
           itemCount: list.length,
-          itemBuilder: (context, index) =>
-              DictionaryTile(dictionary: list[index]),
+          itemBuilder: (context, index) => DictionaryTile(
+            key: ValueKey(list[index].name),
+            dictionary: list[index],
+          ),
           separatorBuilder: (BuildContext context, int index) =>
               const DividerCommon(),
         );
@@ -45,26 +51,29 @@ class DictionaryTile extends StatefulWidget {
 class _DictionaryTileState extends State<DictionaryTile> {
   late bool _isActive = widget.dictionary.active;
 
+  void _onChangeActive(val) {
+    context.read<MainScreenBloc>().add(MainScreenEventDictionaryStatusChanged(
+        changedDictionary: widget.dictionary));
+    setState(() {
+      _isActive = val;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     print(widget.dictionary);
     return ListTile(
-      key: ValueKey(widget.dictionary.name),
       leading: Text(widget.dictionary.name),
       subtitle: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Text(widget.dictionary.indexLanguage),
-          Icon(Icons.arrow_forward),
+          const Icon(Icons.arrow_forward),
           Text(widget.dictionary.contentLanguage)
         ],
       ),
       trailing: Switch(
-        onChanged: (val) {
-          setState(() {
-            _isActive = val;
-          });
-        },
+        onChanged: _onChangeActive,
         value: _isActive,
       ),
     );

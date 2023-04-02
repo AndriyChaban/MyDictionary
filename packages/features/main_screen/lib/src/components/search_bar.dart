@@ -5,17 +5,18 @@ class SearchBar extends StatefulWidget {
     Key? key,
     required this.controller,
     required this.focusNode,
+    required this.text,
     // required this.onChanged
   }) : super(key: key);
   final TextEditingController controller;
   final FocusNode focusNode;
+  final String text;
 
   @override
   State<SearchBar> createState() => _SearchBarState();
 }
 
 class _SearchBarState extends State<SearchBar> {
-  // final Function(String) onChanged;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -32,7 +33,6 @@ class _SearchBarState extends State<SearchBar> {
                 ? IconButton(
                     icon: const Icon(Icons.clear),
                     onPressed: () {
-                      //TODO put history cards
                       FocusScope.of(context).requestFocus(widget.focusNode);
                       setState(() {
                         widget.controller.clear();
@@ -44,7 +44,6 @@ class _SearchBarState extends State<SearchBar> {
                 borderRadius: BorderRadius.circular(10),
                 borderSide: BorderSide.none),
             filled: false),
-        // onChanged: onChanged,
       ),
     );
   }

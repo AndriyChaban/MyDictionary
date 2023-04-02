@@ -93,21 +93,22 @@ class DictionaryProvider {
     //
   }
 
-  Future<List<CardDM>> getAllDictionariesWordTranslation(
+  Future<List<DictionaryDM>> getAllDictionariesWordTranslation(
       {required String word,
       required String translateFrom,
       required String translateTo,
       bool startsWith = true}) async {
-    List<CardDM> cards = [];
+    List<DictionaryDM> results = [];
     for (final dict in await _listOfActiveDictionaries) {
       // print(dict);
       if (dict.indexLanguage.toLowerCase() == translateFrom &&
           dict.contentLanguage.toLowerCase() == translateTo) {
-        cards.addAll(await _getSingleDictionaryWordTranslations(dict.name, word,
-            startsWith: startsWith));
+        results.add(dict.copyWith(
+            cards: (await _getSingleDictionaryWordTranslations(dict.name, word,
+                startsWith: startsWith))));
       }
     }
-    return cards;
+    return results.where((d) => d.cards.isNotEmpty).toList();
   }
 
   Future<List<DictionaryDM>> get _listOfActiveDictionaries async {
@@ -133,7 +134,7 @@ class DictionaryProvider {
     final queryStart = dictionaryInstance.cards.filter();
     final queryFinal = startsWith
         ? queryStart.headwordStartsWith(word, caseSensitive: false)
-        : queryStart.headwordEqualTo(word, caseSensitive: false);
+        : queryStart.headwordEqualTo(word, caseSensitive: true);
     final cards = queryFinal.offset(0).limit(30).findAllSync();
     return cards
         .where((card) => card.headword != null && card.fullCardText != null)
@@ -141,8 +142,44 @@ class DictionaryProvider {
         .toList();
   }
 
+  void addCardToHistory(
+      {required CardDM card,
+      required String fromLanguage,
+      required String toLanguage,
+      required String dictionaryName}) async {
+    final historyBox = await keyValueStorage.getHistoryDictionariesBox();
+    final historyDict = historyBox.get('$fromLanguage-$toLanguage');
+    final newCard = HistoryCardCM(
+        headword: card.headword,
+        text: card.text,
+        dictionaryName: dictionaryName);
+    if (historyDict != null) {
+      historyDict.cards = historyDict.cards
+          .where((c) => c.headword != card.headword)
+          .take(50)
+          .toList()
+        ..add(newCard);
+      historyDict.save();
+    } else {
+      historyBox.put(
+          '$fromLanguage-$toLanguage',
+          HistoryDictionaryCM(
+              languageFrom: fromLanguage,
+              languageTo: toLanguage,
+              cards: [newCard]));
+    }
+  }
+
+  Future<List<CardDM>> getHistoryCards(
+      {required String fromLanguage, required String toLanguage}) async {
+    final historyBox = await keyValueStorage.getHistoryDictionariesBox();
+    final historyDict = historyBox.get('$fromLanguage-$toLanguage');
+    if (historyDict == null) return [];
+    return historyDict.cards.map((c) => c.toDomainModel()).toList();
+  }
+
   Future<String> _copyFromToDictDirectory(String filePath,
-      {bool force = false, bool fromAsset = false}) async {
+      {bool fromAsset = false}) async {
     String fileString;
     // if (!force && !File(filePath).existsSync())
     //   throw DictionaryExistsException();

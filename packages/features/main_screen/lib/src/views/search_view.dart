@@ -35,17 +35,25 @@ class _SearchViewState extends State<SearchView> {
   void initState() {
     super.initState();
     _searchController.addListener(_searchControllerListener);
+    print('init');
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       FocusScope.of(context).requestFocus(_searchBarFocusNode);
     });
   }
 
+  // @override
+  // void didChangeDependencies() {
+  //   FocusScope.of(context).unfocus();
+  //   super.didChangeDependencies();
+  // }
+
   void _searchControllerListener() {
     _onSearchTermChanged(context);
   }
 
-  void _onWordClicked(String word) =>
-      widget.onWordClicked(context, word, context.read<MainScreenBloc>());
+  void _onWordClicked(String headword) {
+    widget.onWordClicked(context, headword, context.read<MainScreenBloc>());
+  }
 
   @override
   void dispose() {
@@ -59,10 +67,19 @@ class _SearchViewState extends State<SearchView> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        SearchBar(
-            controller: _searchController,
-            // onChanged: (String val) => _onSearchTermChanged(context),
-            focusNode: _searchBarFocusNode),
+        BlocSelector<MainScreenBloc, MainScreenState, String>(
+          selector: (state) {
+            return state.searchTerm;
+          },
+          builder: (context, term) {
+            if (term.isEmpty) _searchController.clear();
+            return SearchBar(
+              controller: _searchController,
+              text: term,
+              focusNode: _searchBarFocusNode,
+            );
+          },
+        ),
         const Divider(
           height: 3,
           thickness: 1,

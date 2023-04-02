@@ -8,3 +8,7 @@ extension DictionaryCacheToDomain on DictionaryCM {
       contentLanguage: contentLanguage,
       active: active);
 }
+
+extension HistoryCardCacheToDomain on HistoryCardCM {
+  CardDM toDomainModel() => CardDM(headword: this.headword, text: this.text);
+}

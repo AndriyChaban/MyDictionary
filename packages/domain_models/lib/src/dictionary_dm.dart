@@ -19,4 +19,20 @@ class DictionaryDM extends Equatable {
   @override
   List<Object> get props =>
       [name, indexLanguage, contentLanguage, cards, active];
+
+  DictionaryDM copyWith({
+    String? name,
+    String? indexLanguage,
+    String? contentLanguage,
+    List<CardDM>? cards,
+    bool? active,
+  }) {
+    return DictionaryDM(
+      name: name ?? this.name,
+      indexLanguage: indexLanguage ?? this.indexLanguage,
+      contentLanguage: contentLanguage ?? this.contentLanguage,
+      cards: cards ?? this.cards,
+      active: active ?? this.active,
+    );
+  }
 }

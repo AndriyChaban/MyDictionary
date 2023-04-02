@@ -54,6 +54,8 @@ class _MainDrawerState extends State<MainDrawer> {
 
   @override
   Widget build(BuildContext context) {
+    FocusScope.of(context).unfocus();
+
     return Drawer(
       backgroundColor: Theme.of(context).primaryColor,
       child: NestedScrollView(
