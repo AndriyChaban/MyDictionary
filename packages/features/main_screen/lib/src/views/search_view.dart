@@ -35,7 +35,7 @@ class _SearchViewState extends State<SearchView> {
   void initState() {
     super.initState();
     _searchController.addListener(_searchControllerListener);
-    print('init');
+    // print('init');
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       FocusScope.of(context).requestFocus(_searchBarFocusNode);
     });

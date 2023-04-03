@@ -99,7 +99,7 @@ class DictionaryProvider {
         throw DictionaryKeyDoesNotExistException();
       await dictBox.put(
           dictionary.name, dictionary.toCacheModel()..active = status);
-      print(dictBox.get(dictionary.name)!.active);
+      // print(dictBox.get(dictionary.name)!.active);
     } catch (e) {
       rethrow;
     }
@@ -130,7 +130,7 @@ class DictionaryProvider {
 
   Future<List<DictionaryDM>> get _listOfActiveDictionaries async {
     final dictionariesBox = await keyValueStorage.getDictionariesBox();
-    print(dictionariesBox.values.first.active);
+    // print(dictionariesBox.values.first.active);
     return dictionariesBox.values
         .where((dict) => dict.active == true)
         .map((dict) => dict.toDomainModel())

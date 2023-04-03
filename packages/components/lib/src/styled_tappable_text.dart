@@ -24,6 +24,20 @@ class _StyledTappableTextState extends State<StyledTappableText> {
     "'": Colors.red
   };
 
+  bool _isBetween(
+      {required String tag,
+      required RegExpMatch textMatch,
+      required String fullString}) {
+    final regExp = RegExp('<$tag.*?>(.+?)</$tag>');
+    final tagMatches = regExp.allMatches(fullString);
+    for (var match in tagMatches) {
+      if (match.start < textMatch.start && match.end > textMatch.end) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   List<InlineSpan> _createChildren(String text) {
     final lines = text.split('\n');
     final nodes = <TextNode>[];
@@ -47,36 +61,36 @@ class _StyledTappableTextState extends State<StyledTappableText> {
       final textPatchMatches = textPatchRegExp.allMatches(line);
       for (var textMatch in textPatchMatches) {
         bool betweenRef =
-            isBetween(tag: 'ref', textMatch: textMatch, fullString: line);
+            _isBetween(tag: 'ref', textMatch: textMatch, fullString: line);
         bool betweenTrn =
-            isBetween(tag: 'trn', textMatch: textMatch, fullString: line);
+            _isBetween(tag: 'trn', textMatch: textMatch, fullString: line);
         bool betweenC =
-            isBetween(tag: 'c', textMatch: textMatch, fullString: line);
+            _isBetween(tag: 'c', textMatch: textMatch, fullString: line);
         bool betweenP =
-            isBetween(tag: 'p', textMatch: textMatch, fullString: line);
+            _isBetween(tag: 'p', textMatch: textMatch, fullString: line);
         bool betweenU =
-            isBetween(tag: 'u', textMatch: textMatch, fullString: line);
+            _isBetween(tag: 'u', textMatch: textMatch, fullString: line);
         bool betweenB =
-            isBetween(tag: 'b', textMatch: textMatch, fullString: line);
+            _isBetween(tag: 'b', textMatch: textMatch, fullString: line);
         bool betweenI =
-            isBetween(tag: 'i', textMatch: textMatch, fullString: line);
+            _isBetween(tag: 'i', textMatch: textMatch, fullString: line);
         bool betweenEx =
-            isBetween(tag: 'ex', textMatch: textMatch, fullString: line);
+            _isBetween(tag: 'ex', textMatch: textMatch, fullString: line);
         bool betweenLang =
-            isBetween(tag: 'lang', textMatch: textMatch, fullString: line);
+            _isBetween(tag: 'lang', textMatch: textMatch, fullString: line);
         bool betweenT =
-            isBetween(tag: 't', textMatch: textMatch, fullString: line);
+            _isBetween(tag: 't', textMatch: textMatch, fullString: line);
         bool betweenGap =
-            isBetween(tag: "'", textMatch: textMatch, fullString: line);
+            _isBetween(tag: "'", textMatch: textMatch, fullString: line);
         bool betweenS =
-            isBetween(tag: "s", textMatch: textMatch, fullString: line);
+            _isBetween(tag: "s", textMatch: textMatch, fullString: line);
         if (betweenRef) {
           final node = TextNode()
             ..isRef = true
             ..color = Colors.blue
             ..text = textMatch.group(1)!
             ..onTap = () {
-              print(textMatch.group(1)!);
+              // print(textMatch.group(1)!);
               setState(() {
                 selectedIndex = -1;
                 widget.onWordTap(textMatch.group(1)!);
@@ -86,6 +100,7 @@ class _StyledTappableTextState extends State<StyledTappableText> {
         } else {
           final words = textMatch.group(1)!.split(RegExp(r'\s'));
           for (var word in words) {
+            if (word.isEmpty) continue;
             final wordNode = TextNode()
               ..isWidget = betweenS
               ..text = word
@@ -104,9 +119,16 @@ class _StyledTappableTextState extends State<StyledTappableText> {
               ..isSelectable = (betweenTrn || betweenEx || betweenLang) &&
                   !betweenGap &&
                   !betweenP;
-            if (word.startsWith(')') ||
-                RegExp(r'^[,.;:!?]').firstMatch(word)?.start == 0) {
-              nodes.last = wordNode;
+            if (word.startsWith(')') && nodes.isNotEmpty) {
+              nodes.last.text =
+                  nodes.last.text.substring(0, nodes.last.text.length - 1);
+            }
+            if (RegExp(r'[,.;:!?]').firstMatch(word)?.end == word.length) {
+              nodes.add(
+                  wordNode.copyWith(text: word.substring(0, word.length - 1)));
+              nodes.add(wordNode.copyWith(
+                  text: '${word.substring(word.length - 1)}',
+                  isSelectable: false));
             } else {
               nodes.add(wordNode);
             }
@@ -123,11 +145,9 @@ class _StyledTappableTextState extends State<StyledTappableText> {
         return (n
               ..isSelected = nodes.indexOf(n) == selectedIndex
               ..onTap = () {
-                print(n.text);
                 setState(() {
                   selectedIndex = nodes.indexOf(n);
                 });
-                print(selectedIndex);
               })
             .span;
       } else {
@@ -136,27 +156,12 @@ class _StyledTappableTextState extends State<StyledTappableText> {
     }).toList();
   }
 
-  bool isBetween(
-      {required String tag,
-      required RegExpMatch textMatch,
-      required String fullString}) {
-    final regExp = RegExp('<$tag.*?>(.+?)</$tag>');
-    final tagMatches = regExp.allMatches(fullString);
-    for (var match in tagMatches) {
-      if (match.start < textMatch.start && match.end > textMatch.end) {
-        return true;
-      }
-    }
-    return false;
-  }
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       child: RichText(
         text: TextSpan(
           children: _createChildren(widget.text),
-          style: const TextStyle(color: Colors.black),
         ),
       ),
     );
@@ -175,8 +180,20 @@ class TextNode {
   bool isSelected = false;
   Function()? onTap;
 
+  TextNode(
+      {this.text = '',
+      this.isWidget = false,
+      this.isSelectable = false,
+      this.isRef = false,
+      this.isItalic = false,
+      this.isBold = false,
+      this.color = Colors.black,
+      this.isUnderline = false,
+      this.isSelected = false,
+      this.onTap});
+
   InlineSpan get span {
-    if (isWidget) return WidgetSpan(child: Icon(Icons.volume_up_rounded));
+    if (isWidget) return const WidgetSpan(child: Icon(Icons.volume_up_rounded));
     return TextSpan(
         text: text,
         style: TextStyle(
@@ -192,5 +209,31 @@ class TextNode {
               () {
                 // print(text);
               });
+  }
+
+  TextNode copyWith({
+    String? text,
+    bool? isWidget,
+    bool? isSelectable,
+    bool? isRef,
+    bool? isItalic,
+    bool? isBold,
+    Color? color,
+    bool? isUnderline,
+    bool? isSelected,
+    Function()? onTap,
+  }) {
+    return TextNode(
+      text: text ?? this.text,
+      isWidget: isWidget ?? this.isWidget,
+      isSelectable: isSelectable ?? this.isSelectable,
+      isRef: isRef ?? this.isRef,
+      isItalic: isItalic ?? this.isItalic,
+      isBold: isBold ?? this.isBold,
+      color: color ?? this.color,
+      isUnderline: isUnderline ?? this.isUnderline,
+      isSelected: isSelected ?? this.isSelected,
+      onTap: onTap ?? this.onTap,
+    );
   }
 }

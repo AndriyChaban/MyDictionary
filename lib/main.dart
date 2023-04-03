@@ -111,7 +111,7 @@ class _MyDictionaryAppState extends State<MyDictionaryApp> {
               path: '/dictionaries_view',
               name: DictionariesView.routeName,
               builder: (context, state) {
-                print(state.location);
+                // print(state.location);
                 return DictionariesView();
               })
         ],
