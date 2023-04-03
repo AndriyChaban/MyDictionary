@@ -40,6 +40,14 @@ class TranslationScreen extends StatelessWidget {
           future: bloc!.listOfWordTranslations(word),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
+              if (snapshot.data!.isEmpty) {
+                return const Center(
+                  child: Text(
+                    'No translation\n\nDictionary was deactivated',
+                    textAlign: TextAlign.center,
+                  ),
+                );
+              }
               final headword = snapshot.data!.first.cards.first.headword;
               final text = snapshot.data!.first.cards.first.text;
               final dictionaryName = snapshot.data!.first.name;

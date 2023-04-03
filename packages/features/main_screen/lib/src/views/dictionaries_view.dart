@@ -19,9 +19,10 @@ class _DictionariesViewState extends State<DictionariesView> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<MainScreenBloc, MainScreenState>(
-      buildWhen: (oldState, newState) {
-        return oldState.dictionaryList != newState.dictionaryList;
-      },
+      // buildWhen: (oldState, newState) {
+      //   return oldState.fromLanguage != newState.fromLanguage ||
+      //       oldState.toLanguage != newState.toLanguage;
+      // },
       builder: (context, state) {
         final list =
             context.read<MainScreenBloc>().listOfAllMatchingDictionaries;
@@ -53,7 +54,7 @@ class _DictionaryTileState extends State<DictionaryTile> {
 
   void _onChangeActive(val) {
     context.read<MainScreenBloc>().add(MainScreenEventDictionaryStatusChanged(
-        changedDictionary: widget.dictionary));
+        changedDictionary: widget.dictionary, status: val));
     setState(() {
       _isActive = val;
     });
@@ -61,7 +62,6 @@ class _DictionaryTileState extends State<DictionaryTile> {
 
   @override
   Widget build(BuildContext context) {
-    print(widget.dictionary);
     return ListTile(
       leading: Text(widget.dictionary.name),
       subtitle: Row(

@@ -35,7 +35,7 @@ class _MainScreenState extends State<MainScreen> {
   void _onAddDictionary(BuildContext context) {
     context
         .read<MainScreenBloc>()
-        .add(const MainScreenEventAddDictionary('assets/BusinessEnUk.dsl'));
+        .add(const MainScreenEventAddDictionary('assets/UniversalUkEn.dsl'));
   }
 
   @override

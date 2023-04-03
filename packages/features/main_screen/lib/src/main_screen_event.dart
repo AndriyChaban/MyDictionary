@@ -52,10 +52,9 @@ class MainScreenEventSwapLanguages extends MainScreenEvent {
 
 class MainScreenEventDictionaryStatusChanged extends MainScreenEvent {
   final DictionaryDM changedDictionary;
-
-  const MainScreenEventDictionaryStatusChanged({
-    required this.changedDictionary,
-  });
+  final bool status;
+  const MainScreenEventDictionaryStatusChanged(
+      {required this.changedDictionary, required this.status});
   @override
   List<Object?> get props => [changedDictionary];
 }

@@ -46,6 +46,9 @@ class _MainAppBarState extends State<MainAppBar> {
                     d.contentLanguage == state.fromLanguage &&
                     d.indexLanguage == state.toLanguage)
                 .isNotEmpty;
+        // print(GoRouter.of(context).location);
+        // bool forceAllDicts =
+        //     GoRouter.of(context).location == '/dictionaries_view';
         return AppBar(
           title: Row(
             mainAxisSize: MainAxisSize.max,
@@ -67,7 +70,7 @@ class _MainAppBarState extends State<MainAppBar> {
                           if (state.fromLanguage.isEmpty) Container(),
                           ...context
                               .read<MainScreenBloc>()
-                              .listOfAllActiveFromLanguages
+                              .listOfAllActiveFromLanguages()
                               .map((lang) => Center(
                                     child: Text(
                                       lang.toCapital(),
@@ -86,7 +89,7 @@ class _MainAppBarState extends State<MainAppBar> {
                           ),
                         ...context
                             .read<MainScreenBloc>()
-                            .listOfAllActiveFromLanguages
+                            .listOfAllActiveFromLanguages()
                             .map((lang) => DropdownMenuItem(
                                   value: lang,
                                   child: Padding(

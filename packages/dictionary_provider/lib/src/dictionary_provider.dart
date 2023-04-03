@@ -1,5 +1,4 @@
 import 'dart:io';
-// import 'dart:convert' as convert;
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
 import 'package:db_service/db_service.dart';
@@ -18,7 +17,7 @@ class DictionaryProvider {
 
   late Directory dictionaryDSLDirectory;
   late Directory dictionaryDBDirectory;
-  // String? currentDictionary;
+  bool _isBuisy = false;
 
   DictionaryProvider._initializeProvider() {
     // for each active dict in keyValueStorage, based on current language,
@@ -43,6 +42,8 @@ class DictionaryProvider {
   }
 
   Future<bool> createDictionary(String filePath) async {
+    if (_isBuisy) throw DictionaryCreationIsInProgress();
+    _isBuisy = true;
     // print(filePath);
     final dictBox = await keyValueStorage.getDictionariesBox();
     // TODO copy file from local storage
@@ -69,8 +70,10 @@ class DictionaryProvider {
       // update keyValueStorage
       await dictBox.put(parsedDictionary.name,
           parsedDictionary.toCacheModel()..active = true);
+      _isBuisy = false;
       return true;
     } catch (e) {
+      _isBuisy = false;
       throw DatabaseException();
     }
   }
@@ -83,6 +86,20 @@ class DictionaryProvider {
       dbService.deleteDictionary(
           dictionary.toDBModel(), dictionaryDBDirectory.path);
       await dictBox.delete(dictionary.name);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> updateDictionaryStatusChanged(
+      {required DictionaryDM dictionary, required bool status}) async {
+    try {
+      final dictBox = await keyValueStorage.getDictionariesBox();
+      if (!dictBox.containsKey(dictionary.name))
+        throw DictionaryKeyDoesNotExistException();
+      await dictBox.put(
+          dictionary.name, dictionary.toCacheModel()..active = status);
+      print(dictBox.get(dictionary.name)!.active);
     } catch (e) {
       rethrow;
     }

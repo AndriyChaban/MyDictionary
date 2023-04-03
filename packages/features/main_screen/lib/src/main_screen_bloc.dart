@@ -175,8 +175,8 @@ class MainScreenBloc extends Bloc<MainScreenEvent, MainScreenState> {
       MainScreenEventLanguageFromChanged event, Emitter emitter) async {
     if (state.fromLanguage == event.languageFrom) return;
     // emitter(state.copyWith(itemsList: [], searchTerm: ''));
-    final activeToLanguages =
-        listOfAllActiveToLanguages(fromLanguage: event.languageFrom);
+    final activeToLanguages = listOfAllActiveToLanguages(
+        fromLanguage: event.languageFrom, forceAllDicts: true);
     String toLanguage = activeToLanguages.contains(state.toLanguage)
         ? state.toLanguage
         : activeToLanguages.first;
@@ -246,7 +246,32 @@ class MainScreenBloc extends Bloc<MainScreenEvent, MainScreenState> {
         toLanguage: state.fromLanguage));
   }
 
-  Future<void> _handleDictionaryStatusChanged(event, emitter) async {}
+  Future<void> _handleDictionaryStatusChanged(
+      MainScreenEventDictionaryStatusChanged event, Emitter emitter) async {
+    try {
+      await dictionaryProvider.updateDictionaryStatusChanged(
+          dictionary: event.changedDictionary, status: event.status);
+      String from = state.fromLanguage;
+      String to = state.toLanguage;
+      final dictionaries = await dictionaryProvider.listOfAllDictionaries;
+      emit(state.copyWith(dictionaryList: dictionaries));
+      if (!listOfAllActiveFromLanguages().contains(from)) {
+        from = listOfAllActiveFromLanguages().first;
+        userRepository.saveFromLanguage(from);
+      }
+      if (!listOfAllActiveToLanguages(fromLanguage: from).contains(to)) {
+        to = listOfAllActiveToLanguages(fromLanguage: from).first;
+        userRepository.saveToLanguage(to);
+      }
+      emitter(state.copyWith(
+          fromLanguage: from,
+          toLanguage: to,
+          error: null,
+          dictionaryList: dictionaries));
+    } catch (e) {
+      emitter(state.copyWith(error: e.toString()));
+    }
+  }
 
   List<CardDM> _getListOfFilteredSortedCardsFromDicts(
       List<DictionaryDM> resultsDicts) {
@@ -263,14 +288,19 @@ class MainScreenBloc extends Bloc<MainScreenEvent, MainScreenState> {
           a.headword.toLowerCase().compareTo(b.headword.toLowerCase()));
   }
 
-  List<String> get listOfAllActiveFromLanguages {
-    List<DictionaryDM> list = state.dictionaryList;
+  List<String> listOfAllActiveFromLanguages({bool forceAllDicts = true}) {
+    List<DictionaryDM> list = forceAllDicts
+        ? state.dictionaryList.toList()
+        : state.dictionaryList.where((d) => d.active).toList();
     // print(list.first.indexLanguage);
     return list.map((d) => d.indexLanguage.toLowerCase()).toSet().toList();
   }
 
-  List<String> listOfAllActiveToLanguages({String? fromLanguage}) {
-    List<DictionaryDM> list = state.dictionaryList;
+  List<String> listOfAllActiveToLanguages(
+      {String? fromLanguage, bool forceAllDicts = true}) {
+    List<DictionaryDM> list = forceAllDicts
+        ? state.dictionaryList.toList()
+        : state.dictionaryList.where((d) => d.active).toList();
     if (state.fromLanguage.isEmpty && fromLanguage == null) return [];
     // print(list.first.indexLanguage);
     final res = list
