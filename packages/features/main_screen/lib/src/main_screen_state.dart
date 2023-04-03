@@ -1,35 +1,6 @@
 import 'package:domain_models/domain_models.dart';
 import 'package:equatable/equatable.dart';
 
-// abstract class MainScreenState extends Equatable {
-//   @override
-//   List<Object?> get props => [];
-// }
-//
-// class MainScreenStateInitial extends MainScreenState {}
-//
-// class MainScreenStateTranslationInProgress extends MainScreenState {}
-//
-// class MainScreenStateHistoryDisplay extends MainScreenState {
-//   final List<CardDM> history;
-//
-//   MainScreenStateHistoryDisplay({required this.history});
-//
-//   @override
-//   List<Object> get props => [history];
-// }
-//
-// class MainScreenStateTranslationSuccess extends MainScreenState {
-//   final List<CardDM> translationsList;
-//
-//   MainScreenStateTranslationSuccess({
-//     required this.translationsList,
-//   });
-//
-//   @override
-//   List<Object> get props => [translationsList];
-// }
-
 class MainScreenState extends Equatable {
   final List<CardDM> itemsList;
 

@@ -6,12 +6,13 @@ import 'package:main_screen/src/components/search_bar.dart';
 import 'package:main_screen/src/main_screen_bloc.dart';
 import 'package:main_screen/src/main_screen_event.dart';
 
+import '../components/styled_translation_card.dart';
 import '../main_screen_state.dart';
 
 class SearchView extends StatefulWidget {
   const SearchView({Key? key, required this.onWordClicked}) : super(key: key);
 
-  final void Function(BuildContext, String, MainScreenBloc) onWordClicked;
+  final void Function(BuildContext, String) onWordClicked;
   static const routeName = 'search-view';
 
   @override
@@ -28,14 +29,12 @@ class _SearchViewState extends State<SearchView> {
     }
     BlocProvider.of<MainScreenBloc>(context)
         .add(MainScreenEventSearchTermChanged(_searchController.text));
-    // print('controller: ${_searchController.text}');
   }
 
   @override
   void initState() {
     super.initState();
     _searchController.addListener(_searchControllerListener);
-    // print('init');
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       FocusScope.of(context).requestFocus(_searchBarFocusNode);
     });
@@ -52,7 +51,7 @@ class _SearchViewState extends State<SearchView> {
   }
 
   void _onWordClicked(String headword) {
-    widget.onWordClicked(context, headword, context.read<MainScreenBloc>());
+    widget.onWordClicked(context, headword);
   }
 
   @override
@@ -94,11 +93,10 @@ class _SearchViewState extends State<SearchView> {
             return Expanded(
               child: ListView.separated(
                 itemBuilder: (BuildContext context, int index) {
-                  return StyledTranslationCard(
+                  return ShortTranslationCard(
                     headword: results[index].headword,
                     text: results[index].text,
-                    isShort: true,
-                    onClick: _onWordClicked,
+                    onWordClick: _onWordClicked,
                   );
                 },
                 separatorBuilder: (BuildContext context, int index) =>

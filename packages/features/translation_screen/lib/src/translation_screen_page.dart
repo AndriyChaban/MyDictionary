@@ -1,74 +1,122 @@
-import 'package:components/components.dart';
-import 'package:domain_models/domain_models.dart';
 import 'package:flutter/material.dart';
-import 'package:main_screen/main_screen.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'package:dictionary_provider/dictionary_provider.dart';
+import 'package:translation_screen/src/translation_screen_state.dart';
+import 'package:user_repository/user_repository.dart';
+import 'package:components/components.dart';
+
+import 'components/small_translation_box.dart';
+import 'translation_screen_cubit.dart';
+import 'components/styled_translation_card.dart';
 
 class TranslationScreen extends StatelessWidget {
   final String word;
-  final MainScreenBloc? bloc;
+  final DictionaryProvider dictionaryProvider;
+  final UserRepository userRepository;
   final void Function(String) onWordClicked;
   final VoidCallback onAppBarBackPressed;
+
   const TranslationScreen({
-    required this.word,
     Key? key,
-    required this.bloc,
+    required this.word,
     required this.onWordClicked,
     required this.onAppBarBackPressed,
+    required this.dictionaryProvider,
+    required this.userRepository,
   }) : super(key: key);
+
   static const routeName = 'translation-screen';
 
   @override
   Widget build(BuildContext context) {
     FocusScope.of(context).unfocus();
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          onPressed: onAppBarBackPressed,
-          icon: Icon(Icons.arrow_back_outlined),
-        ),
-        title: Text(word.toString()),
-        actions: [
-          PopupMenuButton(itemBuilder: (context) {
-            return [
-              PopupMenuItem(child: Text('item 1')),
-              PopupMenuItem(child: Text('item 2'))
-            ];
-          })
-        ],
-      ),
-      body: FutureBuilder(
-          future: bloc!.listOfWordTranslations(word),
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              if (snapshot.data!.isEmpty) {
+    return BlocProvider<TranslationScreenCubit>(
+      create: (context) => TranslationScreenCubit(
+          userRepository: userRepository,
+          dictionaryProvider: dictionaryProvider)
+        ..getWordTranslations(word),
+      child: Builder(builder: (context) {
+        return Scaffold(
+          appBar: AppBar(
+            leading: IconButton(
+              onPressed: onAppBarBackPressed,
+              icon: const Icon(Icons.arrow_back_outlined),
+            ),
+            title: Text(word),
+            actions: [
+              PopupMenuButton(itemBuilder: (context) {
+                return [
+                  const PopupMenuItem(child: Text('item 1')),
+                  const PopupMenuItem(child: Text('item 2'))
+                ];
+              })
+            ],
+          ),
+          body: BlocBuilder<TranslationScreenCubit, TranslationScreenState>(
+            builder: (context, state) {
+              final listOfDicts = state.listOfDictionariesWithTranslations;
+              final screenSize = MediaQuery.of(context).size;
+              final renderBox = state.smallBoxParameters?.renderBox;
+              if (state.isLoading) {
+                return const CenteredLoadingProgressIndicator();
+              }
+              if (listOfDicts == null || listOfDicts.isEmpty) {
                 return const Center(
                   child: Text(
-                    'No translation\n\nDictionary was deactivated',
+                    'No translation\n\nProbably the dictionary was deactivated',
                     textAlign: TextAlign.center,
                   ),
                 );
               }
-              final headword = snapshot.data!.first.cards.first.headword;
-              final text = snapshot.data!.first.cards.first.text;
-              final dictionaryName = snapshot.data!.first.name;
-              bloc!.handleAddToHistory(
-                  card: CardDM(headword: headword, text: text),
-                  dictionaryName: dictionaryName);
-              return ListView.separated(
-                itemBuilder: (context, index) => StyledTranslationCard(
-                    onClick: onWordClicked,
-                    headword: snapshot.data![index].cards.first.headword,
-                    text: snapshot.data![index].cards.first.text,
-                    isShort: false,
-                    dictionaryName: snapshot.data![index].name),
-                itemCount: snapshot.data!.length,
-                separatorBuilder: (BuildContext context, int index) =>
-                    const DividerCommon(),
+
+              return GestureDetector(
+                onTap: () {
+                  context.read<TranslationScreenCubit>().removeSmallBox();
+                },
+                child: Stack(
+                  children: [
+                    ListView.separated(
+                      itemBuilder: (context, index) => StyledTranslationCard(
+                          isShort: false,
+                          index: index,
+                          onWordClick: onWordClicked,
+                          headword: listOfDicts[index].cards.first.headword,
+                          text: listOfDicts[index].cards.first.text,
+                          dictionaryName: listOfDicts[index].name),
+                      itemCount: listOfDicts.length,
+                      separatorBuilder: (BuildContext context, int index) =>
+                          const DividerCommon(),
+                    ),
+                    if (renderBox != null)
+                      Positioned(
+                          top: renderBox.localToGlobal(const Offset(0, -75)).dy,
+                          left: renderBox.localToGlobal(Offset.zero).dx <
+                                  screenSize.width / 2
+                              ? renderBox.localToGlobal(Offset.zero).dx
+                              : renderBox.localToGlobal(Offset.zero).dx +
+                                  renderBox.size.width -
+                                  200,
+                          child: SmallTranslationBox(
+                              word: state.smallBoxParameters!.text,
+                              translation:
+                                  state.smallBoxParameters!.translation,
+                              onClick: () {
+                                if (state.smallBoxParameters?.translation !=
+                                    null) {
+                                  onWordClicked(state.smallBoxParameters!.text);
+                                  context
+                                      .read<TranslationScreenCubit>()
+                                      .removeSmallBox();
+                                }
+                              }))
+                  ],
+                ),
               );
-            } else {
-              return const CenteredLoadingProgressIndicator();
-            }
-          }),
+            },
+          ),
+        );
+      }),
     );
   }
 }

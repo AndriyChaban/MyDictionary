@@ -1,21 +1,26 @@
-import 'dart:ui';
-
-import 'package:flutter/gestures.dart';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:translation_screen/src/translation_screen_cubit.dart';
 
 class StyledTappableText extends StatefulWidget {
-  StyledTappableText({Key? key, required this.text, required this.onWordTap})
+  StyledTappableText(
+      {Key? key,
+      required this.text,
+      required this.onWordTap,
+      required this.index,
+      this.multiSelect = false})
       : super(key: key);
   final String text;
   final void Function(String) onWordTap;
+  final bool multiSelect;
+  final int index;
 
   @override
   State<StyledTappableText> createState() => _StyledTappableTextState();
 }
 
 class _StyledTappableTextState extends State<StyledTappableText> {
-  int selectedIndex = -1;
+  // Set<int> selectedIndices = {-1};
 
   final Map<String, Color> colorMap = {
     'c': Colors.green,
@@ -38,11 +43,32 @@ class _StyledTappableTextState extends State<StyledTappableText> {
     return false;
   }
 
+  void _onSelectableWordTap(String text, int nodeIndex, RenderBox renderBox) {
+    final cubit = context.read<TranslationScreenCubit>();
+    if (cubit.state.currentCardIndex != widget.index ||
+        cubit.state.currentWordIndex != nodeIndex) {
+      cubit.setSelectedWordIndices(
+          cardIndex: widget.index, nodeIndex: nodeIndex);
+      cubit.setSmallBoxParameters(text: text, renderBox: renderBox);
+    } else {
+      cubit.removeSmallBox();
+    }
+  }
+
+  void _onRefTap(String word) {
+    setState(() {
+      // selectedIndices = {-1};
+      context.read<TranslationScreenCubit>().removeSmallBox();
+      widget.onWordTap(word);
+    });
+  }
+
   List<InlineSpan> _createChildren(String text) {
     final lines = text.split('\n');
     final nodes = <TextNode>[];
+    // final spans = <InlineSpan>[];
     for (var line in lines) {
-      //cycle each line, check if starts with <m> -> add spaces, remove <*>,
+      /// cycle each line, check if starts with <m> -> add spaces, remove <*>, <m>
       line = line.replaceAll(RegExp(r'<.?\*>'), '');
       String spaces = '';
       if (line.startsWith('\t<m')) {
@@ -55,10 +81,14 @@ class _StyledTappableTextState extends State<StyledTappableText> {
         }
       }
       line = line.replaceAll(RegExp(r'<.?m\d?>'), '');
+
+      /// get text patches
       final textPatchRegExp = RegExp(
         r'(?<=[\t>])([^<>]+)(?![^<])',
       );
       final textPatchMatches = textPatchRegExp.allMatches(line);
+
+      /// check each patch on tags
       for (var textMatch in textPatchMatches) {
         bool betweenRef =
             _isBetween(tag: 'ref', textMatch: textMatch, fullString: line);
@@ -88,21 +118,14 @@ class _StyledTappableTextState extends State<StyledTappableText> {
           final node = TextNode()
             ..isRef = true
             ..color = Colors.blue
-            ..text = textMatch.group(1)!
-            ..onTap = () {
-              // print(textMatch.group(1)!);
-              setState(() {
-                selectedIndex = -1;
-                widget.onWordTap(textMatch.group(1)!);
-              });
-            };
+            ..text = textMatch.group(1)!;
           nodes.add(node);
         } else {
           final words = textMatch.group(1)!.split(RegExp(r'\s'));
           for (var word in words) {
             if (word.isEmpty) continue;
             final wordNode = TextNode()
-              ..isWidget = betweenS
+              ..isSoundWidget = betweenS
               ..text = word
               ..color = betweenC || betweenP
                   ? colorMap['c']!
@@ -127,8 +150,7 @@ class _StyledTappableTextState extends State<StyledTappableText> {
               nodes.add(
                   wordNode.copyWith(text: word.substring(0, word.length - 1)));
               nodes.add(wordNode.copyWith(
-                  text: '${word.substring(word.length - 1)}',
-                  isSelectable: false));
+                  text: word.substring(word.length - 1), isSelectable: false));
             } else {
               nodes.add(wordNode);
             }
@@ -138,18 +160,18 @@ class _StyledTappableTextState extends State<StyledTappableText> {
       }
       nodes.add(TextNode()..text = '\n');
     }
+    final cubit = context.read<TranslationScreenCubit>();
     return nodes.map((n) {
-      if (n.isWidget) {
-        return n.span;
-      } else if (n.isSelectable) {
+      // if (n.isRef) return (n..onTap = () => widget.onWordTap(n.text)).span;
+      if (n.isSelectable) {
         return (n
-              ..isSelected = nodes.indexOf(n) == selectedIndex
-              ..onTap = () {
-                setState(() {
-                  selectedIndex = nodes.indexOf(n);
-                });
-              })
+              ..index = nodes.indexOf(n)
+              ..isSelected = cubit.state.currentCardIndex == widget.index &&
+                  cubit.state.currentWordIndex == n.index
+              ..onTap = n.isRef ? _onRefTap : _onSelectableWordTap)
             .span;
+      } else if (n.isRef) {
+        return (n..onTap = _onRefTap).span;
       } else {
         return n.span;
       }
@@ -158,19 +180,18 @@ class _StyledTappableTextState extends State<StyledTappableText> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      child: RichText(
-        text: TextSpan(
-          children: _createChildren(widget.text),
-        ),
+    return RichText(
+      text: TextSpan(
+        children: _createChildren(widget.text),
       ),
     );
   }
 }
 
 class TextNode {
+  int index = -1;
   String text = '';
-  bool isWidget = false;
+  bool isSoundWidget = false;
   bool isSelectable = false;
   bool isRef = false;
   bool isItalic = false;
@@ -178,11 +199,11 @@ class TextNode {
   Color color = Colors.black;
   bool isUnderline = false;
   bool isSelected = false;
-  Function()? onTap;
+  Function? onTap;
 
   TextNode(
       {this.text = '',
-      this.isWidget = false,
+      this.isSoundWidget = false,
       this.isSelectable = false,
       this.isRef = false,
       this.isItalic = false,
@@ -193,22 +214,22 @@ class TextNode {
       this.onTap});
 
   InlineSpan get span {
-    if (isWidget) return const WidgetSpan(child: Icon(Icons.volume_up_rounded));
-    return TextSpan(
-        text: text,
-        style: TextStyle(
-          backgroundColor: isSelected ? Colors.yellow : Colors.transparent,
-          fontStyle: isItalic ? FontStyle.italic : FontStyle.normal,
-          fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-          decoration:
-              isUnderline ? TextDecoration.underline : TextDecoration.none,
-          color: color,
-        ),
-        recognizer: TapGestureRecognizer()
-          ..onTap = onTap ??
-              () {
-                // print(text);
-              });
+    if (isSoundWidget) {
+      return const WidgetSpan(child: Icon(Icons.volume_up_rounded));
+    }
+    if (text == '\n') return const TextSpan(text: '\n');
+    return WidgetSpan(
+      child: SelectableSpanWidget(
+          index: index,
+          isRef: isRef,
+          onTap: onTap,
+          text: text,
+          isSelected: isSelected,
+          isItalic: isItalic,
+          isBold: isBold,
+          isUnderline: isUnderline,
+          color: color),
+    );
   }
 
   TextNode copyWith({
@@ -225,7 +246,7 @@ class TextNode {
   }) {
     return TextNode(
       text: text ?? this.text,
-      isWidget: isWidget ?? this.isWidget,
+      isSoundWidget: isWidget ?? this.isSoundWidget,
       isSelectable: isSelectable ?? this.isSelectable,
       isRef: isRef ?? this.isRef,
       isItalic: isItalic ?? this.isItalic,
@@ -234,6 +255,59 @@ class TextNode {
       isUnderline: isUnderline ?? this.isUnderline,
       isSelected: isSelected ?? this.isSelected,
       onTap: onTap ?? this.onTap,
+    );
+  }
+}
+
+class SelectableSpanWidget extends StatelessWidget {
+  const SelectableSpanWidget({
+    super.key,
+    this.index = -1,
+    this.isRef = false,
+    this.onTap,
+    required this.text,
+    this.isSelected = false,
+    this.isItalic = false,
+    this.isBold = false,
+    this.isUnderline = false,
+    required this.color,
+  });
+
+  final Function? onTap;
+  final String text;
+  final bool isSelected;
+  final bool isRef;
+  final bool isItalic;
+  final bool isBold;
+  final bool isUnderline;
+  final Color color;
+  final int index;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap != null
+          ? () {
+              if (!isRef) {
+                final renderBox = context.findRenderObject() as RenderBox;
+                onTap!(text, index, renderBox);
+              } else {
+                onTap!(text);
+              }
+            }
+          : () {},
+      child: Text(
+        text,
+        style: TextStyle(
+          height: 0.7,
+          backgroundColor: isSelected ? Colors.yellow : Colors.transparent,
+          fontStyle: isItalic ? FontStyle.italic : FontStyle.normal,
+          fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+          decoration:
+              isUnderline ? TextDecoration.underline : TextDecoration.none,
+          color: color,
+        ),
+      ),
     );
   }
 }

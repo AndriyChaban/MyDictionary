@@ -54,12 +54,13 @@ class _MyDictionaryAppState extends State<MyDictionaryApp> {
     super.initState();
   }
 
-  void _onWordClicked(BuildContext context, String word, MainScreenBloc bloc) {
-    GoRouter.of(context).pushNamed(TranslationScreen.routeName,
-        params: {'word': word}, extra: bloc);
+  void _onWordClicked(BuildContext context, String word) {
+    GoRouter.of(context)
+        .pushNamed(TranslationScreen.routeName, params: {'word': word});
   }
 
   void _goToView(BuildContext context, String routeName) {
+    //TODO fjx stacking dictViews
     GoRouter.of(context).pushNamed(routeName);
   }
 
@@ -95,13 +96,12 @@ class _MyDictionaryAppState extends State<MyDictionaryApp> {
                 parentNavigatorKey: _rootNavigatorKey,
                 name: TranslationScreen.routeName,
                 builder: (context, state) {
-                  MainScreenBloc bloc = state.extra as MainScreenBloc;
                   return TranslationScreen(
                     word: state.params['word']!,
-                    bloc: bloc,
+                    dictionaryProvider: widget.dictionaryProvider,
+                    userRepository: widget.userRepository,
                     onAppBarBackPressed: () => _onAppBarBackPressed(context),
-                    onWordClicked: (word) =>
-                        _onWordClicked(context, word, bloc),
+                    onWordClicked: (word) => _onWordClicked(context, word),
                   );
                 },
               ),

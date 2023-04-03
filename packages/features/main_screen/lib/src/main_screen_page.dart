@@ -1,9 +1,10 @@
-import 'package:components/components.dart';
-import 'package:dictionary_provider/dictionary_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:main_screen/src/main_screen_state.dart';
+
+import 'package:dictionary_provider/dictionary_provider.dart';
 import 'package:user_repository/user_repository.dart';
+import 'package:components/components.dart';
+import 'package:main_screen/src/main_screen_state.dart';
 
 import 'components/main_appbar.dart';
 import 'components/main_drawer.dart';
@@ -21,9 +22,9 @@ class MainScreen extends StatefulWidget {
   const MainScreen({
     Key? key,
     required this.dictionaryProvider,
+    required this.userRepository,
     required this.child,
     required this.goToView,
-    required this.userRepository,
     // required this.onTranslationSelected,
   }) : super(key: key);
 
@@ -35,7 +36,7 @@ class _MainScreenState extends State<MainScreen> {
   void _onAddDictionary(BuildContext context) {
     context
         .read<MainScreenBloc>()
-        .add(const MainScreenEventAddDictionary('assets/UniversalUkEn.dsl'));
+        .add(const MainScreenEventAddDictionary('assets/UniversalEsRu.dsl'));
   }
 
   @override
