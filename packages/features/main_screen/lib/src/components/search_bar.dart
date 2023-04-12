@@ -23,7 +23,8 @@ class _SearchBarState extends State<SearchBar> {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
       child: TextField(
         controller: widget.controller,
-        focusNode: widget.focusNode,
+        // focusNode: widget.focusNode,
+        autofocus: false,
         onChanged: (val) {
           setState(() {});
         },
@@ -33,7 +34,7 @@ class _SearchBarState extends State<SearchBar> {
                 ? IconButton(
                     icon: const Icon(Icons.clear),
                     onPressed: () {
-                      FocusScope.of(context).requestFocus(widget.focusNode);
+                      // FocusScope.of(context).requestFocus(widget.focusNode);
                       setState(() {
                         widget.controller.clear();
                       });

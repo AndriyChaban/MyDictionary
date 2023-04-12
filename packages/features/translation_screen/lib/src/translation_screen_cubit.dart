@@ -94,13 +94,15 @@ class TranslationScreenCubit extends Cubit<TranslationScreenState> {
   }
 
   void removeSmallBox() {
-    emit(state.copyWith(
-        smallBoxParameters: const SmallBoxParameters(
-          text: '',
-          renderBox: null,
-        ),
-        currentWordIndex: -1,
-        currentCardIndex: -1));
+    if (state.smallBoxParameters?.renderBox != null) {
+      emit(state.copyWith(
+          smallBoxParameters: const SmallBoxParameters(
+            text: '',
+            renderBox: null,
+          ),
+          currentWordIndex: -1,
+          currentCardIndex: -1));
+    }
   }
 
   void setSelectedWordIndices(

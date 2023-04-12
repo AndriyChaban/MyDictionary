@@ -5,28 +5,50 @@ part 'wizz_deck_cm.g.dart';
 @HiveType(typeId: 1)
 class WizzDeckCM extends HiveObject {
   @HiveField(0)
-  final String translateFromLanguage;
+  final String name;
   @HiveField(1)
-  final String translateToLanguage;
+  final String fromLanguage;
   @HiveField(2)
-  final List<WizzCardCM> cardsList;
+  final String toLanguage;
+  @HiveField(3)
+  final List<WizzCardCM> cards;
 
   WizzDeckCM({
-    required this.translateFromLanguage,
-    required this.translateToLanguage,
-    this.cardsList = const [],
+    required this.name,
+    required this.fromLanguage,
+    required this.toLanguage,
+    required this.cards,
   });
 }
 
 @HiveType(typeId: 2)
 class WizzCardCM extends HiveObject {
   @HiveField(0)
-  final String headword;
+  final String word;
   @HiveField(1)
-  final List<String> translations;
+  final String meaning;
+  @HiveField(2)
+  final String? examples;
+  @HiveField(3)
+  final String? fullText;
+  @HiveField(4)
+  final ShowFrequencyCM? showFrequency;
 
   WizzCardCM({
-    required this.headword,
-    required this.translations,
+    required this.word,
+    required this.meaning,
+    this.examples,
+    this.fullText,
+    this.showFrequency = ShowFrequencyCM.normal,
   });
+}
+
+@HiveType(typeId: 7)
+enum ShowFrequencyCM {
+  @HiveField(0)
+  low,
+  @HiveField(1)
+  normal,
+  @HiveField(2)
+  high
 }

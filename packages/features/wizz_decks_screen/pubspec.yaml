@@ -1,0 +1,68 @@
+name: wizz_decks_screen
+version: 0.0.1
+publish_to: none
+
+environment:
+  sdk: '>=2.19.3 <3.0.0'
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  domain_models:
+    path: ../../domain_models
+  components:
+    path: ../../components
+    #  main_screen:
+    #    path: ../main_screen  #????
+  dictionary_provider:
+    path: ../../dictionary_provider
+#  user_repository:
+#    path: ../../user_repository
+  wizz_training_module:
+    path: ../../wizz_training_module
+  flutter_bloc: ^8.1.2
+  equatable: ^2.0.5
+  lottie: ^2.2.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+
+
+
+
+flutter:
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  

@@ -35,9 +35,9 @@ class _SearchViewState extends State<SearchView> {
   void initState() {
     super.initState();
     _searchController.addListener(_searchControllerListener);
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      FocusScope.of(context).requestFocus(_searchBarFocusNode);
-    });
+    // WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+    //   FocusScope.of(context).requestFocus(_searchBarFocusNode);
+    // });
   }
 
   // @override
@@ -64,49 +64,51 @@ class _SearchViewState extends State<SearchView> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        BlocSelector<MainScreenBloc, MainScreenState, String>(
-          selector: (state) {
-            return state.searchTerm;
-          },
-          builder: (context, term) {
-            if (term.isEmpty) _searchController.clear();
-            return SearchBar(
-              controller: _searchController,
-              text: term,
-              focusNode: _searchBarFocusNode,
-            );
-          },
-        ),
-        const Divider(
-          height: 3,
-          thickness: 1,
-          indent: 8,
-          endIndent: 8,
-        ),
-        BlocSelector<MainScreenBloc, MainScreenState, List<CardDM>>(
-          selector: (state) {
-            return state.itemsList;
-          },
-          builder: (context, results) {
-            return Expanded(
-              child: ListView.separated(
-                itemBuilder: (BuildContext context, int index) {
-                  return ShortTranslationCard(
-                    headword: results[index].headword,
-                    text: results[index].text,
-                    onWordClick: _onWordClicked,
-                  );
-                },
-                separatorBuilder: (BuildContext context, int index) =>
-                    const DividerCommon(),
-                itemCount: results.length,
-              ),
-            );
-          },
-        )
-      ],
-    );
+    return Builder(builder: (context) {
+      return Column(
+        children: [
+          BlocSelector<MainScreenBloc, MainScreenState, String>(
+            selector: (state) {
+              return state.searchTerm;
+            },
+            builder: (context, term) {
+              if (term.isEmpty) _searchController.clear();
+              return SearchBar(
+                controller: _searchController,
+                text: term,
+                focusNode: _searchBarFocusNode,
+              );
+            },
+          ),
+          const Divider(
+            height: 3,
+            thickness: 1,
+            indent: 8,
+            endIndent: 8,
+          ),
+          BlocSelector<MainScreenBloc, MainScreenState, List<CardDM>>(
+            selector: (state) {
+              return state.itemsList;
+            },
+            builder: (context, results) {
+              return Expanded(
+                child: ListView.separated(
+                  itemBuilder: (BuildContext context, int index) {
+                    return ShortTranslationCard(
+                      headword: results[index].headword,
+                      text: results[index].text,
+                      onWordClick: _onWordClicked,
+                    );
+                  },
+                  separatorBuilder: (BuildContext context, int index) =>
+                      const DividerCommon(),
+                  itemCount: results.length,
+                ),
+              );
+            },
+          )
+        ],
+      );
+    });
   }
 }

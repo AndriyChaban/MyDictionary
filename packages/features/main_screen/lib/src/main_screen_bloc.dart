@@ -1,9 +1,13 @@
-import 'package:dictionary_provider/dictionary_provider.dart';
-import 'package:domain_models/domain_models.dart';
-import 'package:main_screen/src/main_screen_event.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:user_repository/user_repository.dart';
+import 'dart:async';
 
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'package:dictionary_provider/dictionary_provider.dart';
+import 'package:path/path.dart';
+import 'package:user_repository/user_repository.dart';
+import 'package:domain_models/domain_models.dart';
+
+import 'main_screen_event.dart';
 import 'main_screen_state.dart';
 
 class MainScreenBloc extends Bloc<MainScreenEvent, MainScreenState> {
@@ -11,10 +15,21 @@ class MainScreenBloc extends Bloc<MainScreenEvent, MainScreenState> {
       {required this.userRepository, required this.dictionaryProvider})
       : super(MainScreenStateInitial()) {
     _registerEventsHandler();
+    // print('init MSBloc');
   }
 
   final DictionaryProvider dictionaryProvider;
   final UserRepository userRepository;
+
+  // final _progressStreamController = StreamController<String>();
+  // late final _progressSink = _progressStreamController.sink;
+  // late final progressStream = _progressStreamController.stream;
+
+  @override
+  Future<void> close() {
+    // _progressStreamController.close();
+    return super.close();
+  }
 
   void _registerEventsHandler() {
     on<MainScreenEvent>((event, emitter) async {
@@ -48,10 +63,12 @@ class MainScreenBloc extends Bloc<MainScreenEvent, MainScreenState> {
     print('finish');
   }
 
-  Future<void> _handleLoadingInitial(Emitter emitter) async {
+  Future<void> _handleLoadingInitial(Emitter emitter, {String? message}) async {
+    print('Loading initial');
     String? fromLanguage = await userRepository.getFromLanguage;
     String? toLanguage = await userRepository.getToLanguage;
     final dictionaries = await dictionaryProvider.listOfAllDictionaries;
+    // print(fromLanguage);
     if ((fromLanguage != null && fromLanguage.isNotEmpty) &&
         (toLanguage == null || toLanguage.isEmpty)) {
       toLanguage = dictionaries
@@ -77,38 +94,49 @@ class MainScreenBloc extends Bloc<MainScreenEvent, MainScreenState> {
     }
     final historyCards =
         await _getHistory(fromLanguage: fromLanguage, toLanguage: toLanguage);
-    emitter(
-      state.copyWith(
+    emit(
+      MainScreenState(
         toLanguage: toLanguage ?? '',
         fromLanguage: fromLanguage ?? '',
         dictionaryList: dictionaries,
         searchTerm: '',
         itemsList: historyCards,
         isLoading: false,
-        error: null,
+        message: message ?? '',
       ),
     );
   }
 
   Future<void> _handleAddDictionary(
       MainScreenEventAddDictionary event, Emitter emitter) async {
-    emitter(state.copyWith(isLoading: true, error: null));
-    await Future.delayed(const Duration(seconds: 1));
+    if (extension(event.filePath) != '.dsl') {
+      emitter(state.copyWith(isLoading: false, message: 'Wrong filetype'));
+      return;
+    }
+    emitter(state.copyWith(isLoading: true, message: ''));
+    // await Future.delayed(const Duration(seconds: 1));
     try {
-      await dictionaryProvider.createDictionary(event.filePath);
-      await _handleLoadingInitial(emitter);
+      // final progressStreamController = StreamController<String>();
+      // final sink = progressStreamController.sink;
+      // _progressStreamController.stream.listen((message) {
+      //   print(message);
+      // });
+      final dictionary =
+          await dictionaryProvider.createDictionary(event.filePath);
+      await _handleLoadingInitial(emitter,
+          message: 'Created dictionary ${dictionary.name}');
     } catch (e) {
       print(e);
       emitter(
         state.copyWith(
-            isLoading: false, error: 'Smth is wrong with dictionary file'),
+            isLoading: false, message: 'Smth is wrong with dictionary file'),
       );
     }
   }
 
   Future<void> _handleDeleteDictionary(
       MainScreenEventDeleteDictionary event, Emitter emitter) async {
-    emitter(state.copyWith(isLoading: true, error: null));
+    emitter(state.copyWith(isLoading: true, message: ''));
     try {
       dictionaryProvider.deleteDictionary(event.dictionary);
       // final from = await userRepository.getFromLanguage;
@@ -125,7 +153,7 @@ class MainScreenBloc extends Bloc<MainScreenEvent, MainScreenState> {
     } catch (e) {
       print('Could not delete dictionary');
       emitter(state.copyWith(
-          isLoading: false, error: 'Could not delete dictionary'));
+          isLoading: false, message: 'Could not delete dictionary'));
     }
   }
 
@@ -133,17 +161,18 @@ class MainScreenBloc extends Bloc<MainScreenEvent, MainScreenState> {
       MainScreenEventSearchTermChanged event, Emitter emitter) async {
     if (event.searchTerm.isEmpty) {
       emitter(state.copyWith(
-          itemsList: await _getHistory(), searchTerm: '', error: null));
+          itemsList: await _getHistory(), searchTerm: '', message: ''));
       return;
     }
     if (state.toLanguage.isEmpty || state.fromLanguage.isEmpty) {
-      emitter(state.copyWith(error: 'Please choose language first'));
+      emitter(state.copyWith(message: 'Please choose language first'));
       return;
     }
     final term = event.searchTerm.toLowerCase().trim();
     if (term.replaceAll(RegExp(r'\s'), '').isEmpty) return;
     // get list of translations
-    emitter(state.copyWith(isLoading: true, searchTerm: event.searchTerm));
+    emitter(state.copyWith(
+        isLoading: true, searchTerm: event.searchTerm, message: ''));
     String from = state.fromLanguage;
     String to = state.toLanguage;
     List<DictionaryDM> resultsDicts =
@@ -174,7 +203,7 @@ class MainScreenBloc extends Bloc<MainScreenEvent, MainScreenState> {
         toLanguage: to,
         // searchTerm: event.searchTerm.toLowerCase(),
         isLoading: false,
-        error: null));
+        message: ''));
   }
 
   Future<void> _handleLanguageFromChange(
@@ -200,11 +229,11 @@ class MainScreenBloc extends Bloc<MainScreenEvent, MainScreenState> {
         : _getListOfFilteredSortedCardsFromDicts(results);
     emitter(
       state.copyWith(
-        isLoading: false,
-        itemsList: itemsList,
-        fromLanguage: event.languageFrom,
-        toLanguage: toLanguage,
-      ),
+          isLoading: false,
+          itemsList: itemsList,
+          fromLanguage: event.languageFrom,
+          toLanguage: toLanguage,
+          message: ''),
     );
   }
 
@@ -223,15 +252,15 @@ class MainScreenBloc extends Bloc<MainScreenEvent, MainScreenState> {
             fromLanguage: state.fromLanguage, toLanguage: event.languageTo)
         : _getListOfFilteredSortedCardsFromDicts(results);
     emitter(state.copyWith(
-      isLoading: false,
-      toLanguage: event.languageTo,
-      itemsList: itemsList,
-    ));
+        isLoading: false,
+        toLanguage: event.languageTo,
+        itemsList: itemsList,
+        message: ''));
   }
 
   Future<void> _handleSwapLanguages(Emitter emitter) async {
     if (state.toLanguage == state.fromLanguage) return;
-    emitter(state.copyWith(isLoading: true));
+    emitter(state.copyWith(isLoading: true, message: ''));
     final results = state.searchTerm.isNotEmpty
         ? await dictionaryProvider.getAllDictionariesWordTranslation(
             word: state.searchTerm.toLowerCase(),
@@ -246,6 +275,7 @@ class MainScreenBloc extends Bloc<MainScreenEvent, MainScreenState> {
     userRepository.saveFromLanguage(state.toLanguage);
     emitter(state.copyWith(
         isLoading: false,
+        message: '',
         searchTerm: results.isEmpty ? '' : state.searchTerm,
         itemsList: itemsList,
         fromLanguage: state.toLanguage,
@@ -260,7 +290,7 @@ class MainScreenBloc extends Bloc<MainScreenEvent, MainScreenState> {
       String from = state.fromLanguage;
       String to = state.toLanguage;
       final dictionaries = await dictionaryProvider.listOfAllDictionaries;
-      emit(state.copyWith(dictionaryList: dictionaries));
+      emit(state.copyWith(dictionaryList: dictionaries, message: ''));
       if (!listOfAllActiveFromLanguages().contains(from)) {
         from = listOfAllActiveFromLanguages().first;
         userRepository.saveFromLanguage(from);
@@ -272,10 +302,10 @@ class MainScreenBloc extends Bloc<MainScreenEvent, MainScreenState> {
       emitter(state.copyWith(
           fromLanguage: from,
           toLanguage: to,
-          error: null,
+          message: '',
           dictionaryList: dictionaries));
     } catch (e) {
-      emitter(state.copyWith(error: e.toString()));
+      emitter(state.copyWith(message: e.toString()));
     }
   }
 

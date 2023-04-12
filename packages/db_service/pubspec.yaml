@@ -7,7 +7,7 @@ environment:
   flutter: ">=1.17.0"
 
 dependencies:
-#  flutter_mimir: 0.0.1-dev.6
+#  flutter_mimir: 0.0.1-dev.8
   isar: ^3.0.5
   isar_flutter_libs: ^3.0.5
   path: ^1.8.2

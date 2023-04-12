@@ -20,25 +20,28 @@ class DBService {
     isar?.close();
   }
 
-  bool createDictionary(DictionaryDB dictionary, String directoryDictionaryDB) {
+  Future<bool> createDictionary(
+      DictionaryDB dictionary, String directoryDictionaryDB) async {
     try {
       // final isar = getDictionaryInstance(
       //     dictionaryName: dictionary.dictionaryName,
       //     directory: directoryDictionaryDB)!;
+
       final fileExists =
           File('$directoryDictionaryDB/${dictionary.dictionaryName}.isar')
               .existsSync();
 
-      Isolate.run(() {
+      await Isolate.run(() {
         final isar = getDictionaryInstance(
             dictionaryName: dictionary.dictionaryName,
             directory: directoryDictionaryDB)!;
         if (fileExists) {
-          print('clearing database');
+          // print('clearing database');
           // isar;
           isar.writeTxnSync(() async => isar.cards.clearSync());
         }
-        print('writing database');
+
+        // print('writing database');
         isar.writeTxnSync<Card?>(() {
           for (CardDB wordCard in dictionary.cardsList) {
             final card = Card()
@@ -47,7 +50,7 @@ class DBService {
             isar.cards.putSync(card);
           }
         });
-        print('writing finished');
+        // print('writing finished');
         isar.close();
       });
     } on IsarError {
@@ -60,6 +63,7 @@ class DBService {
     try {
       final isar = getDictionaryInstance(
           dictionaryName: dictionary.dictionaryName, directory: directoryPath);
+
       isar?.clearSync();
       // TODO remove database files from memory ???
     } catch (e) {
@@ -71,7 +75,7 @@ class DBService {
       {required String dictionaryName, required String directory}) {
     try {
       return Isar.openSync([CardSchema],
-          name: dictionaryName, directory: directory);
+          name: dictionaryName, directory: directory, inspector: true);
     } on IsarError {
       return Isar.getInstance(dictionaryName);
     }

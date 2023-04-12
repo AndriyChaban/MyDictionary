@@ -1,3 +1,4 @@
+import 'package:components/components.dart';
 import 'package:flutter/material.dart';
 import 'package:translation_screen/src/components/styled_tappable_text.dart';
 
@@ -9,7 +10,8 @@ class StyledTranslationCard extends StatelessWidget {
       required this.headword,
       required this.text,
       required this.index,
-      this.dictionaryName = ''})
+      this.dictionaryName = '',
+      required this.onAddToWizzDeck})
       : super(key: key);
   final String headword;
   final String text;
@@ -17,6 +19,7 @@ class StyledTranslationCard extends StatelessWidget {
   final bool isShort;
   final int index;
   final void Function(String) onWordClick;
+  final VoidCallback onAddToWizzDeck;
 
   @override
   Widget build(BuildContext context) {
@@ -44,33 +47,54 @@ class StyledTranslationCard extends StatelessWidget {
     String headwordCleaned = headword.replaceAll("{[']}", '');
     return Padding(
       padding: EdgeInsets.all(isShort ? 0 : 8.0),
-      child: ListTile(
-          onTap: isShort ? () => onWordClick(headword) : null,
-          title: Padding(
-            padding: const EdgeInsets.only(left: 6.0, right: 6, bottom: 10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  headwordCleaned,
-                  maxLines: 3,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                Text(dictionaryName),
-              ],
-            ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            children: [
+              const Expanded(child: DividerCommon()),
+              IconButton(
+                  onPressed: onAddToWizzDeck,
+                  icon: const Icon(Icons.science_outlined)),
+              Text(dictionaryName, style: TextStyle(color: Colors.grey)),
+            ],
           ),
-          subtitle: isShort
-              ? Text(
-                  text,
-                  maxLines: 3,
-                  style: const TextStyle(height: 1.2),
-                )
-              : StyledTappableText(
-                  text: text,
-                  onWordTap: onWordClick,
-                  index: index,
-                )),
+          ListTile(
+              onTap: isShort ? () => onWordClick(headword) : null,
+              title: Padding(
+                padding: const EdgeInsets.only(left: 6.0, right: 6, bottom: 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      headwordCleaned,
+                      maxLines: 3,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    // Row(
+                    //   children: [
+                    //     IconButton(
+                    //         onPressed: onAddToWizzDeck,
+                    //         icon: const Icon(Icons.science_outlined)),
+                    //     Text(dictionaryName),
+                    //   ],
+                    // ),
+                  ],
+                ),
+              ),
+              subtitle: isShort
+                  ? Text(
+                      text,
+                      maxLines: 3,
+                      style: const TextStyle(height: 1.2),
+                    )
+                  : StyledTappableText(
+                      text: text,
+                      onWordTap: onWordClick,
+                      index: index,
+                    )),
+        ],
+      ),
     );
   }
 }

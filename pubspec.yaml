@@ -28,6 +28,12 @@ dependencies:
     path: packages/features/main_screen
   translation_screen:
     path: packages/features/translation_screen
+  wizz_decks_screen:
+    path: packages/features/wizz_decks_screen
+  wizz_cards_screen:
+    path: packages/features/wizz_cards_screen
+  wizz_training_module:
+    path: packages/wizz_training_module
   go_router: ^6.2.0
 #  path_provider: ^2.0.12
 #  path: ^1.8.2
@@ -44,6 +50,7 @@ flutter:
 
   assets:
    - assets/
+   - assets/icons/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

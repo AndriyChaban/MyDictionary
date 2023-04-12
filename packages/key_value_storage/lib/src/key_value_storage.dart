@@ -1,11 +1,11 @@
 import 'package:hive/hive.dart';
 import 'package:key_value_storage/key_value_storage.dart';
-import 'package:key_value_storage/src/models/dictionary_cm.dart';
-import 'package:key_value_storage/src/models/wizz_deck_cm.dart';
+// import 'package:key_value_storage/src/models/dictionary_cm.dart';
+// import 'package:key_value_storage/src/models/wizz_deck_cm.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 
-import 'models/history_cm.dart';
+// import 'models/history_cm.dart';
 
 class KeyValueStorage {
   static const _dictionariesBoxKey = 'dictionaries';
@@ -26,6 +26,7 @@ class KeyValueStorage {
       ..registerAdapter(DictionaryCMAdapter())
       ..registerAdapter(WizzDeckCMAdapter())
       ..registerAdapter(WizzCardCMAdapter())
+      ..registerAdapter(ShowFrequencyCMAdapter())
       ..registerAdapter(DarkModeCMAdapter())
       ..registerAdapter(HistoryDictionaryCMAdapter())
       ..registerAdapter(HistoryCardCMAdapter());

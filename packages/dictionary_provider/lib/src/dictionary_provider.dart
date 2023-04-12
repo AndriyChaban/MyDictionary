@@ -33,6 +33,7 @@ class DictionaryProvider {
     final dictionaryDSLDirectory = Directory(join(appDir.path, 'dictsDSL'));
     if (!dictionaryDSLDirectory.existsSync()) dictionaryDSLDirectory.create();
     if (!dictionaryDBDirectory.existsSync()) dictionaryDBDirectory.create();
+    // print('initialize dictionaryProvider');
     return DictionaryProvider._initializeProvider()
       ..dictionaryDSLDirectory = dictionaryDSLDirectory
       ..dictionaryDBDirectory = dictionaryDBDirectory
@@ -41,17 +42,18 @@ class DictionaryProvider {
       ..googleApiService = googleApiService;
   }
 
-  Future<bool> createDictionary(String filePath) async {
+  Future<DictionaryDM> createDictionary(String filePath) async {
     if (_isBuisy) throw DictionaryCreationIsInProgress();
     _isBuisy = true;
     // print(filePath);
     final dictBox = await keyValueStorage.getDictionariesBox();
+    // messageSink?.add('Start parsing ${basename(filePath)}');
     // TODO copy file from local storage
     final copiedFilePath =
-        await _copyFromToDictDirectory(filePath, fromAsset: true);
+        await _copyFromToDictDirectory(filePath, fromAsset: false);
     // final copiedFilePath = await _copyFromAssetsToDictDirectory(filePath);
     // parse copied file into DictionaryDM
-    print('start parsing');
+    // print('start parsing');
     final parsedDictionary = await compute(_parseDslDictionary, copiedFilePath);
     // if (dictBox.containsKey(parsedDictionary.name)) {
     //   print('WTF???');
@@ -62,16 +64,19 @@ class DictionaryProvider {
       // compute(
       //   dbService.createDictionary, [ parsedDictionary.toDBModel(), dictionaryDBDirectory.path]
       // );
-      print('start creating DB');
+      // print('start creating DB');
+      // messageSink?.add('Start creating database');
       await dbService.createDictionary(
-          parsedDictionary.toDBModel(), dictionaryDBDirectory.path);
+        parsedDictionary.toDBModel(),
+        dictionaryDBDirectory.path,
+      );
       //TODO delete dsl after successful parsing???
       // File(copiedFilePath).deleteSync();
       // update keyValueStorage
       await dictBox.put(parsedDictionary.name,
           parsedDictionary.toCacheModel()..active = true);
       _isBuisy = false;
-      return true;
+      return parsedDictionary;
     } catch (e) {
       _isBuisy = false;
       throw DatabaseException();
@@ -149,6 +154,7 @@ class DictionaryProvider {
         dictionaryName: dictionaryName, directory: dictionaryDBDirectory.path);
     if (dictionaryInstance == null) throw DictionaryDBDoesNotExistException();
     final queryStart = dictionaryInstance.cards.filter();
+
     final queryFinal = startsWith
         ? queryStart.headwordStartsWith(word, caseSensitive: false)
         : queryStart.headwordEqualTo(word, caseSensitive: true);
@@ -198,14 +204,15 @@ class DictionaryProvider {
   Future<String> _copyFromToDictDirectory(String filePath,
       {bool fromAsset = false}) async {
     String fileString;
+    var fileRaw;
     // if (!force && !File(filePath).existsSync())
     //   throw DictionaryExistsException();
     if (fromAsset) {
-      final fileRaw = await rootBundle.load(filePath);
-      fileString = String.fromCharCodes(fileRaw.buffer.asUint16List());
+      fileRaw = await rootBundle.load(filePath);
     } else {
-      fileString = await File(filePath).readAsString();
+      fileRaw = await File(filePath).readAsBytes();
     }
+    fileString = String.fromCharCodes(fileRaw.buffer.asUint16List());
     // print(fileString.substring(0, 30));
     final nameRegexp = RegExp(r'^#name(.*)$',
         multiLine: true, dotAll: false, caseSensitive: false);

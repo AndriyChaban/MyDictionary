@@ -1,3 +1,4 @@
+import 'package:domain_models/domain_models.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -16,6 +17,7 @@ class TranslationScreen extends StatelessWidget {
   final UserRepository userRepository;
   final void Function(String) onWordClicked;
   final VoidCallback onAppBarBackPressed;
+  final void Function(BuildContext, DictionaryDM) onAddCardToWizzDeck;
 
   const TranslationScreen({
     Key? key,
@@ -24,6 +26,7 @@ class TranslationScreen extends StatelessWidget {
     required this.onAppBarBackPressed,
     required this.dictionaryProvider,
     required this.userRepository,
+    required this.onAddCardToWizzDeck,
   }) : super(key: key);
 
   static const routeName = 'translation-screen';
@@ -70,47 +73,63 @@ class TranslationScreen extends StatelessWidget {
                 );
               }
 
-              return GestureDetector(
-                onTap: () {
-                  context.read<TranslationScreenCubit>().removeSmallBox();
+              return WillPopScope(
+                onWillPop: () async {
+                  if (renderBox != null) {
+                    context.read<TranslationScreenCubit>().removeSmallBox();
+                    return false;
+                  }
+                  return true;
                 },
-                child: Stack(
-                  children: [
-                    ListView.separated(
-                      itemBuilder: (context, index) => StyledTranslationCard(
-                          isShort: false,
-                          index: index,
-                          onWordClick: onWordClicked,
-                          headword: listOfDicts[index].cards.first.headword,
-                          text: listOfDicts[index].cards.first.text,
-                          dictionaryName: listOfDicts[index].name),
-                      itemCount: listOfDicts.length,
-                      separatorBuilder: (BuildContext context, int index) =>
-                          const DividerCommon(),
-                    ),
-                    if (renderBox != null)
-                      Positioned(
-                          top: renderBox.localToGlobal(const Offset(0, -75)).dy,
-                          left: renderBox.localToGlobal(Offset.zero).dx <
-                                  screenSize.width / 2
-                              ? renderBox.localToGlobal(Offset.zero).dx
-                              : renderBox.localToGlobal(Offset.zero).dx +
-                                  renderBox.size.width -
-                                  200,
-                          child: SmallTranslationBox(
-                              word: state.smallBoxParameters!.text,
-                              translation:
-                                  state.smallBoxParameters!.translation,
-                              onClick: () {
-                                if (state.smallBoxParameters?.translation !=
-                                    null) {
-                                  onWordClicked(state.smallBoxParameters!.text);
-                                  context
-                                      .read<TranslationScreenCubit>()
-                                      .removeSmallBox();
-                                }
-                              }))
-                  ],
+                child: GestureDetector(
+                  onTap: () {
+                    context.read<TranslationScreenCubit>().removeSmallBox();
+                  },
+                  child: Stack(
+                    children: [
+                      ListView.separated(
+                        itemBuilder: (context, index) => StyledTranslationCard(
+                            isShort: false,
+                            index: index,
+                            onWordClick: onWordClicked,
+                            onAddToWizzDeck: () {
+                              // context.read<TranslationScreenCubit>().close();
+                              onAddCardToWizzDeck(context, listOfDicts[index]);
+                            },
+                            headword: listOfDicts[index].cards.first.headword,
+                            text: listOfDicts[index].cards.first.text,
+                            dictionaryName: listOfDicts[index].name),
+                        itemCount: listOfDicts.length,
+                        separatorBuilder: (BuildContext context, int index) =>
+                            Container(),
+                      ),
+                      if (renderBox != null)
+                        Positioned(
+                            top: renderBox
+                                .localToGlobal(const Offset(0, -75))
+                                .dy,
+                            left: renderBox.localToGlobal(Offset.zero).dx <
+                                    screenSize.width / 2
+                                ? renderBox.localToGlobal(Offset.zero).dx
+                                : renderBox.localToGlobal(Offset.zero).dx +
+                                    renderBox.size.width -
+                                    200,
+                            child: SmallTranslationBox(
+                                word: state.smallBoxParameters!.text,
+                                translation:
+                                    state.smallBoxParameters!.translation,
+                                onClick: () {
+                                  if (state.smallBoxParameters?.translation !=
+                                      null) {
+                                    onWordClicked(
+                                        state.smallBoxParameters!.text);
+                                    context
+                                        .read<TranslationScreenCubit>()
+                                        .removeSmallBox();
+                                  }
+                                }))
+                    ],
+                  ),
                 ),
               );
             },

@@ -1,18 +1,20 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:translation_screen/src/translation_screen_cubit.dart';
 
 class StyledTappableText extends StatefulWidget {
-  StyledTappableText(
-      {Key? key,
-      required this.text,
-      required this.onWordTap,
-      required this.index,
-      this.multiSelect = false})
-      : super(key: key);
+  StyledTappableText({
+    Key? key,
+    required this.text,
+    required this.onWordTap,
+    required this.index,
+    // this.multiSelect = false
+  }) : super(key: key);
   final String text;
   final void Function(String) onWordTap;
-  final bool multiSelect;
+  // final bool multiSelect;
   final int index;
 
   @override
@@ -57,16 +59,15 @@ class _StyledTappableTextState extends State<StyledTappableText> {
 
   void _onRefTap(String word) {
     setState(() {
-      // selectedIndices = {-1};
       context.read<TranslationScreenCubit>().removeSmallBox();
       widget.onWordTap(word);
     });
   }
 
   List<InlineSpan> _createChildren(String text) {
+    // print(text);
     final lines = text.split('\n');
     final nodes = <TextNode>[];
-    // final spans = <InlineSpan>[];
     for (var line in lines) {
       /// cycle each line, check if starts with <m> -> add spaces, remove <*>, <m>
       line = line.replaceAll(RegExp(r'<.?\*>'), '');
@@ -84,7 +85,8 @@ class _StyledTappableTextState extends State<StyledTappableText> {
 
       /// get text patches
       final textPatchRegExp = RegExp(
-        r'(?<=[\t>])([^<>]+)(?![^<])',
+        // r'(?<=[\t>])([^<>]+)(?![^<])',
+        r'([^<>]+)(?![^<])',
       );
       final textPatchMatches = textPatchRegExp.allMatches(line);
 
@@ -114,6 +116,7 @@ class _StyledTappableTextState extends State<StyledTappableText> {
             _isBetween(tag: "'", textMatch: textMatch, fullString: line);
         bool betweenS =
             _isBetween(tag: "s", textMatch: textMatch, fullString: line);
+        // print(textMatch.group(1)!);
         if (betweenRef) {
           final node = TextNode()
             ..isRef = true
@@ -161,8 +164,8 @@ class _StyledTappableTextState extends State<StyledTappableText> {
       nodes.add(TextNode()..text = '\n');
     }
     final cubit = context.read<TranslationScreenCubit>();
+    // return nodes;
     return nodes.map((n) {
-      // if (n.isRef) return (n..onTap = () => widget.onWordTap(n.text)).span;
       if (n.isSelectable) {
         return (n
               ..index = nodes.indexOf(n)
@@ -180,9 +183,28 @@ class _StyledTappableTextState extends State<StyledTappableText> {
 
   @override
   Widget build(BuildContext context) {
-    return RichText(
-      text: TextSpan(
+    // final cubit = context.read<TranslationScreenCubit>();
+    // final nodes = _createChildren(widget.text);
+    return SelectableText.rich(
+      TextSpan(
         children: _createChildren(widget.text),
+        // recognizer: TapGestureRecognizer()
+        //   ..onTapDown = (d) => print('tapDown')
+
+        // children: nodes.map((n) {
+        //   if (n.isSelectable) {
+        //     return (n
+        //           ..index = nodes.indexOf(n)
+        //           ..isSelected = cubit.state.currentCardIndex == widget.index &&
+        //               cubit.state.currentWordIndex == n.index
+        //           ..onTap = n.isRef ? _onRefTap : _onSelectableWordTap)
+        //         .span(context);
+        //   } else if (n.isRef) {
+        //     return (n..onTap = _onRefTap).span(context);
+        //   } else {
+        //     return n.span(context);
+        //   }
+        // }).toList(),
       ),
     );
   }
@@ -218,6 +240,30 @@ class TextNode {
       return const WidgetSpan(child: Icon(Icons.volume_up_rounded));
     }
     if (text == '\n') return const TextSpan(text: '\n');
+
+    // return TextSpan(
+    //   text: text,
+    //   style: TextStyle(
+    //     height: 0.7,
+    //     backgroundColor: isSelected ? Colors.yellow : Colors.transparent,
+    //     fontStyle: isItalic ? FontStyle.italic : FontStyle.normal,
+    //     fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+    //     decoration:
+    //         isUnderline ? TextDecoration.underline : TextDecoration.none,
+    //     color: color,
+    //   ),
+    //   recognizer: TapGestureRecognizer()
+    //     ..onTap = onTap != null
+    //         ? () {
+    //             if (!isRef) {
+    //               final renderBox = context.findRenderObject() as RenderBox;
+    //               onTap!(text, index, renderBox);
+    //             } else {
+    //               onTap!(text);
+    //             }
+    //           }
+    //         : () {},
+    // );
     return WidgetSpan(
       child: SelectableSpanWidget(
           index: index,
@@ -285,7 +331,7 @@ class SelectableSpanWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    return GestureDetector(
       onTap: onTap != null
           ? () {
               if (!isRef) {
@@ -295,7 +341,9 @@ class SelectableSpanWidget extends StatelessWidget {
                 onTap!(text);
               }
             }
-          : () {},
+          : () {
+              context.read<TranslationScreenCubit>().removeSmallBox();
+            },
       child: Text(
         text,
         style: TextStyle(

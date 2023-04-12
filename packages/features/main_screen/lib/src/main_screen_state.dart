@@ -1,5 +1,6 @@
-import 'package:domain_models/domain_models.dart';
 import 'package:equatable/equatable.dart';
+
+import 'package:domain_models/domain_models.dart';
 
 class MainScreenState extends Equatable {
   final List<CardDM> itemsList;
@@ -12,7 +13,7 @@ class MainScreenState extends Equatable {
   final String searchTerm;
   final int? nextPage;
   final bool isLoading;
-  final String? error;
+  final String message;
 
   const MainScreenState({
     this.itemsList = const [],
@@ -24,7 +25,7 @@ class MainScreenState extends Equatable {
     this.searchTerm = '',
     this.isLoading = false,
     this.nextPage,
-    this.error,
+    this.message = '',
   });
 
   @override
@@ -38,7 +39,7 @@ class MainScreenState extends Equatable {
         searchTerm,
         isLoading,
         nextPage,
-        error
+        message
       ];
 
   MainScreenState copyWith(
@@ -51,7 +52,7 @@ class MainScreenState extends Equatable {
       String? searchTerm,
       int? nextPage,
       bool? isLoading,
-      String? error}) {
+      String? message}) {
     return MainScreenState(
       itemsList: itemsList ?? this.itemsList,
       fromLanguage: fromLanguage ?? this.fromLanguage,
@@ -62,7 +63,7 @@ class MainScreenState extends Equatable {
       searchTerm: searchTerm ?? this.searchTerm,
       nextPage: nextPage ?? this.nextPage,
       isLoading: isLoading ?? this.isLoading,
-      error: error ?? this.error,
+      message: message ?? '',
     );
   }
 }

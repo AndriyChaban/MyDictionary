@@ -13,8 +13,8 @@ dependencies:
     path: ../../domain_models
   components:
     path: ../../components
-  main_screen:
-    path: ../main_screen  #????
+#  main_screen:
+#    path: ../main_screen  #????
   dictionary_provider:
     path: ../../dictionary_provider
   user_repository:

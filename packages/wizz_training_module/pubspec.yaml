@@ -1,0 +1,26 @@
+name: wizz_training_module
+version: 0.0.1
+publish_to: none
+
+environment:
+  sdk: '>=2.19.3 <3.0.0'
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  domain_models:
+    path: ../domain_models
+  key_value_storage:
+    path: ../key_value_storage
+  dictionary_provider:
+    path: ../dictionary_provider
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+
+
+flutter:
