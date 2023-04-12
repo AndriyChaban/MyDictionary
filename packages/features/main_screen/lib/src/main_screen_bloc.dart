@@ -114,13 +114,8 @@ class MainScreenBloc extends Bloc<MainScreenEvent, MainScreenState> {
       return;
     }
     emitter(state.copyWith(isLoading: true, message: ''));
-    // await Future.delayed(const Duration(seconds: 1));
+    await Future.delayed(const Duration(seconds: 1));
     try {
-      // final progressStreamController = StreamController<String>();
-      // final sink = progressStreamController.sink;
-      // _progressStreamController.stream.listen((message) {
-      //   print(message);
-      // });
       final dictionary =
           await dictionaryProvider.createDictionary(event.filePath);
       await _handleLoadingInitial(emitter,

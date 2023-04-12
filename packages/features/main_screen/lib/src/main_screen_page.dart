@@ -1,10 +1,7 @@
-// import 'dart:io';
+import 'package:flutter/material.dart';
 
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-// import 'package:file_picker/file_picker.dart';
 
 import 'package:dictionary_provider/dictionary_provider.dart';
 import 'package:user_repository/user_repository.dart';
@@ -21,8 +18,6 @@ class MainScreen extends StatefulWidget {
   final Widget child;
   final void Function(BuildContext, String, {dynamic payload}) pushToNamed;
   final void Function(BuildContext, String, {dynamic payload}) goToNamed;
-
-  // final void Function() onTranslationSelected;
 
   const MainScreen({
     Key? key,

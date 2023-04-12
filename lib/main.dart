@@ -109,8 +109,6 @@ class _MyDictionaryAppState extends State<MyDictionaryApp> {
       }
       GoRouter.of(context).pushNamed(routeName, extra: payload);
     }
-    // print('location: ${GoRouter.of(context).location}');
-    // print('route: ${context.namedLocation(DictionariesView.routeName)}');
   }
 
   void _goToNamed(BuildContext context, String routeName, {dynamic payload}) {
@@ -125,11 +123,6 @@ class _MyDictionaryAppState extends State<MyDictionaryApp> {
       }
       GoRouter.of(context).goNamed(routeName, extra: payload);
     }
-    // print('location: ${GoRouter.of(context).location}');
-    // print('route: ${context.namedLocation(routeName)}');
-    // print('!!! go');
-    // GoRouter.of(context).goNamed(routeName, extra: payload);
-    // print('location: ${GoRouter.of(context).location}');
   }
 
   void _onAppBarBackPressed(BuildContext context) {

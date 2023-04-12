@@ -214,14 +214,19 @@ class DictionaryProvider {
     }
     fileString = String.fromCharCodes(fileRaw.buffer.asUint16List());
     // print(fileString.substring(0, 30));
-    final nameRegexp = RegExp(r'^#name(.*)$',
-        multiLine: true, dotAll: false, caseSensitive: false);
+    final nameRegexp = RegExp(r'#NAME(.*?)$',
+        multiLine: true, dotAll: true, caseSensitive: false);
     String? name;
     if (fromAsset) {
       name = basenameWithoutExtension(filePath);
     } else {
-      name = nameRegexp.firstMatch(fileString)?.group(1)?.trim();
+      name = nameRegexp
+          .firstMatch(fileString)
+          ?.group(1)
+          ?.replaceAll(' ', '')
+          .trim();
     }
+    print('name: ${nameRegexp.firstMatch(fileString)?.group(1)}');
     final copiedFilePath = join(dictionaryDSLDirectory.path, '$name.dsl');
     final newFile = File(copiedFilePath);
     newFile.writeAsStringSync(fileString);

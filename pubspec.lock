@@ -21,6 +21,7 @@ packages:
     dependency: transitive
     description:
       name: archive
+      sha256: d6347d54a2d8028e0437e3c099f66fdb8ae02c4720c1e7534c9f24c10351f85d
       url: "https://pub.dev"
     source: hosted
     version: "3.3.6"
@@ -327,6 +328,7 @@ packages:
     dependency: "direct main"
     description:
       name: go_router
+      sha256: b4bb06205ec607278b6fc23db238278417bca84a3905779cc68d1eb7afae37e2
       url: "https://pub.dev"
     source: hosted
     version: "6.2.0"

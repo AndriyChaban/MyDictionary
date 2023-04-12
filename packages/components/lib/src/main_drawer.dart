@@ -24,23 +24,10 @@ class MainDrawer extends StatefulWidget {
 
 class _MainDrawerState extends State<MainDrawer> {
   void _onAddDictionary() async {
-    // context.read<MainScreenBloc>().add(MainScreenEventFakeLoading());
-    // FilePickerResult? result = await FilePicker.platform.pickFiles();
     Navigator.pop(context);
     FocusScope.of(context).unfocus();
-    // await Permission.storage.request();
     if (mounted) {
-      // if (status.isGranted) {
-      // if (result != null) {
-      // Future.delayed(Duration(seconds: 1), () {
       if (widget.onAddDictionary != null) widget.onAddDictionary!();
-      // context.read<MainScreenBloc>().add(
-      //     const MainScreenEventAddDictionary('assets/UniversalEnUk.dsl'));
-      // });
-      // context.read<MainScreenBloc>().add(const MainScreenEventFakeLoading());
-      // .add(MainScreenEventAddDictionary(result.files.single.path!));
-      // }
-      // }
     }
   }
 
