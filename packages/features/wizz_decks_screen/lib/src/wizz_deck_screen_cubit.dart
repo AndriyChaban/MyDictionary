@@ -1,5 +1,6 @@
 import 'package:domain_models/domain_models.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:path/path.dart';
 import 'package:wizz_decks_screen/src/wizz_deck_screen_state.dart';
 import 'package:wizz_training_module/wizz_training_module.dart';
 
@@ -73,5 +74,29 @@ class WizzDeckScreenCubit extends Cubit<WizzDeckScreenState> {
         ? null
         : 'This name already exists';
     return validation;
+  }
+
+  Future<void> addDictionary(String filePath) async {
+    if (extension(filePath) != '.dsl') {
+      emit(state.copyWith(isLoading: false, errorMessage: 'Wrong filetype'));
+      return;
+    }
+    emit(state.copyWith(
+        isLoading: true, errorMessage: 'Creating dictionary...'));
+    await Future.delayed(const Duration(seconds: 1));
+    try {
+      final dictionary = await wizzTrainingModule.dictionaryProvider
+          .createDictionary(filePath);
+      emit(state.copyWith(
+          isLoading: false,
+          errorMessage: 'Created dictionary ${dictionary.name}'));
+    } catch (e) {
+      print(e);
+      emit(
+        state.copyWith(
+            isLoading: false,
+            errorMessage: 'Smth is wrong with dictionary file'),
+      );
+    }
   }
 }

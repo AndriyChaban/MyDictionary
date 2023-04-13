@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:dictionary_provider/dictionary_provider.dart';
 import 'package:db_service/db_service.dart';
 import 'package:key_value_storage/key_value_storage.dart';
+import 'package:simple_translation_card/simple_translation_card.dart';
 import 'package:user_repository/user_repository.dart';
 import 'package:wizz_training_module/wizz_training_module.dart';
 import 'package:google_api_service/google_api_service.dart';
@@ -102,6 +103,10 @@ class _MyDictionaryAppState extends State<MyDictionaryApp> {
       // final DictionaryDM dictionary = payload['dictionaryFromTranslationScreen'];
       GoRouter.of(context)
           .pushNamed(routeName, extra: payload, params: {'deck': deck.name});
+    } else if (routeName == SimpleTranslationCard.routeName) {
+      final String word = payload['headword'];
+      GoRouter.of(context)
+          .pushNamed(routeName, extra: payload, params: {'word': word});
     } else {
       if (context.namedLocation(routeName) == GoRouter.of(context).location) {
         Scaffold.of(context).closeDrawer();
@@ -222,7 +227,25 @@ class _MyDictionaryAppState extends State<MyDictionaryApp> {
                     pop: _pop,
                   );
                 })
-          ])
+          ]),
+      GoRoute(
+          path: r'/simple-card$:word',
+          name: SimpleTranslationCard.routeName,
+          parentNavigatorKey: _rootNavigatorKey,
+          builder: (context, state) {
+            final extra = state.extra as Map<String, String?>;
+            final headword = extra['headword'];
+            final meaning = extra['meaning'];
+            final examples = extra['examples'];
+            final fullText = extra['fullText'];
+
+            return SimpleTranslationCard(
+              headword: headword!,
+              meaning: meaning,
+              examples: examples,
+              fullText: fullText,
+            );
+          })
     ],
   );
 

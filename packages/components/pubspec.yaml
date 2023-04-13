@@ -10,6 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   file_picker: ^5.2.7
+#  audioplayers:
 #  styled_text: ^7.0.0
 #  xml: ^6.2.2
 

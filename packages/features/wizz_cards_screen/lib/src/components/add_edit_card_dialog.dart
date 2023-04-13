@@ -42,11 +42,15 @@ class _AddEditWizzCardDialogState extends State<AddEditWizzCardDialog> {
     fromLanguage = widget.deck.fromLanguage;
     toLanguage = widget.deck.toLanguage;
 
-    _wordTextController.text = isEdit
+    final wordText = isEdit
         ? widget.cardForEditing!.word
         : isFromDictionary
             ? widget.cardFromDictionary!.headword
             : '';
+    String wordTextCleaned =
+        wordText.replaceAll("{[']}", '').replaceAll("{[/']}", '');
+
+    _wordTextController.text = wordTextCleaned;
     _wordTextController.selection = TextSelection(
       baseOffset: 0,
       extentOffset: _wordTextController.text.length,
@@ -115,7 +119,7 @@ class _AddEditWizzCardDialogState extends State<AddEditWizzCardDialog> {
               ? widget.cardForEditing!.fullText
               : isFromDictionary
                   ? widget.cardFromDictionary!.text
-                  : '');
+                  : null);
       // if (widget.cardFromDictionary != null) {
       //   // widget.goToNamed(context, 'search-view');
       //     widget.popCallback!(context, newCard);
@@ -138,12 +142,26 @@ class _AddEditWizzCardDialogState extends State<AddEditWizzCardDialog> {
     }
   }
 
+  void _onOpenCard() {
+    print('open card');
+    final payload = {
+      'headword': widget.cardForEditing?.word ??
+          widget.cardFromDictionary?.headword ??
+          'None',
+      'meaning': widget.cardForEditing?.meaning,
+      'examples': widget.cardForEditing?.examples,
+      'fullText':
+          widget.cardFromDictionary?.text ?? widget.cardForEditing?.fullText
+    };
+    widget.pushToNamed(context, 'simple-translation-card', payload: payload);
+  }
+
   @override
   Widget build(BuildContext context) {
     // final cubit = context.read<WizzDeckScreenCubit>();
     assert(
         !(widget.cardFromDictionary != null && widget.cardForEditing != null),
-        'cardFromDictionary and cardForEditing cannot be both non null');
+        'widget.cardFromDictionary != null && widget.cardForEditing != null');
     return AlertDialog(
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(5))),
@@ -267,8 +285,9 @@ class _AddEditWizzCardDialogState extends State<AddEditWizzCardDialog> {
                   ),
                 ),
                 validator: (m) {
-                  if (m == null || m.trim().isEmpty)
+                  if (m == null || m.trim().isEmpty) {
                     return 'Meaning must not be empty';
+                  }
                   return null;
                 },
               ),
@@ -293,6 +312,14 @@ class _AddEditWizzCardDialogState extends State<AddEditWizzCardDialog> {
         ),
       ),
       actions: [
+        if (((widget.cardFromDictionary != null &&
+                widget.cardFromDictionary!.text.isNotEmpty) ||
+            widget.cardForEditing?.fullText != null))
+          IconButton(
+            onPressed: _onOpenCard,
+            icon: const Icon(Icons.translate),
+          ),
+        const SizedBox(width: 30),
         TextButton(
           onPressed: _onCancel,
           child: const Text(

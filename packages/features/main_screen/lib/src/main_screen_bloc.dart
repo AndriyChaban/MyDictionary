@@ -113,7 +113,7 @@ class MainScreenBloc extends Bloc<MainScreenEvent, MainScreenState> {
       emitter(state.copyWith(isLoading: false, message: 'Wrong filetype'));
       return;
     }
-    emitter(state.copyWith(isLoading: true, message: ''));
+    emitter(state.copyWith(isLoading: true, message: 'Creating dictionary...'));
     await Future.delayed(const Duration(seconds: 1));
     try {
       final dictionary =

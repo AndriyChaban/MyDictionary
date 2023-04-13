@@ -110,8 +110,20 @@ class _WizzCardsScreenState extends State<WizzCardsScreen> {
     widget.pop(context, true);
   }
 
-  void _onDeleteCard(BuildContext context, WizzCardDM card) {
-    context.read<WizzCardsScreenCubit>().deleteCard(card);
+  void _onDeleteCard(BuildContext context, WizzCardDM card) async {
+    final response = await showDialog<bool>(
+      context: context,
+      barrierDismissible: true,
+      // false = user must tap button, true = tap outside dialog
+      builder: (BuildContext context) {
+        return ConfirmCancelDialog(
+            title: 'Are you sure?',
+            onCancel: () => widget.pop(context, false),
+            onConfirm: () => widget.pop(context, true));
+      },
+    );
+    if (response == true && mounted)
+      context.read<WizzCardsScreenCubit>().deleteCard(card);
   }
 
   @override

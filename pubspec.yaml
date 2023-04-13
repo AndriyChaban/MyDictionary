@@ -34,6 +34,8 @@ dependencies:
     path: packages/features/wizz_cards_screen
   wizz_training_module:
     path: packages/wizz_training_module
+  simple_translation_card:
+    path: packages/features/simple_translation_card
   go_router: ^6.2.0
 #  path_provider: ^2.0.12
 #  path: ^1.8.2

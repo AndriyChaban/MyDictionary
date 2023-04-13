@@ -5,13 +5,18 @@ class AddEditWizzDeckDialog extends StatefulWidget {
   final WizzDeckDM? deck;
   final DictionaryDM? dictionary;
   final Function(BuildContext, dynamic)? popCallback;
+  final String? fromLanguage;
+  final String? toLanguage;
+
   final Future<String?> Function(String, String, String) nameValidator;
   const AddEditWizzDeckDialog(
       {Key? key,
       this.deck,
       this.popCallback,
       this.dictionary,
-      required this.nameValidator})
+      required this.nameValidator,
+      this.fromLanguage,
+      this.toLanguage})
       : super(key: key);
 
   @override
@@ -34,12 +39,12 @@ class _AddEditWizzDeckDialogState extends State<AddEditWizzDeckDialog> {
         ? widget.deck!.fromLanguage
         : isFromDictionary
             ? widget.dictionary!.indexLanguage
-            : klistIfLanguages.first;
+            : widget.fromLanguage ?? klistIfLanguages.first;
     toLanguage = isEdit
         ? widget.deck!.toLanguage
         : isFromDictionary
             ? widget.dictionary!.contentLanguage
-            : klistIfLanguages.first;
+            : widget.toLanguage ?? klistIfLanguages.first;
     _textController.text = isEdit ? widget.deck!.name : '';
     _textController.selection = TextSelection(
       baseOffset: 0,

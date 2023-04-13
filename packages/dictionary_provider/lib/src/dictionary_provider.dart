@@ -283,7 +283,11 @@ class DictionaryProvider {
       final cardsList = cardMatches
           .where((match) => match.group(1) != null && match.group(2) != null)
           .map((match) {
-        final headword = match.group(1)!.trim();
+        final headword = match
+            .group(1)!
+            .replaceAll("{[']}", '')
+            .replaceAll("{[/']}", '')
+            .trim();
         final text = match
             .group(2)!
             .trim()

@@ -58,10 +58,10 @@ class _StyledTappableTextState extends State<StyledTappableText> {
   }
 
   void _onRefTap(String word) {
-    setState(() {
-      context.read<TranslationScreenCubit>().removeSmallBox();
-      widget.onWordTap(word);
-    });
+    // setState(() {
+    context.read<TranslationScreenCubit>().removeSmallBox();
+    widget.onWordTap(word);
+    // });
   }
 
   List<InlineSpan> _createChildren(String text) {

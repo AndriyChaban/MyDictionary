@@ -24,7 +24,7 @@ class _SearchBarState extends State<SearchBar> {
       child: TextField(
         controller: widget.controller,
         // focusNode: widget.focusNode,
-        autofocus: false,
+        autofocus: true,
         onChanged: (val) {
           setState(() {});
         },
