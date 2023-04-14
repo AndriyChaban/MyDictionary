@@ -292,6 +292,7 @@ class _WizzDecksScreenPageState extends State<WizzDecksScreenPage> {
                     pushToNamed: widget.pushToNamed,
                     onAddDictionary: () => _onAddDictionary(context),
                     onPressedManageDictionaries: (BuildContext) {},
+                    onPressedTranslateWord: (BuildContext) {},
                   ),
                   body: BlocListener<WizzDeckScreenCubit, WizzDeckScreenState>(
                     listener: (context, state) {

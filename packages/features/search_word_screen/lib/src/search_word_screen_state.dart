@@ -1,6 +1,4 @@
-import 'package:equatable/equatable.dart';
-
-import 'package:domain_models/domain_models.dart';
+part of 'search_word_screen_bloc.dart';
 
 class SearchWordScreenState extends Equatable {
   final List<CardDM> itemsList;

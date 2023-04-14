@@ -14,13 +14,15 @@ class MainDrawer extends StatefulWidget {
       required this.goToNamed,
       required this.pushToNamed,
       this.onAddDictionary,
-      required this.onPressedManageDictionaries})
+      required this.onPressedManageDictionaries,
+      required this.onPressedTranslateWord})
       : super(key: key);
 
   final void Function(BuildContext, String) pushToNamed;
   final void Function(BuildContext, String, {dynamic payload}) goToNamed;
   final Function()? onAddDictionary;
   final void Function(BuildContext) onPressedManageDictionaries;
+  final void Function(BuildContext) onPressedTranslateWord;
 
   @override
   State<MainDrawer> createState() => _MainDrawerState();
@@ -51,7 +53,8 @@ class _MainDrawerState extends State<MainDrawer> {
 
   void _onTranslateWordTap(BuildContext context) {
     Navigator.pop(context);
-    widget.goToNamed(context, 'search-view');
+    widget.onPressedTranslateWord(context);
+    // widget.goToNamed(context, 'search-view');
   }
 
   void _onWizzDeckPush() {

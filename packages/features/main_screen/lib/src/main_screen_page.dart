@@ -6,11 +6,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dictionary_provider/dictionary_provider.dart';
 import 'package:user_repository/user_repository.dart';
 import 'package:components/components.dart';
-import 'package:main_screen/src/main_screen_state.dart';
 
 import 'components/main_appbar.dart';
-import 'main_screen_bloc.dart';
-import 'main_screen_event.dart';
+import 'settings_cubit.dart';
 
 class MainScreen extends StatefulWidget {
   final DictionaryProvider dictionaryProvider;
@@ -19,6 +17,7 @@ class MainScreen extends StatefulWidget {
   final void Function(BuildContext, String, {dynamic payload}) pushToNamed;
   final void Function(BuildContext, String, {dynamic payload}) goToNamed;
   final void Function(BuildContext) onPressedManageDictionaries;
+  final void Function(BuildContext) onPressedTranslateWord;
   final GlobalKey<ScaffoldState> scaffoldKey;
 
   const MainScreen({
@@ -29,6 +28,7 @@ class MainScreen extends StatefulWidget {
     required this.pushToNamed,
     required this.goToNamed,
     required this.onPressedManageDictionaries,
+    required this.onPressedTranslateWord,
     required this.scaffoldKey,
     // required this.onTranslationSelected,
   }) : super(key: key);
@@ -38,27 +38,27 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  void _onAddDictionary(BuildContext context) async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.any,
-      dialogTitle: 'Pick *.dsl file',
-    );
-    if (result != null && mounted) {
-      context
-          .read<MainScreenBloc>()
-          .add(MainScreenEventAddDictionary(result.paths.first!));
-      // File file = File(result.files.single.path!);
-      // print((result.paths.first));
-      // print(file.path);
-    }
-    // else {
-    // User canceled the picker
-    // print('null');
-    // }
-    // context
-    //     .read<MainScreenBloc>()
-    //     .add(const MainScreenEventAddDictionary('assets/BusinessEnUk.dsl'));
-  }
+  // void _onAddDictionary(BuildContext context) async {
+  //   FilePickerResult? result = await FilePicker.platform.pickFiles(
+  //     type: FileType.any,
+  //     dialogTitle: 'Pick *.dsl file',
+  //   );
+  //   if (result != null && mounted) {
+  //     context
+  //         .read<MainScreenBloc>()
+  //         .add(MainScreenEventAddDictionary(result.paths.first!));
+  //     // File file = File(result.files.single.path!);
+  //     // print((result.paths.first));
+  //     // print(file.path);
+  //   }
+  //   // else {
+  //   // User canceled the picker
+  //   // print('null');
+  //   // }
+  //   // context
+  //   //     .read<MainScreenBloc>()
+  //   //     .add(const MainScreenEventAddDictionary('assets/BusinessEnUk.dsl'));
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -72,49 +72,45 @@ class _MainScreenState extends State<MainScreen> {
         // }
         return false;
       },
-      child: BlocProvider<MainScreenBloc>(
+      child: BlocProvider<SettingsCubit>(
         // lazy: false,
-        create: (context) => MainScreenBloc(
-            dictionaryProvider: widget.dictionaryProvider,
-            userRepository: widget.userRepository)
-          ..add(const MainScreenEventLoadInitial()),
+        create: (context) =>
+            SettingsCubit(userRepository: widget.userRepository),
         child: Builder(builder: (context) {
-          return Stack(
-            children: [
+          return
+              // Stack(
+              // children: [
               Scaffold(
-                appBar: MainAppBar(),
-                key: widget.scaffoldKey,
-                drawer: MainDrawer(
-                  pushToNamed: widget.pushToNamed,
-                  goToNamed: widget.goToNamed,
-                  onPressedManageDictionaries:
-                      widget.onPressedManageDictionaries,
-                  onAddDictionary: () => _onAddDictionary(context),
-                ),
-                body: BlocListener<MainScreenBloc, MainScreenState>(
-                  listener: (context, state) {
-                    if (state.message.isNotEmpty) {
-                      buildInfoSnackBar(context, state.message);
-                    }
-                  },
-                  child: Builder(builder: (context) {
-                    // Scaffold.of(context).closeDrawer();
-                    return Center(child: widget.child);
-                  }),
-                ),
-              ),
-              BlocSelector<MainScreenBloc, MainScreenState, bool>(
-                selector: (state) {
-                  return state.isLoading;
-                },
-                builder: (context, state) {
-                  return state
-                      ? const CenteredLoadingProgressIndicator()
-                      : Container();
-                },
-              ),
-            ],
+            // appBar: MainAppBar(),
+            key: widget.scaffoldKey,
+            drawer: MainDrawer(
+              pushToNamed: widget.pushToNamed,
+              goToNamed: widget.goToNamed,
+              onPressedManageDictionaries: widget.onPressedManageDictionaries,
+              onPressedTranslateWord: widget.onPressedTranslateWord,
+            ),
+            body: widget.child,
+            // body: BlocListener<SettingsCubit, SettingsState>(
+            //   listener: (context, state) {
+            //     // if (state.message.isNotEmpty) {
+            //     //   buildInfoSnackBar(context, state.message);
+            //     // }
+            //   },
+            //   child: Builder(builder: (context) {
+            //     // Scaffold.of(context).closeDrawer();
+            //     return Center(child: widget.child);
+            //   }),
+            // ),
           );
+          // BlocBuilder<SettingsCubit, SettingsState>(
+          //   builder: (context, state) {
+          //     return state
+          //         ? const CenteredLoadingProgressIndicator()
+          //         : Container();
+          //   },
+          //     // ),
+          //   ],
+          // );
         }),
       ),
     );

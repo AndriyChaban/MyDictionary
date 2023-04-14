@@ -15,6 +15,7 @@ import 'package:translation_screen/translation_screen.dart';
 import 'package:wizz_decks_screen/wizz_decks_screen.dart';
 import 'package:wizz_cards_screen/wizz_cards_screen.dart';
 import 'package:dictionaries_screen/dictionaries_screen.dart';
+import 'package:search_word_screen/search_word_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -133,11 +134,15 @@ class _MyDictionaryAppState extends State<MyDictionaryApp> {
   }
 
   void _onAppBarBackPressed(BuildContext context) {
-    context.goNamed(SearchView.routeName);
+    context.goNamed(SearchWordScreen.routeName);
   }
 
   void _onPressedManageDictionaries(BuildContext context) {
     GoRouter.of(context).goNamed(DictionariesScreen.routeName);
+  }
+
+  void _onPressedTranslateWord(BuildContext context) {
+    GoRouter.of(context).goNamed(SearchWordScreen.routeName);
   }
 
   late final _router = GoRouter(
@@ -154,17 +159,47 @@ class _MyDictionaryAppState extends State<MyDictionaryApp> {
               dictionaryProvider: widget.dictionaryProvider,
               userRepository: widget.userRepository,
               onPressedManageDictionaries: _onPressedManageDictionaries,
+              onPressedTranslateWord: _onPressedTranslateWord,
               pushToNamed: _pushToNamed,
               goToNamed: _goToNamed,
               child: child);
         },
         routes: [
+          // GoRoute(
+          //   path: '/search_view',
+          //   name: SearchView.routeName,
+          //   builder: (BuildContext context, GoRouterState state) {
+          //     // print(state.location);
+          //     return SearchView(onWordClicked: _onWordClicked);
+          //   },
+          //   routes: [
+          //     GoRoute(
+          //       path: r'word$:word',
+          //       parentNavigatorKey: _rootNavigatorKey,
+          //       name: TranslationScreen.routeName,
+          //       builder: (context, state) {
+          //         print(state.location);
+          //         return TranslationScreen(
+          //           word: state.params['word']!,
+          //           dictionaryProvider: widget.dictionaryProvider,
+          //           userRepository: widget.userRepository,
+          //           onAppBarBackPressed: () => _onAppBarBackPressed(context),
+          //           onWordClicked: (word) => _onWordClicked(context, word),
+          //           onAddCardToWizzDeck: _onAddCardToWizzDeck,
+          //         );
+          //       },
+          //     ),
+          //   ],
+          // ),
           GoRoute(
-            path: '/search_view',
-            name: SearchView.routeName,
+            path: '/search_word_screen',
+            name: SearchWordScreen.routeName,
             builder: (BuildContext context, GoRouterState state) {
-              // print(state.location);
-              return SearchView(onWordClicked: _onWordClicked);
+              return SearchWordScreen(
+                  userRepository: widget.userRepository,
+                  dictionaryProvider: widget.dictionaryProvider,
+                  onWordClicked: _onWordClicked,
+                  scaffoldKey: _scaffoldKey);
             },
             routes: [
               GoRoute(
@@ -185,13 +220,13 @@ class _MyDictionaryAppState extends State<MyDictionaryApp> {
               ),
             ],
           ),
-          GoRoute(
-              path: '/dictionaries_view',
-              name: DictionariesView.routeName,
-              builder: (context, state) {
-                // print(state.location);
-                return const DictionariesView();
-              }),
+          // GoRoute(
+          //     path: '/dictionaries_view',
+          //     name: DictionariesView.routeName,
+          //     builder: (context, state) {
+          //       // print(state.location);
+          //       return const DictionariesView();
+          //     }),
           GoRoute(
               path: '/dictionaries_screen',
               parentNavigatorKey: _shellNavigatorKey,

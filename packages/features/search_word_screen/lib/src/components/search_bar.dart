@@ -6,11 +6,13 @@ class SearchBar extends StatefulWidget {
     required this.controller,
     required this.focusNode,
     required this.text,
+    required this.onSearchTermChanged,
     // required this.onChanged
   }) : super(key: key);
   final TextEditingController controller;
   final FocusNode focusNode;
   final String text;
+  final Function(BuildContext) onSearchTermChanged;
 
   @override
   State<SearchBar> createState() => _SearchBarState();
@@ -18,13 +20,33 @@ class SearchBar extends StatefulWidget {
 
 class _SearchBarState extends State<SearchBar> {
   @override
+  void initState() {
+    super.initState();
+    widget.controller.addListener(_searchControllerListener);
+    widget.focusNode.requestFocus();
+    // WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+    //   FocusScope.of(context).requestFocus(_searchBarFocusNode);
+    // });
+  }
+
+  void _searchControllerListener() {
+    widget.onSearchTermChanged(context);
+  }
+
+  @override
+  void dispose() {
+    widget.controller.removeListener(_searchControllerListener);
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
       child: TextField(
         controller: widget.controller,
-        // focusNode: widget.focusNode,
-        autofocus: true,
+        focusNode: widget.focusNode,
+        // autofocus: true,
         onChanged: (val) {
           setState(() {});
         },
