@@ -18,6 +18,8 @@ class MainScreen extends StatefulWidget {
   final Widget child;
   final void Function(BuildContext, String, {dynamic payload}) pushToNamed;
   final void Function(BuildContext, String, {dynamic payload}) goToNamed;
+  final void Function(BuildContext) onPressedManageDictionaries;
+  final GlobalKey<ScaffoldState> scaffoldKey;
 
   const MainScreen({
     Key? key,
@@ -26,6 +28,8 @@ class MainScreen extends StatefulWidget {
     required this.child,
     required this.pushToNamed,
     required this.goToNamed,
+    required this.onPressedManageDictionaries,
+    required this.scaffoldKey,
     // required this.onTranslationSelected,
   }) : super(key: key);
 
@@ -79,23 +83,24 @@ class _MainScreenState extends State<MainScreen> {
             children: [
               Scaffold(
                 appBar: MainAppBar(),
+                key: widget.scaffoldKey,
                 drawer: MainDrawer(
                   pushToNamed: widget.pushToNamed,
                   goToNamed: widget.goToNamed,
+                  onPressedManageDictionaries:
+                      widget.onPressedManageDictionaries,
                   onAddDictionary: () => _onAddDictionary(context),
                 ),
-                body: SafeArea(
-                  child: BlocListener<MainScreenBloc, MainScreenState>(
-                    listener: (context, state) {
-                      if (state.message.isNotEmpty) {
-                        buildInfoSnackBar(context, state.message);
-                      }
-                    },
-                    child: Builder(builder: (context) {
-                      // Scaffold.of(context).closeDrawer();
-                      return Center(child: widget.child);
-                    }),
-                  ),
+                body: BlocListener<MainScreenBloc, MainScreenState>(
+                  listener: (context, state) {
+                    if (state.message.isNotEmpty) {
+                      buildInfoSnackBar(context, state.message);
+                    }
+                  },
+                  child: Builder(builder: (context) {
+                    // Scaffold.of(context).closeDrawer();
+                    return Center(child: widget.child);
+                  }),
                 ),
               ),
               BlocSelector<MainScreenBloc, MainScreenState, bool>(

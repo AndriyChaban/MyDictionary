@@ -38,7 +38,7 @@ class DBService {
         if (fileExists) {
           // print('clearing database');
           // isar;
-          isar.writeTxnSync(() async => isar.cards.clearSync());
+          isar.writeTxnSync(() => isar.cards.clearSync());
         }
 
         // print('writing database');
@@ -63,8 +63,8 @@ class DBService {
     try {
       final isar = getDictionaryInstance(
           dictionaryName: dictionary.dictionaryName, directory: directoryPath);
-
-      isar?.clearSync();
+      isar?.writeTxnSync(() => isar.clearSync());
+      // isar?.clearSync();
       // TODO remove database files from memory ???
     } catch (e) {
       rethrow;

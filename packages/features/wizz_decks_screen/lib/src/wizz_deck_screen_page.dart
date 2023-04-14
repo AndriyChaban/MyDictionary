@@ -291,6 +291,7 @@ class _WizzDecksScreenPageState extends State<WizzDecksScreenPage> {
                     goToNamed: widget.goToNamed,
                     pushToNamed: widget.pushToNamed,
                     onAddDictionary: () => _onAddDictionary(context),
+                    onPressedManageDictionaries: (BuildContext) {},
                   ),
                   body: BlocListener<WizzDeckScreenCubit, WizzDeckScreenState>(
                     listener: (context, state) {

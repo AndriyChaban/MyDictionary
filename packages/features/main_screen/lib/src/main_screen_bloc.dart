@@ -64,7 +64,7 @@ class MainScreenBloc extends Bloc<MainScreenEvent, MainScreenState> {
   }
 
   Future<void> _handleLoadingInitial(Emitter emitter, {String? message}) async {
-    print('Loading initial');
+    // print('Loading initial');
     String? fromLanguage = await userRepository.getFromLanguage;
     String? toLanguage = await userRepository.getToLanguage;
     final dictionaries = await dictionaryProvider.listOfAllDictionaries;

@@ -6,30 +6,34 @@ import 'package:flutter/material.dart';
 // import 'package:main_screen/src/main_screen_event.dart';
 // import 'package:permission_handler/permission_handler.dart';
 
+// TODO make stateless
+
 class MainDrawer extends StatefulWidget {
   MainDrawer(
       {Key? key,
       required this.goToNamed,
       required this.pushToNamed,
-      this.onAddDictionary})
+      this.onAddDictionary,
+      required this.onPressedManageDictionaries})
       : super(key: key);
 
   final void Function(BuildContext, String) pushToNamed;
   final void Function(BuildContext, String, {dynamic payload}) goToNamed;
   final Function()? onAddDictionary;
+  final void Function(BuildContext) onPressedManageDictionaries;
 
   @override
   State<MainDrawer> createState() => _MainDrawerState();
 }
 
 class _MainDrawerState extends State<MainDrawer> {
-  void _onAddDictionary() async {
-    Navigator.pop(context);
-    FocusScope.of(context).unfocus();
-    if (mounted) {
-      if (widget.onAddDictionary != null) widget.onAddDictionary!();
-    }
-  }
+  // void _onAddDictionary() async {
+  //   Navigator.pop(context);
+  //   FocusScope.of(context).unfocus();
+  //   if (mounted) {
+  //     if (widget.onAddDictionary != null) widget.onAddDictionary!();
+  //   }
+  // }
 
   // Future<void> _onDeleteDict(
   //     BuildContext context, DictionaryDM dictionaryName) async {
@@ -40,7 +44,9 @@ class _MainDrawerState extends State<MainDrawer> {
 
   void _onInstalledDictionariesTap(BuildContext context) {
     Navigator.pop(context);
-    widget.goToNamed(context, 'dictionaries-view');
+    // widget.goToNamed(context, 'dictionaries-view');
+
+    widget.onPressedManageDictionaries(context);
   }
 
   void _onTranslateWordTap(BuildContext context) {
@@ -119,19 +125,19 @@ class _MainDrawerState extends State<MainDrawer> {
                       ),
                     ),
                   ),
-                  TextButton.icon(
-                    onPressed: _onAddDictionary,
-                    icon: Icon(
-                      Icons.add,
-                      color: Theme.of(context).textTheme.headlineLarge!.color,
-                    ),
-                    label: Text(
-                      'Add dictionary',
-                      style: TextStyle(
-                        color: Theme.of(context).textTheme.headlineLarge!.color,
-                      ),
-                    ),
-                  ),
+                  // TextButton.icon(
+                  //   onPressed: _onAddDictionary,
+                  //   icon: Icon(
+                  //     Icons.add,
+                  //     color: Theme.of(context).textTheme.headlineLarge!.color,
+                  //   ),
+                  //   label: Text(
+                  //     'Add dictionary',
+                  //     style: TextStyle(
+                  //       color: Theme.of(context).textTheme.headlineLarge!.color,
+                  //     ),
+                  //   ),
+                  // ),
                   const DividerCommon(),
                   TextButton.icon(
                     onPressed: _onWizzDeckPush,

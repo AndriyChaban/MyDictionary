@@ -14,6 +14,7 @@ import 'package:main_screen/main_screen.dart';
 import 'package:translation_screen/translation_screen.dart';
 import 'package:wizz_decks_screen/wizz_decks_screen.dart';
 import 'package:wizz_cards_screen/wizz_cards_screen.dart';
+import 'package:dictionaries_screen/dictionaries_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -61,6 +62,7 @@ class _MyDictionaryAppState extends State<MyDictionaryApp> {
       GlobalKey<NavigatorState>(debugLabel: 'root');
   final GlobalKey<NavigatorState> _shellNavigatorKey =
       GlobalKey<NavigatorState>(debugLabel: 'shell');
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -134,17 +136,24 @@ class _MyDictionaryAppState extends State<MyDictionaryApp> {
     context.goNamed(SearchView.routeName);
   }
 
+  void _onPressedManageDictionaries(BuildContext context) {
+    GoRouter.of(context).goNamed(DictionariesScreen.routeName);
+  }
+
   late final _router = GoRouter(
     navigatorKey: _rootNavigatorKey,
-    initialLocation: '/search_view',
+    // initialLocation: '/search_view',
+    initialLocation: '/dictionaries_screen',
     routes: [
       ShellRoute(
         navigatorKey: _shellNavigatorKey,
         builder: (BuildContext context, GoRouterState state, Widget child) {
           return MainScreen(
               key: state.pageKey,
+              scaffoldKey: _scaffoldKey,
               dictionaryProvider: widget.dictionaryProvider,
               userRepository: widget.userRepository,
+              onPressedManageDictionaries: _onPressedManageDictionaries,
               pushToNamed: _pushToNamed,
               goToNamed: _goToNamed,
               child: child);
@@ -182,6 +191,16 @@ class _MyDictionaryAppState extends State<MyDictionaryApp> {
               builder: (context, state) {
                 // print(state.location);
                 return const DictionariesView();
+              }),
+          GoRoute(
+              path: '/dictionaries_screen',
+              parentNavigatorKey: _shellNavigatorKey,
+              name: DictionariesScreen.routeName,
+              builder: (context, state) {
+                return DictionariesScreen(
+                    scaffoldKey: _scaffoldKey,
+                    dictionaryProvider: widget.dictionaryProvider,
+                    userRepository: widget.userRepository);
               }),
         ],
       ),

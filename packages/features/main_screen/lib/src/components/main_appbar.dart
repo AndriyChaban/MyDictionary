@@ -40,7 +40,7 @@ class _MainAppBarState extends State<MainAppBar> {
           previous.toLanguage != current.toLanguage ||
           previous.dictionaryList != current.dictionaryList,
       builder: (context, state) {
-        bool isSwapable = state.fromLanguage != state.toLanguage &&
+        bool isSwappable = state.fromLanguage != state.toLanguage &&
             state.dictionaryList
                 .where((d) =>
                     d.contentLanguage == state.fromLanguage &&
@@ -108,7 +108,7 @@ class _MainAppBarState extends State<MainAppBar> {
                 ),
               ),
               IconButton(
-                  onPressed: isSwapable ? _onSwapLanguages : null,
+                  onPressed: isSwappable ? _onSwapLanguages : null,
                   icon: const Icon(Icons.compare_arrows_outlined)),
               Flexible(
                 flex: 4,

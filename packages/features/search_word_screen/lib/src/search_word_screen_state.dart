@@ -2,13 +2,13 @@ import 'package:equatable/equatable.dart';
 
 import 'package:domain_models/domain_models.dart';
 
-class MainScreenState extends Equatable {
+class SearchWordScreenState extends Equatable {
   final List<CardDM> itemsList;
 
-  final List<DictionaryDM> dictionaryList;
+  final List<DictionaryDM> dictionaryList; //???
   final String fromLanguage;
   final String toLanguage;
-  final String message;
+  final String? message;
   //
   // final List<String> activeFromLanguages;
   // final List<String> activeToLanguages;
@@ -16,7 +16,7 @@ class MainScreenState extends Equatable {
   final int? nextPage;
   final bool isLoading;
 
-  const MainScreenState({
+  const SearchWordScreenState({
     this.itemsList = const [],
     this.dictionaryList = const [],
     this.fromLanguage = '',
@@ -26,7 +26,7 @@ class MainScreenState extends Equatable {
     this.searchTerm = '',
     this.isLoading = false,
     this.nextPage,
-    this.message = '',
+    this.message,
   });
 
   @override
@@ -43,7 +43,7 @@ class MainScreenState extends Equatable {
         message
       ];
 
-  MainScreenState copyWith(
+  SearchWordScreenState copyWith(
       {List<CardDM>? itemsList,
       String? fromLanguage,
       String? toLanguage,
@@ -54,7 +54,7 @@ class MainScreenState extends Equatable {
       int? nextPage,
       bool? isLoading,
       String? message}) {
-    return MainScreenState(
+    return SearchWordScreenState(
       itemsList: itemsList ?? this.itemsList,
       fromLanguage: fromLanguage ?? this.fromLanguage,
       toLanguage: toLanguage ?? this.toLanguage,
@@ -64,11 +64,11 @@ class MainScreenState extends Equatable {
       searchTerm: searchTerm ?? this.searchTerm,
       nextPage: nextPage ?? this.nextPage,
       isLoading: isLoading ?? this.isLoading,
-      message: message ?? '',
+      message: message,
     );
   }
 }
 
-class MainScreenStateInitial extends MainScreenState {
-  MainScreenStateInitial() : super();
+class SearchWordScreenStateInitial extends SearchWordScreenState {
+  const SearchWordScreenStateInitial() : super();
 }

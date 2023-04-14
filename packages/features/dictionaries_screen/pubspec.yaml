@@ -1,6 +1,4 @@
-name: main_screen
-description: main screen with choice of dictionaries and list of translations
-version: 0.0.1
+name: dictionaries_screen
 publish_to: none
 
 environment:
@@ -14,24 +12,19 @@ dependencies:
     path: ../../dictionary_provider
   user_repository:
     path: ../../user_repository
-  domain_models:
-    path: ../../domain_models
   components:
     path: ../../components
+  domain_models:
+    path: ../../domain_models
   flutter_bloc: ^8.1.2
   equatable: ^2.0.5
   file_picker: ^5.2.7
-#  styled_text: ^7.0.0
-#  permission_handler:
   path:
-#  go_router: ^6.2.0
-
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.0
 
+
 flutter:
-
-
