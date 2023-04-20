@@ -26,7 +26,7 @@ class KeyValueStorage {
       ..registerAdapter(DictionaryCMAdapter())
       ..registerAdapter(WizzDeckCMAdapter())
       ..registerAdapter(WizzCardCMAdapter())
-      ..registerAdapter(ShowFrequencyCMAdapter())
+      // ..registerAdapter(ShowFrequencyCMAdapter())
       ..registerAdapter(DarkModeCMAdapter())
       ..registerAdapter(HistoryDictionaryCMAdapter())
       ..registerAdapter(HistoryCardCMAdapter());

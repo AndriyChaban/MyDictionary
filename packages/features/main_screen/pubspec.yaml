@@ -10,8 +10,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  dictionary_provider:
-    path: ../../dictionary_provider
+#  dictionary_provider:
+#    path: ../../dictionary_provider
   user_repository:
     path: ../../user_repository
   domain_models:
@@ -20,10 +20,10 @@ dependencies:
     path: ../../components
   flutter_bloc: ^8.1.2
   equatable: ^2.0.5
-  file_picker: ^5.2.7
+#  file_picker: ^5.2.7
 #  styled_text: ^7.0.0
 #  permission_handler:
-  path:
+#  path:
 #  go_router: ^6.2.0
 
 

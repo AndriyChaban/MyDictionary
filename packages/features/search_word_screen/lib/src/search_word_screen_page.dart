@@ -1,9 +1,9 @@
-import 'package:dictionary_provider/dictionary_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:components/components.dart';
 import 'package:domain_models/domain_models.dart';
+import 'package:dictionary_provider/dictionary_provider.dart';
 import 'package:search_word_screen/src/components/search_word_appbar.dart';
 import 'package:user_repository/user_repository.dart';
 
@@ -12,19 +12,22 @@ import 'search_word_screen_bloc.dart';
 import 'components/short_translation_card.dart';
 
 class SearchWordScreen extends StatefulWidget {
+  static const routeName = 'search-word-screen';
+
+  final void Function(BuildContext, String) onWordClicked;
+  final UserRepository userRepository;
+  final DictionaryProvider dictionaryProvider;
+  final GlobalKey<ScaffoldState> scaffoldKey;
+  final bool requestFocus;
+
   const SearchWordScreen(
       {Key? key,
       required this.onWordClicked,
       required this.scaffoldKey,
       required this.userRepository,
-      required this.dictionaryProvider})
+      required this.dictionaryProvider,
+      this.requestFocus = true})
       : super(key: key);
-
-  final void Function(BuildContext, String) onWordClicked;
-  final UserRepository userRepository;
-  final DictionaryProvider dictionaryProvider;
-  static const routeName = 'search-word-screen';
-  final GlobalKey<ScaffoldState> scaffoldKey;
 
   @override
   State<SearchWordScreen> createState() => _SearchWordScreenState();
@@ -78,6 +81,7 @@ class _SearchWordScreenState extends State<SearchWordScreen> {
                     controller: _searchController,
                     text: term,
                     focusNode: _searchBarFocusNode,
+                    requestFocus: widget.requestFocus,
                     onSearchTermChanged: _onSearchTermChanged,
                   );
                 },

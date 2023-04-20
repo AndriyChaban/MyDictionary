@@ -12,8 +12,11 @@ class WizzDeckCM extends HiveObject {
   final String toLanguage;
   @HiveField(3)
   final List<WizzCardCM> cards;
+  @HiveField(4)
+  final int sessionNumber;
 
   WizzDeckCM({
+    this.sessionNumber = 0,
     required this.name,
     required this.fromLanguage,
     required this.toLanguage,
@@ -32,23 +35,24 @@ class WizzCardCM extends HiveObject {
   @HiveField(3)
   final String? fullText;
   @HiveField(4)
-  final ShowFrequencyCM? showFrequency;
+  final int? level;
 
-  WizzCardCM({
-    required this.word,
-    required this.meaning,
-    this.examples,
-    this.fullText,
-    this.showFrequency = ShowFrequencyCM.normal,
-  });
+  WizzCardCM(
+      {required this.word,
+      required this.meaning,
+      this.examples,
+      this.fullText,
+      this.level
+      // this.showFrequency = ShowFrequencyCM.normal,
+      });
 }
 
-@HiveType(typeId: 7)
-enum ShowFrequencyCM {
-  @HiveField(0)
-  low,
-  @HiveField(1)
-  normal,
-  @HiveField(2)
-  high
-}
+// @HiveType(typeId: 7)
+// enum ShowFrequencyCM {
+//   @HiveField(0)
+//   low,
+//   @HiveField(1)
+//   normal,
+//   @HiveField(2)
+//   high
+// }

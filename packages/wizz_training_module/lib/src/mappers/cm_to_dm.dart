@@ -18,19 +18,20 @@ extension WizzCardCmtoDm on WizzCardCM {
         meaning: meaning,
         examples: examples,
         fullText: fullText,
-        showFrequency: showFrequency?.toDomain() ?? ShowFrequencyDM.normal);
+        level: level!);
+    // showFrequency: showFrequency?.toDomain() ?? ShowFrequencyDM.normal);
   }
 }
-
-extension ShowFrequencyCMtoDM on ShowFrequencyCM {
-  ShowFrequencyDM toDomain() {
-    switch (this) {
-      case ShowFrequencyCM.low:
-        return ShowFrequencyDM.low;
-      case ShowFrequencyCM.normal:
-        return ShowFrequencyDM.normal;
-      case ShowFrequencyCM.high:
-        return ShowFrequencyDM.high;
-    }
-  }
-}
+//
+// extension ShowFrequencyCMtoDM on ShowFrequencyCM {
+//   ShowFrequencyDM toDomain() {
+//     switch (this) {
+//       case ShowFrequencyCM.low:
+//         return ShowFrequencyDM.low;
+//       case ShowFrequencyCM.normal:
+//         return ShowFrequencyDM.normal;
+//       case ShowFrequencyCM.high:
+//         return ShowFrequencyDM.high;
+//     }
+//   }
+// }

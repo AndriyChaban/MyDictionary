@@ -1,4 +1,3 @@
-import 'package:components/components.dart';
 import 'package:flutter/material.dart';
 
 class SelectableStyledTranslationCard extends StatelessWidget {
@@ -10,27 +9,32 @@ class SelectableStyledTranslationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String headwordCleaned =
-        headword.replaceAll("{[']}", '').replaceAll("{[/']}", '');
+    // String headwordCleaned =
+    //     headword.replaceAll("{[']}", '').replaceAll("{[/']}", '');
     // print(fullText);
-    return Padding(
-      padding: const EdgeInsets.all(20.0),
+    final fullTextUpdated = fullText
+        .replaceAll('[', '<')
+        .replaceAll(']', '>')
+        .replaceAll(r'\<', '[')
+        .replaceAll(r'\>', ']');
+    return SingleChildScrollView(
+      padding: EdgeInsets.all(15),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         // crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          DividerCommon(),
-          SizedBox(height: 30),
+          // DividerCommon(),
+          // SizedBox(height: 10),
           SingleChildScrollView(
             child: Column(
               children: [
-                Text(
-                  headwordCleaned,
-                  maxLines: 3,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 20),
-                SelectableStyledText(fullText: fullText)
+                // Text(
+                //   headwordCleaned,
+                //   maxLines: 3,
+                //   style: const TextStyle(fontWeight: FontWeight.bold),
+                // ),
+                // const SizedBox(height: 10),
+                SelectableStyledText(fullText: fullTextUpdated)
                 // StyledTappableText(
                 // text: text,
                 // onWordTap: onWordClick,

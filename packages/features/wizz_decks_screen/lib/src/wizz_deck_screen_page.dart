@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:lottie/lottie.dart';
+import 'package:wizz_decks_screen/src/components/create_import_deck_fab.dart';
 
 import 'package:wizz_training_module/wizz_training_module.dart';
 import 'package:domain_models/domain_models.dart';
@@ -12,34 +12,38 @@ import './components/add_edit_wizz_deck_dialog.dart';
 import 'wizz_deck_screen_cubit.dart';
 import 'wizz_deck_screen_state.dart';
 
-class WizzDecksScreenPage extends StatefulWidget {
-  const WizzDecksScreenPage(
+class WizzDecksScreen extends StatefulWidget {
+  const WizzDecksScreen(
       {Key? key,
-      required this.pushToNamed,
-      required this.goToNamed,
       required this.wizzTrainingModule,
       required this.pop,
       // this.dictionary,
       required this.addRouteListener,
       required this.removeRouteListener,
-      this.dictionaryFromTranslationScreen})
+      this.dictionaryFromTranslationScreen,
+      required this.scaffoldKey,
+      required this.backToSearchWordScreen,
+      required this.pushToWizzCardsScreen,
+      required this.onPressedStartLearning})
       : super(key: key);
   static const routeName = 'wizz-decks';
 
   final WizzTrainingModule wizzTrainingModule;
   // final DictionaryDM? dictionary;
-  final Function(BuildContext, String, {dynamic payload}) pushToNamed;
-  final Function(BuildContext, String, {dynamic payload}) goToNamed;
+  final Function(BuildContext, dynamic) pushToWizzCardsScreen;
   final Function(BuildContext, dynamic) pop;
   final Function(BuildContext, VoidCallback) addRouteListener;
   final Function(BuildContext, VoidCallback) removeRouteListener;
+  final Function(BuildContext, String) backToSearchWordScreen;
+  final Function(BuildContext, WizzDeckDM, bool, int) onPressedStartLearning;
   final DictionaryDM? dictionaryFromTranslationScreen;
+  final GlobalKey<ScaffoldState> scaffoldKey;
 
   @override
-  State<WizzDecksScreenPage> createState() => _WizzDecksScreenPageState();
+  State<WizzDecksScreen> createState() => _WizzDecksScreenState();
 }
 
-class _WizzDecksScreenPageState extends State<WizzDecksScreenPage> {
+class _WizzDecksScreenState extends State<WizzDecksScreen> {
   late String? fromLanguage;
   late String? toLanguage;
 
@@ -54,8 +58,6 @@ class _WizzDecksScreenPageState extends State<WizzDecksScreenPage> {
 
   void _onClickAddDeckButton(
       BuildContext context, WizzDeckScreenCubit cubit) async {
-    print(fromLanguage);
-    print(toLanguage);
     final response = await showDialog<WizzDeckDM>(
         context: context,
         barrierDismissible: false,
@@ -69,7 +71,6 @@ class _WizzDecksScreenPageState extends State<WizzDecksScreenPage> {
                     name: name,
                     fromLanguage: fromLanguage,
                     toLanguage: toLanguage);
-                // print(response);
                 return response;
               },
               popCallback: widget.pop,
@@ -81,6 +82,7 @@ class _WizzDecksScreenPageState extends State<WizzDecksScreenPage> {
 
   void _onClickEditDeck(BuildContext context, WizzDeckScreenCubit cubit,
       WizzDeckDM oldDeck) async {
+    Navigator.pop(context);
     final newDeck = await showDialog<WizzDeckDM>(
         context: context,
         barrierDismissible: false,
@@ -98,33 +100,52 @@ class _WizzDecksScreenPageState extends State<WizzDecksScreenPage> {
               popCallback: widget.pop,
             ));
     if (newDeck != null) {
-      // print(oldDeck);
-      // print(newDeck);
       cubit.editWizzDeck(oldDeck: oldDeck, newDeck: newDeck);
     }
   }
 
-  void _onClickDeckTile(BuildContext context, WizzDeckDM deck) async {
+  void _onClickExportDeck(
+      BuildContext context, WizzDeckScreenCubit cubit, WizzDeckDM deck) {
+    Navigator.pop(context);
+    if (deck.cards.isEmpty) {
+      buildInfoSnackBar(context, 'No card in deck');
+    } else {
+      cubit.exportWizzDeck(deck);
+    }
+  }
+
+  void _onClickImportDeck(WizzDeckScreenCubit cubit) async {
+    try {
+      await cubit.importWizzDeck();
+    } on XmlFileParsingKeyExistsException {
+      final response = await showDialog<bool>(
+          context: context,
+          builder: (context) => ConfirmCancelDialog(
+              title: 'This deck already exists',
+              message: 'Do you want to overwrite?',
+              onCancel: () => widget.pop(context, false),
+              onConfirm: () => widget.pop(context, true)));
+      if (response == true) {
+        cubit.importWizzDeck(force: true);
+      }
+    }
+  }
+
+  void _onClickDeckTile(BuildContext context, WizzDeckDM deck) {
+    bool isFirst = true;
     void refresh() {
-      context.read<WizzDeckScreenCubit>().getListOfAvailableDecks();
-      widget.removeRouteListener(context, refresh);
+      if (!isFirst) {
+        context.read<WizzDeckScreenCubit>().getListOfAvailableDecks();
+        widget.removeRouteListener(context, refresh);
+      }
+      isFirst = false;
     }
 
     widget.addRouteListener(context, refresh);
-    widget.pushToNamed(context, 'wizz-cards', payload: {
+    widget.pushToWizzCardsScreen(context, {
       'deck': deck,
       'dictionaryFromTranslationScreen': widget.dictionaryFromTranslationScreen
     });
-  }
-
-  void _onAddDictionary(BuildContext context) async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.any,
-      dialogTitle: 'Pick *.dsl file',
-    );
-    if (result != null && mounted) {
-      context.read<WizzDeckScreenCubit>().addDictionary(result.paths.first!);
-    }
   }
 
   Future<bool?> _onConfirmDismiss(DismissDirection direction) async {
@@ -142,13 +163,28 @@ class _WizzDecksScreenPageState extends State<WizzDecksScreenPage> {
     return response;
   }
 
+  void _onTapMenu() {
+    widget.scaffoldKey.currentState?.openDrawer();
+  }
+
+  void _backToSearchWordScreen(BuildContext context) {
+    final word = widget.dictionaryFromTranslationScreen?.cards.first.headword;
+    if (word != null) widget.backToSearchWordScreen(context, word);
+  }
+
+  void _onStartTraining(
+      BuildContext context, WizzDeckDM deck, bool isDirectLearning, int index) {
+    if (deck.cards.isEmpty) {
+      buildInfoSnackBar(context, '${deck.name} is Empty');
+    } else {
+      widget.onPressedStartLearning(context, deck, isDirectLearning, index);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final bool isFromTranslationScreen =
         widget.dictionaryFromTranslationScreen != null;
-    // FocusScope.of(context)
-    //   //   ..requestFocus()
-    //   ..unfocus();
     return BlocProvider<WizzDeckScreenCubit>(
       create: (context) =>
           WizzDeckScreenCubit(wizzTrainingModule: widget.wizzTrainingModule)
@@ -161,18 +197,20 @@ class _WizzDecksScreenPageState extends State<WizzDecksScreenPage> {
         child: BlocBuilder<WizzDeckScreenCubit, WizzDeckScreenState>(
             builder: (context, state) {
           final cubit = context.read<WizzDeckScreenCubit>();
-          // print(widget.dictionaryFromTranslationScreen);
           return Stack(
             children: [
               Scaffold(
                   appBar: AppBar(
                     centerTitle: true,
-                    // leadingWidth: 30,
+                    leading: IconButton(
+                      icon: const Icon(Icons.menu),
+                      onPressed: _onTapMenu,
+                    ),
                     title: Row(
                       crossAxisAlignment: isFromTranslationScreen
                           ? CrossAxisAlignment.end
                           : CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text(
                           'Decks:',
@@ -276,34 +314,23 @@ class _WizzDecksScreenPageState extends State<WizzDecksScreenPage> {
                         ),
                       ],
                     ),
-                    // leading: IconButton(
-                    //   onPressed: () => widget.pop(context, null),
-                    //   icon: const Icon(Icons.arrow_back_rounded),
-                    // ),
                   ),
-                  floatingActionButton: FloatingActionButton(
-                    onPressed: () => _onClickAddDeckButton(context, cubit),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15)),
-                    child: const Icon(Icons.add),
-                  ),
-                  drawer: MainDrawer(
-                    goToNamed: widget.goToNamed,
-                    pushToNamed: widget.pushToNamed,
-                    onAddDictionary: () => _onAddDictionary(context),
-                    onPressedManageDictionaries: (BuildContext) {},
-                    onPressedTranslateWord: (BuildContext) {},
-                  ),
+                  floatingActionButton: CreateImportDeckFAB(
+                      onClickCreateDeck: () =>
+                          _onClickAddDeckButton(context, cubit),
+                      onClickImportDeck: () => _onClickImportDeck(cubit),
+                      isFromTranslationScreen: isFromTranslationScreen),
                   body: BlocListener<WizzDeckScreenCubit, WizzDeckScreenState>(
                     listener: (context, state) {
                       if (state.errorMessage != null) {
                         buildInfoSnackBar(context, state.errorMessage!);
                       }
                     },
-                    child: state.listOfDecks!.isEmpty
+                    child: state.listOfDecks!.isEmpty &&
+                            widget.dictionaryFromTranslationScreen == null
                         ? Center(
                             child: Text(
-                                'No decks for ${state.fromLanguage.toCapital()} → ${state.toLanguage.toCapital()} yet'),
+                                'No ${state.fromLanguage.toCapital()} to ${state.toLanguage.toCapital()} decks'),
                           )
                         : Column(
                             mainAxisAlignment: MainAxisAlignment.start,
@@ -328,7 +355,8 @@ class _WizzDecksScreenPageState extends State<WizzDecksScreenPage> {
                                         ),
                                         IconButton(
                                             onPressed: () =>
-                                                widget.pop(context, null),
+                                                _backToSearchWordScreen(
+                                                    context),
                                             icon: Icon(Icons.clear,
                                                 color: Theme.of(context)
                                                     .canvasColor))
@@ -338,9 +366,14 @@ class _WizzDecksScreenPageState extends State<WizzDecksScreenPage> {
                                 ),
                               Expanded(
                                 child: ListView.separated(
-                                  itemCount: state.listOfDecks?.length ?? 0,
+                                  itemCount: state.listOfDecks != null
+                                      ? state.listOfDecks!.length + 1
+                                      : 0,
                                   padding: const EdgeInsets.all(5),
                                   itemBuilder: (context, index) {
+                                    if (index >= state.listOfDecks!.length) {
+                                      return const SizedBox(height: 80);
+                                    }
                                     final deck = state.listOfDecks![index];
                                     return Dismissible(
                                       key: UniqueKey(),
@@ -391,40 +424,151 @@ class _WizzDecksScreenPageState extends State<WizzDecksScreenPage> {
                                         elevation: 10,
                                         child: Padding(
                                           padding: const EdgeInsets.symmetric(
-                                              horizontal: 5.0, vertical: 10),
+                                              horizontal: 0.0, vertical: 10),
                                           child: ListTile(
-                                            title: Text(
-                                              deck.name.toUpperCase(),
-                                              style: const TextStyle(
-                                                  fontWeight: FontWeight.bold),
+                                            title: Hero(
+                                              tag: 'deck-name-$index',
+                                              child: Text(
+                                                deck.name.toCapital(),
+                                                style: const TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
                                             ),
-                                            subtitle: Text(
-                                                '${deck.fromLanguage.toCapital()} - ${deck.toLanguage.toCapital()}\n'
-                                                '${deck.cards.length} entries'),
+                                            subtitle: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  '${deck.fromLanguage.toCapital()} - ${deck.toLanguage.toCapital()}\n'
+                                                  '${deck.cards.length} ${deck.cards.length != 1 ? 'entries' : 'entry'}',
+                                                  textAlign: TextAlign.left,
+                                                ),
+                                                DividerCommon(),
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceAround,
+                                                  children: [
+                                                    InkWell(
+                                                      onTap: () =>
+                                                          _onStartTraining(
+                                                              context,
+                                                              deck,
+                                                              true,
+                                                              index),
+                                                      child: Container(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                    .symmetric(
+                                                                horizontal: 5),
+                                                        decoration:
+                                                            BoxDecoration(
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            15),
+                                                                border:
+                                                                    Border.all(
+                                                                  width: 2,
+                                                                  color: Colors
+                                                                      .green,
+                                                                )),
+                                                        child: Row(
+                                                          children: [
+                                                            Text(
+                                                                'Start ${deck.fromLanguage.substring(0, 2).toCapital()}'),
+                                                            const Icon(
+                                                              Icons
+                                                                  .arrow_forward,
+                                                              size: 20,
+                                                            ),
+                                                            Text(deck.toLanguage
+                                                                .substring(0, 2)
+                                                                .toCapital())
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    InkWell(
+                                                      onTap: () =>
+                                                          _onStartTraining(
+                                                              context,
+                                                              deck,
+                                                              false,
+                                                              index),
+                                                      child: Container(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                    .symmetric(
+                                                                horizontal: 5),
+                                                        decoration:
+                                                            BoxDecoration(
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            15),
+                                                                border:
+                                                                    Border.all(
+                                                                  width: 2,
+                                                                  color: Colors
+                                                                      .green,
+                                                                )),
+                                                        child: Row(
+                                                          children: [
+                                                            Text(
+                                                                'Start ${deck.fromLanguage.substring(0, 2).toCapital()}'),
+                                                            const Icon(
+                                                              Icons.arrow_back,
+                                                              size: 20,
+                                                            ),
+                                                            Text(deck.toLanguage
+                                                                .substring(0, 2)
+                                                                .toCapital())
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                )
+                                              ],
+                                            ),
                                             trailing:
                                                 widget.dictionaryFromTranslationScreen ==
                                                         null
-                                                    ? Row(
-                                                        mainAxisSize:
-                                                            MainAxisSize.min,
-                                                        children: [
-                                                          IconButton(
-                                                            icon: const Icon(
-                                                                Icons.start),
-                                                            onPressed: () {},
-                                                          ),
-                                                          IconButton(
+                                                    ? PopupMenuButton(
+                                                        itemBuilder: (context) {
+                                                        return [
+                                                          PopupMenuItem(
+                                                              child: TextButton
+                                                                  .icon(
                                                             icon: const Icon(Icons
                                                                 .edit_outlined),
+                                                            label: const Text(
+                                                                'Edit'),
                                                             onPressed: () {
                                                               _onClickEditDeck(
                                                                   context,
                                                                   cubit,
                                                                   deck);
                                                             },
-                                                          ),
-                                                        ],
-                                                      )
+                                                          )),
+                                                          PopupMenuItem(
+                                                              child: TextButton
+                                                                  .icon(
+                                                            icon: const Icon(Icons
+                                                                .file_upload_outlined),
+                                                            label: const Text(
+                                                                'Export'),
+                                                            onPressed: () {
+                                                              _onClickExportDeck(
+                                                                  context,
+                                                                  cubit,
+                                                                  deck);
+                                                            },
+                                                          )),
+                                                        ];
+                                                      })
                                                     : null,
                                             onTap: () =>
                                                 _onClickDeckTile(context, deck),

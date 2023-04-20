@@ -17,6 +17,7 @@ class WizzDeckCMAdapter extends TypeAdapter<WizzDeckCM> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return WizzDeckCM(
+      sessionNumber: fields[4] as int,
       name: fields[0] as String,
       fromLanguage: fields[1] as String,
       toLanguage: fields[2] as String,
@@ -27,7 +28,7 @@ class WizzDeckCMAdapter extends TypeAdapter<WizzDeckCM> {
   @override
   void write(BinaryWriter writer, WizzDeckCM obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(5)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -35,7 +36,9 @@ class WizzDeckCMAdapter extends TypeAdapter<WizzDeckCM> {
       ..writeByte(2)
       ..write(obj.toLanguage)
       ..writeByte(3)
-      ..write(obj.cards);
+      ..write(obj.cards)
+      ..writeByte(4)
+      ..write(obj.sessionNumber);
   }
 
   @override
@@ -64,7 +67,7 @@ class WizzCardCMAdapter extends TypeAdapter<WizzCardCM> {
       meaning: fields[1] as String,
       examples: fields[2] as String?,
       fullText: fields[3] as String?,
-      showFrequency: fields[4] as ShowFrequencyCM?,
+      level: fields[4] as int?,
     );
   }
 
@@ -81,7 +84,7 @@ class WizzCardCMAdapter extends TypeAdapter<WizzCardCM> {
       ..writeByte(3)
       ..write(obj.fullText)
       ..writeByte(4)
-      ..write(obj.showFrequency);
+      ..write(obj.level);
   }
 
   @override
@@ -91,50 +94,6 @@ class WizzCardCMAdapter extends TypeAdapter<WizzCardCM> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is WizzCardCMAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
-}
-
-class ShowFrequencyCMAdapter extends TypeAdapter<ShowFrequencyCM> {
-  @override
-  final int typeId = 7;
-
-  @override
-  ShowFrequencyCM read(BinaryReader reader) {
-    switch (reader.readByte()) {
-      case 0:
-        return ShowFrequencyCM.low;
-      case 1:
-        return ShowFrequencyCM.normal;
-      case 2:
-        return ShowFrequencyCM.high;
-      default:
-        return ShowFrequencyCM.low;
-    }
-  }
-
-  @override
-  void write(BinaryWriter writer, ShowFrequencyCM obj) {
-    switch (obj) {
-      case ShowFrequencyCM.low:
-        writer.writeByte(0);
-        break;
-      case ShowFrequencyCM.normal:
-        writer.writeByte(1);
-        break;
-      case ShowFrequencyCM.high:
-        writer.writeByte(2);
-        break;
-    }
-  }
-
-  @override
-  int get hashCode => typeId.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is ShowFrequencyCMAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

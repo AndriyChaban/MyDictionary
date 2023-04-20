@@ -6,8 +6,7 @@ class AddEditWizzCardDialog extends StatefulWidget {
   final WizzCardDM? cardForEditing;
   final WizzDeckDM deck;
   final Function(BuildContext, dynamic)? popCallback;
-  final Function(BuildContext, String, {dynamic payload}) pushToNamed;
-  final Function(BuildContext, String, {dynamic payload}) goToNamed;
+  final Function(BuildContext, WizzCardDM)? pushToSimpleTranslationCard;
   final Future<String?> Function(String) nameValidator;
   const AddEditWizzCardDialog(
       {Key? key,
@@ -16,8 +15,7 @@ class AddEditWizzCardDialog extends StatefulWidget {
       this.popCallback,
       required this.deck,
       required this.nameValidator,
-      required this.pushToNamed,
-      required this.goToNamed})
+      this.pushToSimpleTranslationCard})
       : super(key: key);
 
   @override
@@ -33,7 +31,7 @@ class _AddEditWizzCardDialogState extends State<AddEditWizzCardDialog> {
   late String toLanguage;
   late final bool isEdit = widget.cardForEditing != null;
   late final bool isFromDictionary = widget.cardFromDictionary != null;
-  late ShowFrequencyDM showFrequency;
+  // late ShowFrequencyDM showFrequency;
   String? errorWordValidation;
 
   @override
@@ -59,17 +57,25 @@ class _AddEditWizzCardDialogState extends State<AddEditWizzCardDialog> {
     _meaningTextController.text = isEdit
         ? widget.cardForEditing!.meaning
         : isFromDictionary
-            ? _parseMeaning(widget.cardFromDictionary!.text)
+            ? _parseMeaning(widget.cardFromDictionary!.text
+                .replaceAll('[', '<')
+                .replaceAll(']', '>')
+                .replaceAll(r'\<', '[')
+                .replaceAll(r'\>', ']'))
             : '';
 
     _examplesTextController.text = isEdit
         ? widget.cardForEditing?.examples ?? ''
         : isFromDictionary
-            ? _parseExamples(widget.cardFromDictionary!.text)
+            ? _parseExamples(widget.cardFromDictionary!.text
+                .replaceAll('[', '<')
+                .replaceAll(']', '>')
+                .replaceAll(r'\<', '[')
+                .replaceAll(r'\>', ']'))
             : '';
 
-    showFrequency =
-        isEdit ? widget.cardForEditing!.showFrequency! : ShowFrequencyDM.normal;
+    // showFrequency =
+    //     isEdit ? widget.cardForEditing!.showFrequency! : ShowFrequencyDM.normal;
   }
 
   String _parseMeaning(String text) {
@@ -114,7 +120,7 @@ class _AddEditWizzCardDialogState extends State<AddEditWizzCardDialog> {
           word: _wordTextController.text,
           meaning: _meaningTextController.text,
           examples: _examplesTextController.text,
-          showFrequency: showFrequency,
+          level: 0,
           fullText: isEdit
               ? widget.cardForEditing!.fullText
               : isFromDictionary
@@ -132,33 +138,35 @@ class _AddEditWizzCardDialogState extends State<AddEditWizzCardDialog> {
   }
 
   void _onCancel() {
-    if (widget.cardFromDictionary != null) {
-      widget.goToNamed(context, 'search-view');
-    } else {
-      if (widget.popCallback != null) {
-        FocusScope.of(context).unfocus();
-        widget.popCallback!(context, null);
-      }
-    }
+    // FocusScope.of(context).unfocus();
+    widget.popCallback!(context, null);
   }
 
   void _onOpenCard() {
     print('open card');
-    final payload = {
-      'headword': widget.cardForEditing?.word ??
-          widget.cardFromDictionary?.headword ??
-          'None',
-      'meaning': widget.cardForEditing?.meaning,
-      'examples': widget.cardForEditing?.examples,
-      'fullText':
-          widget.cardFromDictionary?.text ?? widget.cardForEditing?.fullText
-    };
-    widget.pushToNamed(context, 'simple-translation-card', payload: payload);
+    // final payload = {
+    //   'headword': widget.cardForEditing?.word ??
+    //       widget.cardFromDictionary?.headword ??
+    //       'None',
+    //   'meaning': widget.cardForEditing?.meaning,
+    //   'examples': widget.cardForEditing?.examples,
+    //   'fullText':
+    //       widget.cardFromDictionary?.text ?? widget.cardForEditing?.fullText
+    // };
+    final card = WizzCardDM(
+        word: widget.cardForEditing?.word ??
+            widget.cardFromDictionary?.headword ??
+            'None',
+        meaning: widget.cardForEditing?.meaning ?? '',
+        examples: widget.cardForEditing?.examples,
+        fullText: widget.cardFromDictionary?.text ??
+            widget.cardForEditing?.fullText ??
+            '');
+    widget.pushToSimpleTranslationCard!(context, card);
   }
 
   @override
   Widget build(BuildContext context) {
-    // final cubit = context.read<WizzDeckScreenCubit>();
     assert(
         !(widget.cardFromDictionary != null && widget.cardForEditing != null),
         'widget.cardFromDictionary != null && widget.cardForEditing != null');
@@ -209,48 +217,48 @@ class _AddEditWizzCardDialogState extends State<AddEditWizzCardDialog> {
                 ],
               ),
               const SizedBox(height: 5),
-              Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-                const Text('Priority: '),
-                Column(
-                  children: [
-                    Radio<ShowFrequencyDM>(
-                        value: ShowFrequencyDM.low,
-                        groupValue: showFrequency,
-                        onChanged: (val) {
-                          setState(() {
-                            showFrequency = val!;
-                          });
-                        }),
-                    const Text('Low'),
-                  ],
-                ),
-                Column(
-                  children: [
-                    Radio<ShowFrequencyDM>(
-                        value: ShowFrequencyDM.normal,
-                        groupValue: showFrequency,
-                        onChanged: (val) {
-                          setState(() {
-                            showFrequency = val!;
-                          });
-                        }),
-                    const Text('Normal'),
-                  ],
-                ),
-                Column(
-                  children: [
-                    Radio<ShowFrequencyDM>(
-                        value: ShowFrequencyDM.high,
-                        groupValue: showFrequency,
-                        onChanged: (val) {
-                          setState(() {
-                            showFrequency = val!;
-                          });
-                        }),
-                    const Text('High'),
-                  ],
-                ),
-              ]),
+              // Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+              //   const Text('Priority: '),
+              //   Column(
+              //     children: [
+              //       Radio<ShowFrequencyDM>(
+              //           value: ShowFrequencyDM.low,
+              //           groupValue: showFrequency,
+              //           onChanged: (val) {
+              //             setState(() {
+              //               showFrequency = val!;
+              //             });
+              //           }),
+              //       const Text('Low'),
+              //     ],
+              //   ),
+              //   Column(
+              //     children: [
+              //       Radio<ShowFrequencyDM>(
+              //           value: ShowFrequencyDM.normal,
+              //           groupValue: showFrequency,
+              //           onChanged: (val) {
+              //             setState(() {
+              //               showFrequency = val!;
+              //             });
+              //           }),
+              //       const Text('Normal'),
+              //     ],
+              //   ),
+              //   Column(
+              //     children: [
+              //       Radio<ShowFrequencyDM>(
+              //           value: ShowFrequencyDM.high,
+              //           groupValue: showFrequency,
+              //           onChanged: (val) {
+              //             setState(() {
+              //               showFrequency = val!;
+              //             });
+              //           }),
+              //       const Text('High'),
+              //     ],
+              //   ),
+              // ]),
               const SizedBox(height: 15),
               TextFormField(
                 autofocus: false,
@@ -314,7 +322,7 @@ class _AddEditWizzCardDialogState extends State<AddEditWizzCardDialog> {
       actions: [
         if (((widget.cardFromDictionary != null &&
                 widget.cardFromDictionary!.text.isNotEmpty) ||
-            widget.cardForEditing?.fullText != null))
+            (widget.cardForEditing != null)))
           IconButton(
             onPressed: _onOpenCard,
             icon: const Icon(Icons.translate),

@@ -104,8 +104,9 @@ class DictionaryScreenCubit extends Cubit<DictionariesScreenState> {
           forceAllDicts: true, dictionaries: allDictionaries);
       final listTo = _listOfAllActiveToLanguages(
           forceAllDicts: true, dictionaries: allDictionaries);
-      if (!listFrom.contains(from)) from = listFrom.first;
-      if (!listTo.contains(to)) to = listTo.first;
+      if (!listFrom.contains(from))
+        from = listFrom.isEmpty ? null : listFrom.first;
+      if (!listTo.contains(to)) to = listTo.isEmpty ? null : listTo.first;
       await initialLoad(message: 'Successfully deleted ${dictionary.name}');
     } catch (e) {
       // print('Could not delete dictionary');

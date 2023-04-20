@@ -43,15 +43,19 @@ class _DictionariesScreenState extends State<DictionariesScreen> {
               final list = state.dictionaryList;
               return Stack(
                 children: [
-                  ListView.separated(
-                    itemCount: list.length,
-                    itemBuilder: (context, index) => DictionaryTile(
-                      key: ValueKey(list[index].name),
-                      dictionary: list[index],
-                    ),
-                    separatorBuilder: (BuildContext context, int index) =>
-                        const DividerCommon(),
-                  ),
+                  state.dictionaryList.isNotEmpty
+                      ? ListView.separated(
+                          itemCount: list.length,
+                          itemBuilder: (context, index) => DictionaryTile(
+                            key: ValueKey(list[index].name),
+                            dictionary: list[index],
+                          ),
+                          separatorBuilder: (BuildContext context, int index) =>
+                              const DividerCommon(),
+                        )
+                      : const Center(
+                          child: Text('No dictionaries'),
+                        ),
                   if (state.isLoading) const CenteredLoadingProgressIndicator()
                 ],
               );

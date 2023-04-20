@@ -4,18 +4,20 @@ class WizzCardDM extends Equatable {
   final String word, meaning;
   final String? examples;
   final String? fullText;
-  final ShowFrequencyDM? showFrequency;
+  final int level;
+  // final ShowFrequencyDM? showFrequency;
 
   const WizzCardDM({
+    this.level = 1,
     required this.word,
     required this.meaning,
     this.examples,
     this.fullText,
-    this.showFrequency = ShowFrequencyDM.normal,
+    // this.showFrequency = ShowFrequencyDM.normal,
   });
 
   @override
-  List<Object?> get props => [word, showFrequency, meaning, examples, fullText];
+  List<Object?> get props => [word, level, meaning, examples, fullText];
 }
 
-enum ShowFrequencyDM { low, normal, high }
+// enum ShowFrequencyDM { low, normal, high }

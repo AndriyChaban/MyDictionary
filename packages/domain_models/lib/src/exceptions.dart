@@ -9,3 +9,7 @@ class DictionaryKeyDoesNotExistException implements Exception {}
 class DictionaryCreationIsInProgress implements Exception {}
 
 class DatabaseException implements Exception {}
+
+class XmlFileParsingException implements Exception {}
+
+class XmlFileParsingKeyExistsException implements Exception {}

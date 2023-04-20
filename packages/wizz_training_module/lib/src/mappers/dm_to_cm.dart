@@ -7,7 +7,8 @@ extension WizzDeckDMtoCM on WizzDeckDM {
         name: name,
         fromLanguage: fromLanguage,
         toLanguage: toLanguage,
-        cards: cards.map((c) => c.toCache()).toList());
+        cards: cards.map((c) => c.toCache()).toList(),
+        sessionNumber: sessionNumber);
   }
 }
 
@@ -18,19 +19,20 @@ extension WizzCardDMtoCM on WizzCardDM {
         meaning: meaning,
         examples: examples,
         fullText: fullText,
-        showFrequency: showFrequency?.toCache() ?? ShowFrequencyCM.normal);
+        level: level);
+    // showFrequency: showFrequency?.toCache() ?? ShowFrequencyCM.normal);
   }
 }
 
-extension ShowFrequencyDMtoCM on ShowFrequencyDM {
-  ShowFrequencyCM toCache() {
-    switch (this) {
-      case ShowFrequencyDM.low:
-        return ShowFrequencyCM.low;
-      case ShowFrequencyDM.normal:
-        return ShowFrequencyCM.normal;
-      case ShowFrequencyDM.high:
-        return ShowFrequencyCM.high;
-    }
-  }
-}
+// extension ShowFrequencyDMtoCM on ShowFrequencyDM {
+//   ShowFrequencyCM toCache() {
+//     switch (this) {
+//       case ShowFrequencyDM.low:
+//         return ShowFrequencyCM.low;
+//       case ShowFrequencyDM.normal:
+//         return ShowFrequencyCM.normal;
+//       case ShowFrequencyDM.high:
+//         return ShowFrequencyCM.high;
+//     }
+//   }
+// }

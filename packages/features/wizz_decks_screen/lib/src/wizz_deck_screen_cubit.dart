@@ -1,4 +1,5 @@
 import 'package:domain_models/domain_models.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path/path.dart';
 import 'package:wizz_decks_screen/src/wizz_deck_screen_state.dart';
@@ -6,6 +7,7 @@ import 'package:wizz_training_module/wizz_training_module.dart';
 
 class WizzDeckScreenCubit extends Cubit<WizzDeckScreenState> {
   final WizzTrainingModule wizzTrainingModule;
+  String? _temp;
 
   WizzDeckScreenCubit({required this.wizzTrainingModule})
       : super(const WizzDeckScreenStateInitial());
@@ -14,9 +16,9 @@ class WizzDeckScreenCubit extends Cubit<WizzDeckScreenState> {
       {String? fromLanguage, String? toLanguage, String? errorMessage}) async {
     fromLanguage = fromLanguage ?? state.fromLanguage;
     toLanguage = toLanguage ?? state.toLanguage;
-    List<WizzDeckDM> listOfDecks = (await wizzTrainingModule
-        .getListOfAllDecks())
-      ..sort((a, b) => a.name.compareTo(b.name));
+    List<WizzDeckDM> listOfDecks =
+        (await wizzTrainingModule.getListOfAllDecks());
+    // ..sort((a, b) => a.name.compareTo(b.name));
     if (fromLanguage != 'all' && toLanguage == 'all') {
       listOfDecks =
           listOfDecks.where((d) => d.fromLanguage == fromLanguage).toList();
@@ -58,6 +60,39 @@ class WizzDeckScreenCubit extends Cubit<WizzDeckScreenState> {
         errorMessage: 'Successfully deleted deck ${deck.name}');
   }
 
+  void exportWizzDeck(WizzDeckDM deck) async {
+    final folder = await FilePicker.platform.getDirectoryPath();
+    if (folder != null) {
+      wizzTrainingModule.exportWizzDeck(
+          deck: deck,
+          filePath: join(folder,
+              '${deck.name}-${deck.fromLanguage}-${deck.toLanguage}.xml'));
+    }
+  }
+
+  Future<void> importWizzDeck({bool force = false}) async {
+    FilePickerResult? file;
+    if (_temp == null) {
+      file = await FilePicker.platform
+          .pickFiles(allowedExtensions: ['xml'], type: FileType.custom);
+      _temp = file?.paths.first;
+    }
+    if (_temp != null) {
+      try {
+        final newDeck =
+            await wizzTrainingModule.importWizzDeck(_temp!, force: force);
+        _temp = null;
+        getListOfAvailableDecks(
+            errorMessage: 'Successfully added ${newDeck.name}');
+      } on XmlFileParsingKeyExistsException {
+        // emit(state.copyWith(errorMessage: 'This deck already exists'));
+        throw XmlFileParsingKeyExistsException();
+      } on XmlFileParsingException {
+        emit(state.copyWith(errorMessage: 'Could not parse the file'));
+      }
+    }
+  }
+
   Future<String?> validateNameOfDeck(
       {required String? name,
       required String fromLanguage,
@@ -76,27 +111,27 @@ class WizzDeckScreenCubit extends Cubit<WizzDeckScreenState> {
     return validation;
   }
 
-  Future<void> addDictionary(String filePath) async {
-    if (extension(filePath) != '.dsl') {
-      emit(state.copyWith(isLoading: false, errorMessage: 'Wrong filetype'));
-      return;
-    }
-    emit(state.copyWith(
-        isLoading: true, errorMessage: 'Creating dictionary...'));
-    await Future.delayed(const Duration(seconds: 1));
-    try {
-      final dictionary = await wizzTrainingModule.dictionaryProvider
-          .createDictionary(filePath);
-      emit(state.copyWith(
-          isLoading: false,
-          errorMessage: 'Created dictionary ${dictionary.name}'));
-    } catch (e) {
-      print(e);
-      emit(
-        state.copyWith(
-            isLoading: false,
-            errorMessage: 'Smth is wrong with dictionary file'),
-      );
-    }
-  }
+  // Future<void> addDictionary(String filePath) async {
+  //   if (extension(filePath) != '.dsl') {
+  //     emit(state.copyWith(isLoading: false, errorMessage: 'Wrong filetype'));
+  //     return;
+  //   }
+  //   emit(state.copyWith(
+  //       isLoading: true, errorMessage: 'Creating dictionary...'));
+  //   await Future.delayed(const Duration(seconds: 1));
+  //   try {
+  //     final dictionary = await wizzTrainingModule.dictionaryProvider
+  //         .createDictionary(filePath);
+  //     emit(state.copyWith(
+  //         isLoading: false,
+  //         errorMessage: 'Created dictionary ${dictionary.name}'));
+  //   } catch (e) {
+  //     print(e);
+  //     emit(
+  //       state.copyWith(
+  //           isLoading: false,
+  //           errorMessage: 'Smth is wrong with dictionary file'),
+  //     );
+  //   }
+  // }
 }

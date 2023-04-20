@@ -15,11 +15,16 @@ class ShortTranslationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final fullTextUpdated = text
+        .replaceAll('[', '<')
+        .replaceAll(']', '>')
+        .replaceAll(r'\<', '[')
+        .replaceAll(r'\>', ']');
     String? textExtract = RegExp(r'<trn>(.+)</trn>')
-            .firstMatch(text)
+            .firstMatch(fullTextUpdated)
             ?.group(1)
             ?.replaceAll(RegExp(r'<.*?>'), '') ??
-        text.replaceAll(RegExp(r'<.*?>'), '');
+        fullTextUpdated.replaceAll(RegExp(r'<.*?>'), '');
     String headwordCleaned = headword.replaceAll(RegExp(r'\{.+?\}'), '');
     return ListTile(
         onTap: () => onWordClick(headword),

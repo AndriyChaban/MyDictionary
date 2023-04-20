@@ -15,11 +15,16 @@ class SmallTranslationBox extends StatelessWidget {
     String? textExtract = 'Not translated';
     if (translation != null) {
       textExtract = RegExp(r'<trn>(.+)</trn>')
-              .firstMatch(translation!)
+              .firstMatch(translation!
+                  .replaceAll('[', '<')
+                  .replaceAll(']', '>')
+                  .replaceAll(r'\<', '[')
+                  .replaceAll(r'\>', ']'))
               ?.group(1)
               ?.replaceAll(RegExp(r'<.*?>'), '') ??
           translation!.replaceAll(RegExp(r'<.*?>'), '');
     }
+
     return InkWell(
       onTap: onClick,
       child: Container(

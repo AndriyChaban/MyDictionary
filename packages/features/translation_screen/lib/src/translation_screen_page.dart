@@ -33,7 +33,7 @@ class TranslationScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    FocusScope.of(context).unfocus();
+    // FocusScope.of(context).unfocus();
     return BlocProvider<TranslationScreenCubit>(
       create: (context) => TranslationScreenCubit(
           userRepository: userRepository,
@@ -67,7 +67,7 @@ class TranslationScreen extends StatelessWidget {
               if (listOfDicts == null || listOfDicts.isEmpty) {
                 return const Center(
                   child: Text(
-                    'No translation\n\nProbably the dictionary was deactivated',
+                    'No translation\n\nProbably the dictionary was deactivated or deleted',
                     textAlign: TextAlign.center,
                   ),
                 );

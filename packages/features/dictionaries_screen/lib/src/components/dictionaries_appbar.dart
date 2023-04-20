@@ -77,7 +77,9 @@ class _DictionariesAppBarState extends State<DictionariesAppBar> {
                 alignment: Alignment.center,
                 width: double.infinity,
                 child: DropdownButton<String>(
-                    value: state.fromLanguage ?? defaultLang,
+                    value: state.dictionaryList.isEmpty
+                        ? defaultLang
+                        : state.fromLanguage ?? defaultLang,
                     alignment: Alignment.center,
                     style: const TextStyle(color: Colors.black),
                     underline: Container(),
@@ -119,7 +121,9 @@ class _DictionariesAppBarState extends State<DictionariesAppBar> {
                 alignment: Alignment.center,
                 width: double.infinity,
                 child: DropdownButton<String>(
-                    value: state.toLanguage?.toLowerCase() ?? defaultLang,
+                    value: state.dictionaryList.isEmpty
+                        ? defaultLang
+                        : state.toLanguage?.toLowerCase() ?? defaultLang,
                     style: const TextStyle(color: Colors.black),
                     underline: Container(),
                     dropdownColor: Colors.white,

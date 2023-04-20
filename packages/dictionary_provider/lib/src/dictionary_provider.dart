@@ -1,13 +1,16 @@
 import 'dart:io';
+import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
+
 import 'package:path/path.dart';
+import 'package:isar/isar.dart';
+import 'package:path_provider/path_provider.dart';
+
 import 'package:db_service/db_service.dart';
 import 'package:domain_models/domain_models.dart';
-import 'package:flutter/services.dart';
 import 'package:google_api_service/google_api_service.dart';
-import 'package:isar/isar.dart';
 import 'package:key_value_storage/key_value_storage.dart';
-import 'package:path_provider/path_provider.dart';
+
 import './mappers/mappers.dart';
 
 class DictionaryProvider {
@@ -33,7 +36,6 @@ class DictionaryProvider {
     final dictionaryDSLDirectory = Directory(join(appDir.path, 'dictsDSL'));
     if (!dictionaryDSLDirectory.existsSync()) dictionaryDSLDirectory.create();
     if (!dictionaryDBDirectory.existsSync()) dictionaryDBDirectory.create();
-    // print('initialize dictionaryProvider');
     return DictionaryProvider._initializeProvider()
       ..dictionaryDSLDirectory = dictionaryDSLDirectory
       ..dictionaryDBDirectory = dictionaryDBDirectory
@@ -158,6 +160,7 @@ class DictionaryProvider {
     final queryFinal = startsWith
         ? queryStart.headwordStartsWith(word, caseSensitive: false)
         : queryStart.headwordEqualTo(word, caseSensitive: true);
+    // TODO work on infinite scroll
     final cards = queryFinal.offset(0).limit(30).findAllSync();
     return cards
         .where((card) => card.headword != null && card.fullCardText != null)
@@ -288,13 +291,11 @@ class DictionaryProvider {
             .replaceAll("{[']}", '')
             .replaceAll("{[/']}", '')
             .trim();
-        final text = match
-            .group(2)!
-            .trim()
-            .replaceAll('[', '<')
-            .replaceAll(']', '>')
-            .replaceAll(r'\<', '[')
-            .replaceAll(r'\>', ']');
+        final text = match.group(2)!.trim();
+        // .replaceAll('[', '<')
+        // .replaceAll(']', '>')
+        // .replaceAll(r'\<', '[')
+        // .replaceAll(r'\>', ']');
         return CardDM(headword: headword, text: text);
       }).toList();
       if (name == null ||

@@ -15,6 +15,7 @@ dependencies:
     path: ../key_value_storage
   dictionary_provider:
     path: ../dictionary_provider
+  xml: ^6.2.2
 
 dev_dependencies:
   flutter_test:

@@ -44,6 +44,11 @@ class StyledTranslationCard extends StatelessWidget {
     //   't': StyledTextTag(style: TextStyle(color: Color(0xFF80211C))),
     //   's': StyledTextIconTag(Icons.volume_up_rounded),
     // };
+    final updatedText = text
+        .replaceAll('[', '<')
+        .replaceAll(']', '>')
+        .replaceAll(r'\<', '[')
+        .replaceAll(r'\>', ']');
     String headwordCleaned = headword.replaceAll("{[']}", '');
     return Padding(
       padding: EdgeInsets.all(isShort ? 0 : 8.0),
@@ -55,8 +60,8 @@ class StyledTranslationCard extends StatelessWidget {
               const Expanded(child: DividerCommon()),
               IconButton(
                   onPressed: onAddToWizzDeck,
-                  icon: const Icon(Icons.science_outlined)),
-              Text(dictionaryName, style: TextStyle(color: Colors.grey)),
+                  icon: const Icon(Icons.add_reaction_outlined)),
+              Text(dictionaryName, style: const TextStyle(color: Colors.grey)),
             ],
           ),
           ListTile(
@@ -71,25 +76,17 @@ class StyledTranslationCard extends StatelessWidget {
                       maxLines: 3,
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    // Row(
-                    //   children: [
-                    //     IconButton(
-                    //         onPressed: onAddToWizzDeck,
-                    //         icon: const Icon(Icons.science_outlined)),
-                    //     Text(dictionaryName),
-                    //   ],
-                    // ),
                   ],
                 ),
               ),
               subtitle: isShort
                   ? Text(
-                      text,
+                      updatedText,
                       maxLines: 3,
                       style: const TextStyle(height: 1.2),
                     )
                   : StyledTappableText(
-                      text: text,
+                      text: updatedText,
                       onWordTap: onWordClick,
                       index: index,
                     )),

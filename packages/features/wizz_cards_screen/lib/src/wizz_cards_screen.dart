@@ -12,18 +12,18 @@ class WizzCardsScreen extends StatefulWidget {
   const WizzCardsScreen(
       {Key? key,
       required this.deck,
-      required this.pushToNamed,
-      required this.goToNamed,
       required this.wizzTrainingModule,
       required this.pop,
-      this.dictionaryFromTranslationScreen})
+      this.dictionaryFromTranslationScreen,
+      required this.backToSearchWordScreen,
+      required this.pushToSimpleTranslationCard})
       : super(key: key);
   final WizzDeckDM deck;
   final DictionaryDM? dictionaryFromTranslationScreen;
   final WizzTrainingModule wizzTrainingModule;
-  final Function(BuildContext, String, {dynamic payload}) pushToNamed;
-  final Function(BuildContext, String, {dynamic payload}) goToNamed;
   final Function(BuildContext, dynamic) pop;
+  final Function(BuildContext, String) backToSearchWordScreen;
+  final Function(BuildContext, WizzCardDM) pushToSimpleTranslationCard;
 
   static const routeName = 'wizz-cards';
 
@@ -39,8 +39,8 @@ class _WizzCardsScreenState extends State<WizzCardsScreen> {
         context: context,
         barrierDismissible: false,
         builder: (context) => AddEditWizzCardDialog(
-              pushToNamed: widget.pushToNamed,
-              goToNamed: widget.goToNamed,
+              // pushToNamed: widget.pushToNamed,
+              // goToNamed: widget.goToNamed,
               cardForEditing: null,
               cardFromDictionary: null,
               deck: widget.deck,
@@ -72,14 +72,18 @@ class _WizzCardsScreenState extends State<WizzCardsScreen> {
                 return response;
               },
               popCallback: widget.pop,
-              pushToNamed: widget.pushToNamed,
-              goToNamed: widget.goToNamed,
+              // pushToNamed: widget.pushToNamed,
+              // goToNamed: widget.goToNamed,
+              pushToSimpleTranslationCard: widget.pushToSimpleTranslationCard,
             ));
     // print('card: ${card}');
     if (card != null && mounted) {
       cubit.createNewCard(card);
       // widget.pop(context, null);
-      widget.goToNamed(context, 'search-view');
+    }
+    if (mounted) {
+      widget.backToSearchWordScreen(context,
+          widget.dictionaryFromTranslationScreen!.cards.first.headword);
     }
   }
 
@@ -98,8 +102,9 @@ class _WizzCardsScreenState extends State<WizzCardsScreen> {
                 return response;
               },
               popCallback: widget.pop,
-              pushToNamed: widget.pushToNamed,
-              goToNamed: widget.goToNamed,
+              pushToSimpleTranslationCard: widget.pushToSimpleTranslationCard,
+              // pushToNamed: widget.pushToNamed,
+              // goToNamed: widget.goToNamed,
             ));
     if (newCard != null) {
       cubit.editCard(oldCard, newCard);

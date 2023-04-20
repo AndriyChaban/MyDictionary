@@ -16,6 +16,7 @@ import 'package:wizz_decks_screen/wizz_decks_screen.dart';
 import 'package:wizz_cards_screen/wizz_cards_screen.dart';
 import 'package:dictionaries_screen/dictionaries_screen.dart';
 import 'package:search_word_screen/search_word_screen.dart';
+import 'package:flashcards_screen/flashcards_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -64,6 +65,7 @@ class _MyDictionaryAppState extends State<MyDictionaryApp> {
   final GlobalKey<NavigatorState> _shellNavigatorKey =
       GlobalKey<NavigatorState>(debugLabel: 'shell');
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  bool requestFocus = true;
 
   @override
   void initState() {
@@ -85,53 +87,14 @@ class _MyDictionaryAppState extends State<MyDictionaryApp> {
 
   void _onAddCardToWizzDeck(BuildContext context, DictionaryDM dictionary) {
     // print(dictionary.name);
-    GoRouter.of(context)
-        .pushNamed(WizzDecksScreenPage.routeName, extra: dictionary);
+    GoRouter.of(context).goNamed(WizzDecksScreen.routeName, extra: dictionary);
   }
 
   void _pop(BuildContext context, dynamic result) {
     GoRouter.of(context).pop(result);
   }
 
-  // TODO repair unstable focusing
   // TODO clear history
-
-  void _pushToNamed(BuildContext context, String routeName, {dynamic payload}) {
-    //TODO fjx stacking dictViews
-    // print('location: ${GoRouter.of(context).location}');
-    // print('route: ${context.namedLocation(routeName)}');
-    // print('!!! push');
-    if (routeName == WizzCardsScreen.routeName) {
-      final WizzDeckDM deck = payload['deck'];
-      // final DictionaryDM dictionary = payload['dictionaryFromTranslationScreen'];
-      GoRouter.of(context)
-          .pushNamed(routeName, extra: payload, params: {'deck': deck.name});
-    } else if (routeName == SimpleTranslationCard.routeName) {
-      final String word = payload['headword'];
-      GoRouter.of(context)
-          .pushNamed(routeName, extra: payload, params: {'word': word});
-    } else {
-      if (context.namedLocation(routeName) == GoRouter.of(context).location) {
-        Scaffold.of(context).closeDrawer();
-        return;
-      }
-      GoRouter.of(context).pushNamed(routeName, extra: payload);
-    }
-  }
-
-  void _goToNamed(BuildContext context, String routeName, {dynamic payload}) {
-    if (routeName == WizzCardsScreen.routeName) {
-      final WizzDeckDM deck = payload;
-      GoRouter.of(context)
-          .goNamed(routeName, extra: deck, params: {'deck': deck.name});
-    } else {
-      if (context.namedLocation(routeName) == GoRouter.of(context).location) {
-        Scaffold.of(context).closeDrawer();
-        return;
-      }
-      GoRouter.of(context).goNamed(routeName, extra: payload);
-    }
-  }
 
   void _onAppBarBackPressed(BuildContext context) {
     context.goNamed(SearchWordScreen.routeName);
@@ -145,10 +108,42 @@ class _MyDictionaryAppState extends State<MyDictionaryApp> {
     GoRouter.of(context).goNamed(SearchWordScreen.routeName);
   }
 
+  void _onPressedWizzDecks(BuildContext context) {
+    GoRouter.of(context).goNamed(WizzDecksScreen.routeName);
+  }
+
+  void _backToSearchWordScreen(BuildContext context, String word) {
+    // GoRouter.of(context)
+    //     .pushNamed(routeName, extra: payload, params: {'word': word});
+    requestFocus = false;
+    context.goNamed(TranslationScreen.routeName, params: {'word': word});
+  }
+
+  void _onPushToSimpleTranslationCard(BuildContext context, dynamic payload) {
+    final extra = payload as WizzCardDM;
+    GoRouter.of(context).pushNamed(SimpleTranslationCard.routeName,
+        extra: extra, params: {'word': extra.word});
+  }
+
+  void _onPushToWizzCardsScreen(BuildContext context, dynamic payload) {
+    final WizzDeckDM deck = payload['deck'];
+    // final DictionaryDM dictionary = payload['dictionaryFromTranslationScreen'];
+    GoRouter.of(context).pushNamed(WizzCardsScreen.routeName,
+        extra: payload, params: {'deck': deck.name});
+  }
+
+  void _onPressedStartLearning(
+      BuildContext context, WizzDeckDM deck, bool isDirectLearning, int index) {
+    GoRouter.of(context).goNamed(FlashCardsScreen.routeName, extra: {
+      'deck': deck,
+      'isDirectLearning': isDirectLearning,
+      'index': index
+    });
+  }
+
   late final _router = GoRouter(
     navigatorKey: _rootNavigatorKey,
-    // initialLocation: '/search_view',
-    initialLocation: '/dictionaries_screen',
+    initialLocation: '/search_word_screen',
     routes: [
       ShellRoute(
         navigatorKey: _shellNavigatorKey,
@@ -156,49 +151,23 @@ class _MyDictionaryAppState extends State<MyDictionaryApp> {
           return MainScreen(
               key: state.pageKey,
               scaffoldKey: _scaffoldKey,
-              dictionaryProvider: widget.dictionaryProvider,
               userRepository: widget.userRepository,
               onPressedManageDictionaries: _onPressedManageDictionaries,
               onPressedTranslateWord: _onPressedTranslateWord,
-              pushToNamed: _pushToNamed,
-              goToNamed: _goToNamed,
+              onPressedWizzDecks: _onPressedWizzDecks,
               child: child);
         },
         routes: [
-          // GoRoute(
-          //   path: '/search_view',
-          //   name: SearchView.routeName,
-          //   builder: (BuildContext context, GoRouterState state) {
-          //     // print(state.location);
-          //     return SearchView(onWordClicked: _onWordClicked);
-          //   },
-          //   routes: [
-          //     GoRoute(
-          //       path: r'word$:word',
-          //       parentNavigatorKey: _rootNavigatorKey,
-          //       name: TranslationScreen.routeName,
-          //       builder: (context, state) {
-          //         print(state.location);
-          //         return TranslationScreen(
-          //           word: state.params['word']!,
-          //           dictionaryProvider: widget.dictionaryProvider,
-          //           userRepository: widget.userRepository,
-          //           onAppBarBackPressed: () => _onAppBarBackPressed(context),
-          //           onWordClicked: (word) => _onWordClicked(context, word),
-          //           onAddCardToWizzDeck: _onAddCardToWizzDeck,
-          //         );
-          //       },
-          //     ),
-          //   ],
-          // ),
           GoRoute(
             path: '/search_word_screen',
+            parentNavigatorKey: _shellNavigatorKey,
             name: SearchWordScreen.routeName,
             builder: (BuildContext context, GoRouterState state) {
               return SearchWordScreen(
                   userRepository: widget.userRepository,
                   dictionaryProvider: widget.dictionaryProvider,
                   onWordClicked: _onWordClicked,
+                  requestFocus: requestFocus,
                   scaffoldKey: _scaffoldKey);
             },
             routes: [
@@ -207,7 +176,6 @@ class _MyDictionaryAppState extends State<MyDictionaryApp> {
                 parentNavigatorKey: _rootNavigatorKey,
                 name: TranslationScreen.routeName,
                 builder: (context, state) {
-                  print(state.location);
                   return TranslationScreen(
                     word: state.params['word']!,
                     dictionaryProvider: widget.dictionaryProvider,
@@ -220,16 +188,9 @@ class _MyDictionaryAppState extends State<MyDictionaryApp> {
               ),
             ],
           ),
-          // GoRoute(
-          //     path: '/dictionaries_view',
-          //     name: DictionariesView.routeName,
-          //     builder: (context, state) {
-          //       // print(state.location);
-          //       return const DictionariesView();
-          //     }),
           GoRoute(
               path: '/dictionaries_screen',
-              parentNavigatorKey: _shellNavigatorKey,
+              // parentNavigatorKey: _shellNavigatorKey,
               name: DictionariesScreen.routeName,
               builder: (context, state) {
                 return DictionariesScreen(
@@ -237,67 +198,74 @@ class _MyDictionaryAppState extends State<MyDictionaryApp> {
                     dictionaryProvider: widget.dictionaryProvider,
                     userRepository: widget.userRepository);
               }),
+          GoRoute(
+              path: '/wizz_decks',
+              // parentNavigatorKey: _rootNavigatorKey,
+              parentNavigatorKey: _shellNavigatorKey,
+              name: WizzDecksScreen.routeName,
+              builder: (context, state) {
+                final dictionary = state.extra as DictionaryDM?;
+                return WizzDecksScreen(
+                  key: state.pageKey,
+                  scaffoldKey: _scaffoldKey,
+                  wizzTrainingModule: widget.wizzTrainingModule,
+                  dictionaryFromTranslationScreen: dictionary,
+                  pop: _pop,
+                  backToSearchWordScreen: _backToSearchWordScreen,
+                  onPressedStartLearning: _onPressedStartLearning,
+                  addRouteListener: _addRouteListener,
+                  removeRouteListener: _removeRouteListener,
+                  pushToWizzCardsScreen: _onPushToWizzCardsScreen,
+                );
+              },
+              routes: [
+                GoRoute(
+                    path: r'deck$:deck',
+                    name: WizzCardsScreen.routeName,
+                    parentNavigatorKey: _rootNavigatorKey,
+                    builder: (context, state) {
+                      final extra = state.extra as Map<String, dynamic>;
+                      final deck = extra['deck'] as WizzDeckDM;
+                      final dictionaryFromTranslationScreen =
+                          extra['dictionaryFromTranslationScreen']
+                              as DictionaryDM?;
+                      return WizzCardsScreen(
+                          key: state.pageKey,
+                          wizzTrainingModule: widget.wizzTrainingModule,
+                          deck: deck,
+                          dictionaryFromTranslationScreen:
+                              dictionaryFromTranslationScreen,
+                          pop: _pop,
+                          backToSearchWordScreen: _backToSearchWordScreen,
+                          pushToSimpleTranslationCard:
+                              _onPushToSimpleTranslationCard);
+                    })
+              ]),
+          GoRoute(
+              path: '/flash_cards_screen',
+              name: FlashCardsScreen.routeName,
+              builder: (context, state) {
+                final deck = (state.extra as Map)['deck'] as WizzDeckDM;
+                final isDirectLearning =
+                    (state.extra as Map)['isDirectLearning'] as bool;
+                final index = (state.extra as Map)['index'] as int;
+                return FlashCardsScreen(
+                    deck: deck,
+                    isDirectLearning: isDirectLearning,
+                    wizzTrainingModule: widget.wizzTrainingModule,
+                    index: index,
+                    scaffoldKey: _scaffoldKey);
+              }),
         ],
       ),
-      GoRoute(
-          path: '/wizz_decks',
-          parentNavigatorKey: _rootNavigatorKey,
-          name: WizzDecksScreenPage.routeName,
-          builder: (context, state) {
-            // print(state.location);
-
-            final dictionary = state.extra as DictionaryDM?;
-            return WizzDecksScreenPage(
-                key: state.pageKey,
-                wizzTrainingModule: widget.wizzTrainingModule,
-                dictionaryFromTranslationScreen: dictionary,
-                // dictionaryProvider: widget.dictionaryProvider,
-                // userRepository: widget.userRepository,
-                pushToNamed: _pushToNamed,
-                goToNamed: _goToNamed,
-                pop: _pop,
-                addRouteListener: _addRouteListener,
-                removeRouteListener: _removeRouteListener);
-          },
-          routes: [
-            GoRoute(
-                path: r'deck$:deck',
-                name: WizzCardsScreen.routeName,
-                parentNavigatorKey: _rootNavigatorKey,
-                builder: (context, state) {
-                  final extra = state.extra as Map<String, dynamic>;
-                  final deck = extra['deck'] as WizzDeckDM;
-                  final dictionaryFromTranslationScreen =
-                      extra['dictionaryFromTranslationScreen'] as DictionaryDM?;
-                  // print('Go');
-                  return WizzCardsScreen(
-                    key: state.pageKey,
-                    wizzTrainingModule: widget.wizzTrainingModule,
-                    deck: deck,
-                    dictionaryFromTranslationScreen:
-                        dictionaryFromTranslationScreen,
-                    pushToNamed: _pushToNamed,
-                    goToNamed: _goToNamed,
-                    pop: _pop,
-                  );
-                })
-          ]),
       GoRoute(
           path: r'/simple-card$:word',
           name: SimpleTranslationCard.routeName,
           parentNavigatorKey: _rootNavigatorKey,
           builder: (context, state) {
-            final extra = state.extra as Map<String, String?>;
-            final headword = extra['headword'];
-            final meaning = extra['meaning'];
-            final examples = extra['examples'];
-            final fullText = extra['fullText'];
-
+            final card = state.extra as WizzCardDM;
             return SimpleTranslationCard(
-              headword: headword!,
-              meaning: meaning,
-              examples: examples,
-              fullText: fullText,
+              card: card,
             );
           })
     ],
@@ -307,7 +275,10 @@ class _MyDictionaryAppState extends State<MyDictionaryApp> {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
+      title: 'MyDictionary',
       // theme: ThemeData.dark(),
+      // theme: ThemeData(primarySwatch: Colors.deepPurple, fontFamily: 'Roboto'),
+      theme: ThemeData(primarySwatch: Colors.deepPurple),
       routerConfig: _router,
     );
   }
