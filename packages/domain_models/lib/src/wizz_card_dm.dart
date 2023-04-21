@@ -18,6 +18,22 @@ class WizzCardDM extends Equatable {
 
   @override
   List<Object?> get props => [word, level, meaning, examples, fullText];
+
+  WizzCardDM copyWith({
+    String? word,
+    String? meaning,
+    String? examples,
+    String? fullText,
+    int? level,
+  }) {
+    return WizzCardDM(
+      word: word ?? this.word,
+      meaning: meaning ?? this.meaning,
+      examples: examples ?? this.examples,
+      fullText: fullText ?? this.fullText,
+      level: level ?? this.level,
+    );
+  }
 }
 
 // enum ShowFrequencyDM { low, normal, high }

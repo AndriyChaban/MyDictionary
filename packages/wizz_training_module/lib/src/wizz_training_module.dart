@@ -135,6 +135,20 @@ class WizzTrainingModule {
     file.writeAsString(document.toString());
   }
 
+  void saveTrainingProgress(
+      {required WizzDeckDM deck, required List<WizzCardDM> cards}) async {
+    final wizzDecksBox = await keyValueStorage.getWizzDecksBox();
+    for (var card in cards) {
+      final index =
+          deck.cards.indexWhere((element) => element.word == card.word);
+      deck.cards
+        ..removeAt(index)
+        ..insert(index, card);
+    }
+    final updatedDeck = deck.copyWith(sessionNumber: deck.sessionNumber + 1);
+    wizzDecksBox.put(deckKeyFormat(deck), updatedDeck.toCache());
+  }
+
   Future<void> createNewCard(
       {required WizzCardDM card, required WizzDeckDM deck}) async {
     final wizzBox = await keyValueStorage.getWizzDecksBox();

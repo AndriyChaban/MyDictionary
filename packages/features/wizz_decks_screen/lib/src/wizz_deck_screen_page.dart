@@ -441,10 +441,11 @@ class _WizzDecksScreenState extends State<WizzDecksScreen> {
                                               children: [
                                                 Text(
                                                   '${deck.fromLanguage.toCapital()} - ${deck.toLanguage.toCapital()}\n'
-                                                  '${deck.cards.length} ${deck.cards.length != 1 ? 'entries' : 'entry'}',
+                                                  '${deck.cards.length} ${deck.cards.length != 1 ? 'entries' : 'entry'}\n'
+                                                  '${deck.sessionNumber} training session${deck.sessionNumber != 1 ? 's' : ''}',
                                                   textAlign: TextAlign.left,
                                                 ),
-                                                DividerCommon(),
+                                                const DividerCommon(),
                                                 Row(
                                                   mainAxisAlignment:
                                                       MainAxisAlignment

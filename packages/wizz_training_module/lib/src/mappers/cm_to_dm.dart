@@ -7,6 +7,7 @@ extension WizzDeckCMtoDM on WizzDeckCM {
         name: name,
         fromLanguage: fromLanguage,
         toLanguage: toLanguage,
+        sessionNumber: sessionNumber,
         cards: cards.map((c) => c.toDomain()).toList());
   }
 }

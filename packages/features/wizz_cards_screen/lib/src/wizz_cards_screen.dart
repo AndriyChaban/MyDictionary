@@ -1,12 +1,14 @@
 import 'dart:async';
-
-import 'package:components/components.dart';
-import 'package:domain_models/domain_models.dart';
 import 'package:flutter/material.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wizz_cards_screen/src/components/add_edit_card_dialog.dart';
-import 'package:wizz_cards_screen/src/wizz_cards_screen_cubit.dart';
+
+import 'package:domain_models/domain_models.dart';
 import 'package:wizz_training_module/wizz_training_module.dart';
+import 'package:components/components.dart';
+
+import './components/add_edit_card_dialog.dart';
+import './wizz_cards_screen_cubit.dart';
 
 class WizzCardsScreen extends StatefulWidget {
   const WizzCardsScreen(
@@ -39,14 +41,11 @@ class _WizzCardsScreenState extends State<WizzCardsScreen> {
         context: context,
         barrierDismissible: false,
         builder: (context) => AddEditWizzCardDialog(
-              // pushToNamed: widget.pushToNamed,
-              // goToNamed: widget.goToNamed,
               cardForEditing: null,
               cardFromDictionary: null,
               deck: widget.deck,
               nameValidator: (word) async {
                 final response = await cubit.validateWord(word);
-                // print(response);
                 return response;
               },
               popCallback: widget.pop,
@@ -68,18 +67,13 @@ class _WizzCardsScreenState extends State<WizzCardsScreen> {
               deck: widget.deck,
               nameValidator: (word) async {
                 final response = await cubit.validateWord(word);
-                // print(response);
                 return response;
               },
               popCallback: widget.pop,
-              // pushToNamed: widget.pushToNamed,
-              // goToNamed: widget.goToNamed,
               pushToSimpleTranslationCard: widget.pushToSimpleTranslationCard,
             ));
-    // print('card: ${card}');
     if (card != null && mounted) {
       cubit.createNewCard(card);
-      // widget.pop(context, null);
     }
     if (mounted) {
       widget.backToSearchWordScreen(context,
@@ -98,13 +92,10 @@ class _WizzCardsScreenState extends State<WizzCardsScreen> {
               deck: widget.deck,
               nameValidator: (word) async {
                 final response = await cubit.validateWord(word);
-                // print(response);
                 return response;
               },
               popCallback: widget.pop,
               pushToSimpleTranslationCard: widget.pushToSimpleTranslationCard,
-              // pushToNamed: widget.pushToNamed,
-              // goToNamed: widget.goToNamed,
             ));
     if (newCard != null) {
       cubit.editCard(oldCard, newCard);
@@ -119,7 +110,6 @@ class _WizzCardsScreenState extends State<WizzCardsScreen> {
     final response = await showDialog<bool>(
       context: context,
       barrierDismissible: true,
-      // false = user must tap button, true = tap outside dialog
       builder: (BuildContext context) {
         return ConfirmCancelDialog(
             title: 'Are you sure?',
@@ -127,8 +117,9 @@ class _WizzCardsScreenState extends State<WizzCardsScreen> {
             onConfirm: () => widget.pop(context, true));
       },
     );
-    if (response == true && mounted)
+    if (response == true && mounted) {
       context.read<WizzCardsScreenCubit>().deleteCard(card);
+    }
   }
 
   @override
@@ -173,46 +164,67 @@ class _WizzCardsScreenState extends State<WizzCardsScreen> {
                   }
                 },
                 child: state.listOfCards.isNotEmpty
-                    ? ListView.builder(
+                    ? GridView.builder(
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2),
                         itemBuilder: (context, index) {
+                          if (index >= state.listOfCards.length) {
+                            return const SizedBox();
+                          }
                           final card = state.listOfCards[index];
                           return Card(
                             key: ValueKey(card.word),
+                            margin: const EdgeInsets.all(10),
                             child: Padding(
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 5.0, vertical: 10),
-                              child: ListTile(
-                                title: Text(
-                                  card.word,
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                subtitle: Text(
-                                  card.meaning,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                trailing: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    IconButton(
-                                      icon: const Icon(Icons.edit_outlined),
-                                      onPressed: () {
-                                        _onClickEditDeck(context, cubit, card);
-                                      },
-                                    ),
-                                    IconButton(
-                                      icon: const Icon(Icons.delete),
-                                      onPressed: () =>
-                                          _onDeleteCard(context, card),
-                                    ),
-                                  ],
-                                ),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                children: [
+                                  Text(
+                                    card.word,
+                                    style: TextStyle(
+                                        fontSize: Theme.of(context)
+                                            .textTheme
+                                            .headlineSmall!
+                                            .fontSize,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  const SizedBox(height: 15),
+                                  Text(
+                                    card.meaning,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    textAlign: TextAlign.center,
+                                    style: const TextStyle(color: Colors.grey),
+                                  ),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(Icons.edit_outlined),
+                                        onPressed: () {
+                                          _onClickEditDeck(
+                                              context, cubit, card);
+                                        },
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.delete),
+                                        onPressed: () =>
+                                            _onDeleteCard(context, card),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
                             ),
                           );
                         },
-                        itemCount: state.listOfCards.length,
+                        itemCount: state.listOfCards.length + 1,
                       )
                     : Center(
                         child: Text(
@@ -224,3 +236,45 @@ class _WizzCardsScreenState extends State<WizzCardsScreen> {
     );
   }
 }
+
+// ListView.builder(
+// itemBuilder: (context, index) {
+// final card = state.listOfCards[index];
+// return Card(
+// key: ValueKey(card.word),
+// child: Padding(
+// padding: const EdgeInsets.symmetric(
+// horizontal: 5.0, vertical: 10),
+// child: ListTile(
+// title: Text(
+// card.word,
+// style: const TextStyle(
+// fontWeight: FontWeight.bold),
+// ),
+// subtitle: Text(
+// card.meaning,
+// maxLines: 2,
+// overflow: TextOverflow.ellipsis,
+// ),
+// trailing: Row(
+// mainAxisSize: MainAxisSize.min,
+// children: [
+// IconButton(
+// icon: const Icon(Icons.edit_outlined),
+// onPressed: () {
+// _onClickEditDeck(context, cubit, card);
+// },
+// ),
+// IconButton(
+// icon: const Icon(Icons.delete),
+// onPressed: () =>
+// _onDeleteCard(context, card),
+// ),
+// ],
+// ),
+// ),
+// ),
+// );
+// },
+// itemCount: state.listOfCards.length,
+// )

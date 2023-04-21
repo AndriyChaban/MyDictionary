@@ -7,6 +7,7 @@ import 'package:db_service/db_service.dart';
 import 'package:key_value_storage/key_value_storage.dart';
 import 'package:simple_translation_card/simple_translation_card.dart';
 import 'package:user_repository/user_repository.dart';
+import 'package:components/components.dart';
 import 'package:wizz_training_module/wizz_training_module.dart';
 import 'package:google_api_service/google_api_service.dart';
 
@@ -86,7 +87,6 @@ class _MyDictionaryAppState extends State<MyDictionaryApp> {
   }
 
   void _onAddCardToWizzDeck(BuildContext context, DictionaryDM dictionary) {
-    // print(dictionary.name);
     GoRouter.of(context).goNamed(WizzDecksScreen.routeName, extra: dictionary);
   }
 
@@ -96,25 +96,62 @@ class _MyDictionaryAppState extends State<MyDictionaryApp> {
 
   // TODO clear history
 
-  void _onAppBarBackPressed(BuildContext context) {
+  void _onAppBarBackPressedInTranslationScreen(BuildContext context) {
     context.goNamed(SearchWordScreen.routeName);
   }
 
-  void _onPressedManageDictionaries(BuildContext context) {
-    GoRouter.of(context).goNamed(DictionariesScreen.routeName);
+  void _onPressedTranslateWord(BuildContext context) async {
+    final response = await _checkAndStopTraining(context);
+    if (response && mounted) {
+      final _context = _scaffoldKey.currentState!.context;
+      GoRouter.of(_context).goNamed(SearchWordScreen.routeName);
+    }
   }
 
-  void _onPressedTranslateWord(BuildContext context) {
-    GoRouter.of(context).goNamed(SearchWordScreen.routeName);
+  void _onPressedManageDictionaries(BuildContext context) async {
+    final response = await _checkAndStopTraining(context);
+    if (response && mounted) {
+      final _context = _scaffoldKey.currentState!.context;
+      GoRouter.of(_context).goNamed(DictionariesScreen.routeName);
+    }
   }
 
-  void _onPressedWizzDecks(BuildContext context) {
-    GoRouter.of(context).goNamed(WizzDecksScreen.routeName);
+  void _onPressedWizzDecks(BuildContext context) async {
+    final response = await _checkAndStopTraining(context);
+    if (response && mounted) {
+      final _context = _scaffoldKey.currentState!.context;
+      _goToWizzDeckFromFlashCardsScreen(_context);
+    }
+  }
+
+  void _goToWizzDeckFromFlashCardsScreen(BuildContext context,
+      {bool force = false}) {
+    GoRouter.of(context).goNamed(WizzDecksScreen.routeName, extra: null);
+  }
+
+  Future<bool> _checkAndStopTraining(BuildContext context) async {
+    if (GoRouter.of(context).location == '/flash_cards_screen') {
+      final response = await showDialog<bool>(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return ConfirmCancelDialog(
+              title: 'Stop training?',
+              message: 'All progress will be lost.',
+              onCancel: () => _pop(context, false),
+              onConfirm: () => _pop(context, true));
+        },
+      );
+      if (response == true && mounted) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+    return true;
   }
 
   void _backToSearchWordScreen(BuildContext context, String word) {
-    // GoRouter.of(context)
-    //     .pushNamed(routeName, extra: payload, params: {'word': word});
     requestFocus = false;
     context.goNamed(TranslationScreen.routeName, params: {'word': word});
   }
@@ -180,7 +217,8 @@ class _MyDictionaryAppState extends State<MyDictionaryApp> {
                     word: state.params['word']!,
                     dictionaryProvider: widget.dictionaryProvider,
                     userRepository: widget.userRepository,
-                    onAppBarBackPressed: () => _onAppBarBackPressed(context),
+                    onAppBarBackPressed: () =>
+                        _onAppBarBackPressedInTranslationScreen(context),
                     onWordClicked: (word) => _onWordClicked(context, word),
                     onAddCardToWizzDeck: _onAddCardToWizzDeck,
                   );
@@ -254,6 +292,8 @@ class _MyDictionaryAppState extends State<MyDictionaryApp> {
                     isDirectLearning: isDirectLearning,
                     wizzTrainingModule: widget.wizzTrainingModule,
                     index: index,
+                    pop: _pop,
+                    goToWizzDeckPage: _goToWizzDeckFromFlashCardsScreen,
                     scaffoldKey: _scaffoldKey);
               }),
         ],

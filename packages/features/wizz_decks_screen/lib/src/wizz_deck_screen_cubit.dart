@@ -83,9 +83,9 @@ class WizzDeckScreenCubit extends Cubit<WizzDeckScreenState> {
             await wizzTrainingModule.importWizzDeck(_temp!, force: force);
         _temp = null;
         getListOfAvailableDecks(
-            errorMessage: 'Successfully added ${newDeck.name}');
+            errorMessage:
+                'Successfully added deck "${newDeck.name.toCapital()}"');
       } on XmlFileParsingKeyExistsException {
-        // emit(state.copyWith(errorMessage: 'This deck already exists'));
         throw XmlFileParsingKeyExistsException();
       } on XmlFileParsingException {
         emit(state.copyWith(errorMessage: 'Could not parse the file'));
@@ -110,28 +110,4 @@ class WizzDeckScreenCubit extends Cubit<WizzDeckScreenState> {
         : 'This name already exists';
     return validation;
   }
-
-  // Future<void> addDictionary(String filePath) async {
-  //   if (extension(filePath) != '.dsl') {
-  //     emit(state.copyWith(isLoading: false, errorMessage: 'Wrong filetype'));
-  //     return;
-  //   }
-  //   emit(state.copyWith(
-  //       isLoading: true, errorMessage: 'Creating dictionary...'));
-  //   await Future.delayed(const Duration(seconds: 1));
-  //   try {
-  //     final dictionary = await wizzTrainingModule.dictionaryProvider
-  //         .createDictionary(filePath);
-  //     emit(state.copyWith(
-  //         isLoading: false,
-  //         errorMessage: 'Created dictionary ${dictionary.name}'));
-  //   } catch (e) {
-  //     print(e);
-  //     emit(
-  //       state.copyWith(
-  //           isLoading: false,
-  //           errorMessage: 'Smth is wrong with dictionary file'),
-  //     );
-  //   }
-  // }
 }

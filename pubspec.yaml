@@ -40,6 +40,8 @@ dependencies:
     path: packages/features/search_word_screen
   flashcards_screen:
     path: packages/features/flashcards_screen
+  components:
+    path: packages/components
   go_router: ^6.2.0
 
 

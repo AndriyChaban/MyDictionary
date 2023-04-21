@@ -36,6 +36,8 @@ class ConfirmCancelDialog extends StatelessWidget {
               // textAlign: TextAlign.center,
             )
           : null,
+      actionsAlignment: MainAxisAlignment.spaceBetween,
+      actionsPadding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
       actions: [
         TextButton(
             onPressed: onCancel,
@@ -45,7 +47,8 @@ class ConfirmCancelDialog extends StatelessWidget {
             )),
         ElevatedButton(
             onPressed: onConfirm,
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).primaryColor),
             child: Text(
               'CONFIRM',
               style: TextStyle(color: Theme.of(context).canvasColor),

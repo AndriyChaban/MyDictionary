@@ -1,3 +1,4 @@
+import 'package:flashcards_screen/src/components/complete_training_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -16,13 +17,17 @@ class FlashCardsScreen extends StatefulWidget {
       required this.wizzTrainingModule,
       required this.scaffoldKey,
       this.isDirectLearning = true,
-      required this.index})
+      required this.index,
+      required this.pop,
+      required this.goToWizzDeckPage})
       : super(key: key);
   final WizzDeckDM deck;
   final WizzTrainingModule wizzTrainingModule;
   final GlobalKey<ScaffoldState> scaffoldKey;
   final bool isDirectLearning;
   final int index;
+  final void Function(BuildContext, dynamic) pop;
+  final void Function(BuildContext) goToWizzDeckPage;
 
   static const routeName = 'flash-cards-screen';
 
@@ -41,28 +46,13 @@ class _FlashCardsScreenState extends State<FlashCardsScreen> {
     widget.scaffoldKey.currentState?.openDrawer();
   }
 
-  void _onStopLearning() {
-    setState(() {
-      // showFront = !showFront;
-      // assetPath = assetPath == 'assets/pictures/drawer_picture.jpg'
-      //     ? assetPath2
-      //     : 'assets/pictures/drawer_picture.jpg';
-    });
-  }
-
-  void _onPressedOk(int index) {
-    if (index < widget.deck.cards.length) {
+  void _onPressedOk(BuildContext context, int index, bool isOk) {
+    final cubit = context.read<FlashCardsScreenCubit>();
+    cubit.updateCard(cubit.state.listOfCards[index], isOk);
+    if (index < cubit.state.listOfCards.length - 1) {
       _animateToNextPage();
     } else {
-      _stopTraining();
-    }
-  }
-
-  void _onPressedNotOk(int index) {
-    if (index < widget.deck.cards.length) {
-      _animateToNextPage();
-    } else {
-      _stopTraining();
+      _completeTraining(context);
     }
   }
 
@@ -72,7 +62,40 @@ class _FlashCardsScreenState extends State<FlashCardsScreen> {
         curve: Curves.easeOutCubic);
   }
 
-  void _stopTraining() {}
+  Future<bool> _stopTraining() async {
+    final response = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      // false = user must tap button, true = tap outside dialog
+      builder: (BuildContext context) {
+        return ConfirmCancelDialog(
+            title: 'Stop training?',
+            message: 'All progress will be lost.',
+            onCancel: () => widget.pop(context, false),
+            onConfirm: () => widget.pop(context, true));
+      },
+    );
+    if (response == true && mounted) {
+      widget.goToWizzDeckPage(context);
+      return true;
+    }
+    return false;
+  }
+
+  void _completeTraining(BuildContext context) async {
+    final cubit = context.read<FlashCardsScreenCubit>();
+    await showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => CompleteTrainingDialog(
+            listOfCards: cubit.state.listOfCards,
+            onPressedOk: () => widget.pop(context, false),
+            numberOfSuccesses: cubit.numberOfSuccesses));
+    cubit.completeTraining();
+    if (mounted) {
+      widget.goToWizzDeckPage(context);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -82,8 +105,7 @@ class _FlashCardsScreenState extends State<FlashCardsScreen> {
         ..createListOfCards(),
       child: WillPopScope(
         onWillPop: () async {
-          print('willpopscope');
-          return false;
+          return await _stopTraining();
         },
         child: BlocBuilder<FlashCardsScreenCubit, FlashCardsScreenState>(
             builder: (context, state) {
@@ -118,7 +140,7 @@ class _FlashCardsScreenState extends State<FlashCardsScreen> {
                 floatingActionButton: FloatingActionButton(
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10)),
-                  onPressed: _onStopLearning,
+                  onPressed: _stopTraining,
                   backgroundColor: Colors.red,
                   child: const Icon(
                     Icons.stop,
@@ -142,7 +164,6 @@ class _FlashCardsScreenState extends State<FlashCardsScreen> {
                 backgroundColor: Colors.black54,
                 body: BlocBuilder<FlashCardsScreenCubit, FlashCardsScreenState>(
                   builder: (context, state) {
-                    // final cubit = context.read<FlashCardsScreenCubit>();
                     return Column(
                       mainAxisSize: MainAxisSize.max,
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -155,13 +176,15 @@ class _FlashCardsScreenState extends State<FlashCardsScreen> {
                           child: PageView.builder(
                             controller: _pageController,
                             physics: const NeverScrollableScrollPhysics(),
-                            itemCount: widget.deck.cards.length,
+                            itemCount: state.listOfCards.length,
                             itemBuilder: (context, index) => FlippingCards(
                               isDirectLearning: widget.isDirectLearning,
-                              card: widget.deck.cards[index],
+                              card: state.listOfCards[index],
                               showExamples: false,
-                              onPressedOk: () => _onPressedOk(index),
-                              onPressedNotOk: () => _onPressedNotOk(index),
+                              onPressedOk: () =>
+                                  _onPressedOk(context, index, true),
+                              onPressedNotOk: () =>
+                                  _onPressedOk(context, index, false),
                             ),
                           ),
                         )

@@ -88,7 +88,8 @@ class _FlippingCardsState extends State<FlippingCards> {
                       ],
                     ),
                   ),
-          if (!isFront && !isWord)
+          if (!isFront && !isWord && widget.isDirectLearning ||
+              !isFront && isWord && !widget.isDirectLearning)
             Positioned(
                 bottom: 10,
                 left: 50,
