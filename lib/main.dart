@@ -234,7 +234,8 @@ class _MyDictionaryAppState extends State<MyDictionaryApp> {
                 return DictionariesScreen(
                     scaffoldKey: _scaffoldKey,
                     dictionaryProvider: widget.dictionaryProvider,
-                    userRepository: widget.userRepository);
+                    userRepository: widget.userRepository,
+                    pop: _pop);
               }),
           GoRoute(
               path: '/wizz_decks',
@@ -294,6 +295,7 @@ class _MyDictionaryAppState extends State<MyDictionaryApp> {
                     index: index,
                     pop: _pop,
                     goToWizzDeckPage: _goToWizzDeckFromFlashCardsScreen,
+                    pushToSimpleTranslationCard: _onPushToSimpleTranslationCard,
                     scaffoldKey: _scaffoldKey);
               }),
         ],
@@ -318,7 +320,7 @@ class _MyDictionaryAppState extends State<MyDictionaryApp> {
       title: 'MyDictionary',
       // theme: ThemeData.dark(),
       // theme: ThemeData(primarySwatch: Colors.deepPurple, fontFamily: 'Roboto'),
-      theme: ThemeData(primarySwatch: Colors.deepPurple),
+      theme: ThemeData(primarySwatch: Colors.deepPurple, useMaterial3: true),
       routerConfig: _router,
     );
   }

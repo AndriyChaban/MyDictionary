@@ -201,6 +201,7 @@ class _WizzDecksScreenState extends State<WizzDecksScreen> {
             children: [
               Scaffold(
                   appBar: AppBar(
+                    backgroundColor: kAppBarColor,
                     centerTitle: true,
                     leading: IconButton(
                       icon: const Icon(Icons.menu),
@@ -232,14 +233,15 @@ class _WizzDecksScreenState extends State<WizzDecksScreen> {
                                 : DropdownButton<String>(
                                     value: state.fromLanguage,
                                     alignment: Alignment.center,
+                                    underline: Container(),
                                     selectedItemBuilder: (context) {
                                       return ['all', ...klistIfLanguages]
                                           .map((lang) => Center(
                                                 child: Text(
                                                   lang.toCapital(),
-                                                  style: TextStyle(
-                                                      color: Theme.of(context)
-                                                          .canvasColor),
+                                                  // style: TextStyle(
+                                                  //     color: Theme.of(context)
+                                                  //         .canvasColor),
                                                 ),
                                               ))
                                           .toList();
@@ -278,14 +280,15 @@ class _WizzDecksScreenState extends State<WizzDecksScreen> {
                                 : DropdownButton<String>(
                                     value: state.toLanguage,
                                     alignment: Alignment.center,
+                                    underline: Container(),
                                     selectedItemBuilder: (context) {
                                       return ['all', ...klistIfLanguages]
                                           .map((lang) => Center(
                                                 child: Text(
                                                   lang.toCapital(),
-                                                  style: TextStyle(
-                                                      color: Theme.of(context)
-                                                          .canvasColor),
+                                                  // style: TextStyle(
+                                                  //     color: Theme.of(context)
+                                                  //         .canvasColor),
                                                 ),
                                               ))
                                           .toList();
@@ -463,22 +466,29 @@ class _WizzDecksScreenState extends State<WizzDecksScreen> {
                                                             const EdgeInsets
                                                                     .symmetric(
                                                                 horizontal: 5),
-                                                        decoration:
-                                                            BoxDecoration(
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            15),
-                                                                border:
-                                                                    Border.all(
-                                                                  width: 2,
-                                                                  color: Colors
-                                                                      .green,
-                                                                )),
+                                                        // decoration:
+                                                        //     BoxDecoration(
+                                                        //         borderRadius:
+                                                        //             BorderRadius
+                                                        //                 .circular(
+                                                        //                     15),
+                                                        //         border:
+                                                        //             Border.all(
+                                                        //           width: 2,
+                                                        //           color: Colors
+                                                        //               .green,
+                                                        //         )
+                                                        //     ),
                                                         child: Row(
                                                           children: [
+                                                            const Icon(
+                                                              Icons
+                                                                  .play_circle_fill_rounded,
+                                                              color:
+                                                                  Colors.green,
+                                                            ),
                                                             Text(
-                                                                'Start ${deck.fromLanguage.substring(0, 2).toCapital()}'),
+                                                                ' ${deck.fromLanguage.substring(0, 2).toCapital()}'),
                                                             const Icon(
                                                               Icons
                                                                   .arrow_forward,
@@ -503,22 +513,28 @@ class _WizzDecksScreenState extends State<WizzDecksScreen> {
                                                             const EdgeInsets
                                                                     .symmetric(
                                                                 horizontal: 5),
-                                                        decoration:
-                                                            BoxDecoration(
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            15),
-                                                                border:
-                                                                    Border.all(
-                                                                  width: 2,
-                                                                  color: Colors
-                                                                      .green,
-                                                                )),
+                                                        // decoration:
+                                                        //     BoxDecoration(
+                                                        //         borderRadius:
+                                                        //             BorderRadius
+                                                        //                 .circular(
+                                                        //                     15),
+                                                        //         border:
+                                                        //             Border.all(
+                                                        //           width: 2,
+                                                        //           color: Colors
+                                                        //               .green,
+                                                        //         )),
                                                         child: Row(
                                                           children: [
+                                                            const Icon(
+                                                              Icons
+                                                                  .play_circle_fill_rounded,
+                                                              color:
+                                                                  Colors.green,
+                                                            ),
                                                             Text(
-                                                                'Start ${deck.fromLanguage.substring(0, 2).toCapital()}'),
+                                                                ' ${deck.fromLanguage.substring(0, 2).toCapital()}'),
                                                             const Icon(
                                                               Icons.arrow_back,
                                                               size: 20,

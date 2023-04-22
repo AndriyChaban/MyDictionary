@@ -44,7 +44,12 @@ class CompleteTrainingDialog extends StatelessWidget {
         Center(
           child: ElevatedButton(
             onPressed: onPressedOk,
-            child: const Text('OK'),
+            style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).primaryColor),
+            child: Text(
+              'OK',
+              style: TextStyle(color: Theme.of(context).canvasColor),
+            ),
           ),
         )
       ],

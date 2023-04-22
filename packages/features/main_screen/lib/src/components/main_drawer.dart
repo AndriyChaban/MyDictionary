@@ -35,7 +35,8 @@ class MainDrawer extends StatelessWidget {
     final style = TextStyle(color: Theme.of(context).canvasColor);
     const headersStyle = TextStyle(color: Colors.orange, fontSize: 15);
     return Drawer(
-      backgroundColor: Theme.of(context).primaryColor,
+      backgroundColor: Colors.black.withOpacity(0.65),
+      shape: const Border(),
       child: NestedScrollView(
           headerSliverBuilder: (context, innerBoxIsScrolled) {
             return [

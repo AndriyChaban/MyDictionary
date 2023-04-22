@@ -1,3 +1,4 @@
+import 'package:components/components.dart';
 import 'package:domain_models/domain_models.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -58,10 +59,8 @@ class _MainAppBarState extends State<SearchWordAppBar> {
                     d.contentLanguage == state.fromLanguage &&
                     d.indexLanguage == state.toLanguage)
                 .isNotEmpty;
-        // print(GoRouter.of(context).location);
-        // bool forceAllDicts =
-        //     GoRouter.of(context).location == '/dictionaries_view';
         return AppBar(
+          backgroundColor: kAppBarColor,
           leading: IconButton(
             icon: const Icon(Icons.menu),
             onPressed: _onTapMenu,
@@ -78,7 +77,11 @@ class _MainAppBarState extends State<SearchWordAppBar> {
                   child: DropdownButton(
                       value: state.fromLanguage,
                       alignment: Alignment.center,
-                      style: TextStyle(color: Colors.black),
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize:
+                            Theme.of(context).textTheme.bodyLarge!.fontSize,
+                      ),
                       underline: Container(),
                       dropdownColor: Theme.of(context).canvasColor,
                       selectedItemBuilder: (context) {
@@ -90,8 +93,8 @@ class _MainAppBarState extends State<SearchWordAppBar> {
                               .map((lang) => Center(
                                     child: Text(
                                       lang.toCapital(),
-                                      style: TextStyle(
-                                          color: Theme.of(context).canvasColor),
+                                      // style: TextStyle(
+                                      //     color: Theme.of(context).canvasColor),
                                     ),
                                   ))
                               .toList()
@@ -133,7 +136,11 @@ class _MainAppBarState extends State<SearchWordAppBar> {
                   width: double.infinity,
                   child: DropdownButton(
                       value: state.toLanguage,
-                      style: TextStyle(color: Colors.black),
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize:
+                            Theme.of(context).textTheme.bodyLarge!.fontSize,
+                      ),
                       underline: Container(),
                       dropdownColor: Colors.white,
                       selectedItemBuilder: (context) {
@@ -143,8 +150,8 @@ class _MainAppBarState extends State<SearchWordAppBar> {
                             .map((lang) => Center(
                                   child: Text(
                                     lang.toCapital(),
-                                    style: TextStyle(
-                                        color: Theme.of(context).canvasColor),
+                                    // style: TextStyle(
+                                    //     color: Theme.of(context).canvasColor),
                                   ),
                                 ))
                             .toList();

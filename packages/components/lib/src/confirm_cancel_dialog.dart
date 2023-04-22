@@ -18,11 +18,6 @@ class ConfirmCancelDialog extends StatelessWidget {
     return AlertDialog(
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(10))),
-      // icon: const Icon(
-      //   Icons.question_mark_outlined,
-      //   size: 40,
-      //   color: Colors.redAccent,
-      // ),
       title: Text(
         title,
         softWrap: true,

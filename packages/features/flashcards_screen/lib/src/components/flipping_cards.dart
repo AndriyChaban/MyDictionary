@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:domain_models/domain_models.dart';
 import 'package:flashcards_screen/src/components/flipping_flash_card.dart';
 import 'package:flutter/material.dart';
@@ -8,16 +10,16 @@ class FlippingCards extends StatefulWidget {
       required this.isDirectLearning,
       required this.card,
       required this.showExamples,
-      this.onPressedShowFullText,
-      this.onPressedOk,
-      this.onPressedNotOk})
+      required this.onPressedShowFullText,
+      required this.onPressedOk,
+      required this.onPressedNotOk})
       : super(key: key);
   final bool isDirectLearning;
   final WizzCardDM card;
   final bool showExamples;
-  final VoidCallback? onPressedShowFullText;
-  final VoidCallback? onPressedOk;
-  final VoidCallback? onPressedNotOk;
+  final VoidCallback onPressedShowFullText;
+  final VoidCallback onPressedOk;
+  final VoidCallback onPressedNotOk;
 
   @override
   State<FlippingCards> createState() => _FlippingCardsState();
@@ -42,13 +44,14 @@ class _FlippingCardsState extends State<FlippingCards> {
       width: 350,
       child: Stack(
         alignment: AlignmentDirectional.center,
-        // fit: StackFit.passthrough,
         children: [
           Image.asset(
-            isWord ? _assetPath1 : _assetPath2,
+            isFront ? _assetPath1 : _assetPath2,
             fit: BoxFit.cover,
-            color: isWord ? Colors.black54 : Colors.transparent,
+            color: Colors.black54,
             colorBlendMode: BlendMode.darken,
+            width: 350,
+            height: 220,
           ),
           if (!isFront)
             isWord
@@ -60,7 +63,7 @@ class _FlippingCardsState extends State<FlippingCards> {
                     ),
                     softWrap: true,
                   )
-                : Container(
+                : SizedBox(
                     width: 350,
                     height: 200,
                     child: ListView(
@@ -68,7 +71,7 @@ class _FlippingCardsState extends State<FlippingCards> {
                         Padding(
                           padding: const EdgeInsets.all(20.0),
                           child: Text(
-                            widget.card.meaning,
+                            '${widget.card.meaning}\n\n',
                             textAlign: TextAlign.center,
                             softWrap: true,
                             style: const TextStyle(
@@ -88,6 +91,22 @@ class _FlippingCardsState extends State<FlippingCards> {
                       ],
                     ),
                   ),
+          // if (!isFront && !isWord && widget.isDirectLearning ||
+          //     !isFront && isWord && !widget.isDirectLearning)
+          //   Positioned(
+          //     bottom: 20,
+          //     left: 10,
+          //     right: 10,
+          //     child: ClipRRect(
+          //       borderRadius: BorderRadius.circular(20),
+          //       child: BackdropFilter(
+          //         filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+          //         child: Container(
+          //           height: 30,
+          //         ),
+          //       ),
+          //     ),
+          //   ),
           if (!isFront && !isWord && widget.isDirectLearning ||
               !isFront && isWord && !widget.isDirectLearning)
             Positioned(
@@ -98,21 +117,75 @@ class _FlippingCardsState extends State<FlippingCards> {
                   mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    IconButton(
-                        onPressed:
-                            widget.onPressedNotOk ?? () => print('not ok'),
-                        icon: const Icon(
-                          Icons.mood_bad,
-                          color: Colors.red,
-                          size: 30,
-                        )),
-                    IconButton(
-                        onPressed: widget.onPressedOk ?? () => print('ok'),
-                        icon: const Icon(
-                          Icons.mood,
-                          color: Colors.green,
-                          size: 30,
-                        )),
+                    Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(20),
+                          child: BackdropFilter(
+                            blendMode: BlendMode.srcATop,
+                            filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                            child: const SizedBox(
+                              height: 40,
+                              width: 40,
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                            onPressed: widget.onPressedNotOk,
+                            icon: const Icon(
+                              Icons.mood_bad,
+                              color: Colors.red,
+                              size: 30,
+                            )),
+                      ],
+                    ),
+                    Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(20),
+                          child: BackdropFilter(
+                            blendMode: BlendMode.srcATop,
+                            filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                            child: const SizedBox(
+                              height: 40,
+                              width: 40,
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                            onPressed: widget.onPressedShowFullText,
+                            icon: const Icon(
+                              Icons.translate,
+                              color: Colors.white,
+                              size: 30,
+                            )),
+                      ],
+                    ),
+                    Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(20),
+                          child: BackdropFilter(
+                            blendMode: BlendMode.srcATop,
+                            filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                            child: const SizedBox(
+                              height: 40,
+                              width: 40,
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                            onPressed: widget.onPressedOk,
+                            icon: const Icon(
+                              Icons.mood,
+                              color: Colors.green,
+                              size: 30,
+                            )),
+                      ],
+                    ),
                   ],
                 ))
         ],

@@ -44,7 +44,7 @@ class FlashCardsScreenState extends Equatable {
 class FlashCardsScreenStateInitial extends FlashCardsScreenState {
   const FlashCardsScreenStateInitial({required WizzDeckDM deck})
       : super(
-            currentProgress: 0,
+            currentProgress: 1,
             deck: deck,
             isLoading: false,
             listOfCards: const []);

@@ -33,13 +33,19 @@ class FlashCardsScreenCubit extends Cubit<FlashCardsScreenState> {
   void updateCard(WizzCardDM card, bool isGood) {
     final newLevel = (isGood ? card.level + 1 : card.level - 1).clamp(1, 5);
     if (isGood) numberOfSuccesses += 1;
-    if (card.level == newLevel) return;
-    final index = state.listOfCards.indexWhere((element) => element == card);
-    final updatedCard = card.copyWith(level: newLevel);
-    emit(state.copyWith(
-        listOfCards: List.from(state.listOfCards)
-          ..removeAt(index)
-          ..insert(index, updatedCard)));
+    if (card.level == newLevel &&
+        state.currentProgress <= state.listOfCards.length) {
+      emit(state.copyWith(currentProgress: state.currentProgress + 1));
+    } else if (card.level != newLevel &&
+        state.currentProgress <= state.listOfCards.length) {
+      final index = state.listOfCards.indexWhere((element) => element == card);
+      final updatedCard = card.copyWith(level: newLevel);
+      emit(state.copyWith(
+          currentProgress: state.currentProgress + 1,
+          listOfCards: List.from(state.listOfCards)
+            ..removeAt(index)
+            ..insert(index, updatedCard)));
+    }
   }
 
   void completeTraining() {
