@@ -1,3 +1,4 @@
+import 'package:animated_toggle_switch/animated_toggle_switch.dart';
 import 'package:dictionaries_screen/src/components/dictionaries_appbar.dart';
 import 'package:dictionaries_screen/src/dictionaries_screen_cubit.dart';
 import 'package:dictionary_provider/dictionary_provider.dart';
@@ -6,7 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:components/components.dart';
 import 'package:domain_models/domain_models.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lottie/lottie.dart';
 import 'package:user_repository/user_repository.dart';
+
+import 'components/centered_info_dialog.dart';
 
 class DictionariesScreen extends StatefulWidget {
   const DictionariesScreen(
@@ -48,7 +52,7 @@ class _DictionariesScreenState extends State<DictionariesScreen> {
           ..initialLoad(),
         child: BlocConsumer<DictionaryScreenCubit, DictionariesScreenState>(
           listener: (context, state) {
-            if (state.message != null) {
+            if (state.message != null && !state.isLoading) {
               buildInfoSnackBar(context, state.message!);
             }
           },
@@ -87,7 +91,8 @@ class _DictionariesScreenState extends State<DictionariesScreen> {
                     },
                   ),
                 ),
-                if (state.isLoading) const CenteredLoadingProgressIndicator()
+                if (state.isLoading)
+                  CenteredInfoDialog(message: state.message ?? '')
               ],
             );
           },
@@ -95,37 +100,50 @@ class _DictionariesScreenState extends State<DictionariesScreen> {
   }
 }
 
-class DictionaryTile extends StatelessWidget {
+class DictionaryTile extends StatefulWidget {
   const DictionaryTile({Key? key, required this.dictionary, required this.pop})
       : super(key: key);
 
   final DictionaryDM dictionary;
   final Function(BuildContext, dynamic) pop;
 
-  // late bool _isActive = widget.dictionary.active;
+  @override
+  State<DictionaryTile> createState() => _DictionaryTileState();
+}
+
+class _DictionaryTileState extends State<DictionaryTile>
+    with SingleTickerProviderStateMixin {
+  late final _iconController = AnimationController(vsync: this);
+
   void _onChangeActive(BuildContext context, bool status) {
     context
         .read<DictionaryScreenCubit>()
-        .dictionaryStatusChanged(dictionary, status);
-    // setState(() {
-    //   _isActive = val;
-    // });
+        .dictionaryStatusChanged(widget.dictionary, status);
   }
 
   void _onPressDeleteDictionary(BuildContext context) async {
+    _iconController.repeat(period: const Duration(milliseconds: 1500));
     final response = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
         return ConfirmCancelDialog(
-            title: 'Delete ${dictionary.name} dictionary?',
-            onCancel: () => pop(context, false),
-            onConfirm: () => pop(context, true));
+            title: 'Delete ${widget.dictionary.name} dictionary?',
+            onCancel: () => widget.pop(context, false),
+            onConfirm: () => widget.pop(context, true));
       },
     );
-    if (response == true) {
-      context.read<DictionaryScreenCubit>().deleteDictionary(dictionary);
+    if (response == true && mounted) {
+      context.read<DictionaryScreenCubit>().deleteDictionary(widget.dictionary);
+    } else {
+      _iconController.reset();
     }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _iconController.dispose();
   }
 
   @override
@@ -133,8 +151,13 @@ class DictionaryTile extends StatelessWidget {
     return Card(
       elevation: 15,
       child: ListTile(
+        contentPadding: const EdgeInsets.all(10),
         // isThreeLine: true,
-        title: Text(dictionary.name),
+        title: Text(
+          widget.dictionary.name,
+          style: TextStyle(
+              fontSize: Theme.of(context).textTheme.bodyLarge!.fontSize),
+        ),
         // horizontalTitleGap: 20,
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -143,31 +166,52 @@ class DictionaryTile extends StatelessWidget {
               // mainAxisAlignment: MainAxisAlignment.start,
               // mainAxisSize: MainAxisSize.min,
               children: [
-                Text(dictionary.indexLanguage.toCapital()),
+                Text(widget.dictionary.indexLanguage.toCapital()),
                 const Icon(Icons.arrow_forward),
-                Text(dictionary.contentLanguage.toCapital())
+                Text(widget.dictionary.contentLanguage.toCapital())
               ],
             ),
             Text(
-              '${dictionary.cards.length} entries',
+              '${widget.dictionary.entriesNumber} entries',
               textAlign: TextAlign.left,
             ),
           ],
         ),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Switch(
+            AnimatedToggleSwitch<bool>.dual(
+              current: widget.dictionary.active,
+              first: false,
+              second: true,
+              dif: 0.0,
+              borderColor: Colors.transparent,
+              borderWidth: 5.0,
+              height: 55,
+              boxShadow: const [
+                BoxShadow(
+                  color: Colors.black26,
+                  spreadRadius: 1,
+                  blurRadius: 2,
+                  offset: Offset(0, 1.5),
+                ),
+              ],
               onChanged: (val) => _onChangeActive(context, val),
-              value: dictionary.active,
+              colorBuilder: (b) => b ? Colors.green : Colors.red,
+              iconBuilder: (value) =>
+                  value ? const Icon(Icons.mood) : const Icon(Icons.mood_bad),
+              textBuilder: (value) => value
+                  ? const Center(child: Text('ON'))
+                  : const Center(child: Text('OFF')),
             ),
-            IconButton(
-              icon: const Icon(
-                Icons.delete_forever,
-                color: Colors.black54,
+            GestureDetector(
+              onTap: () => _onPressDeleteDictionary(context),
+              child: Lottie.asset(
+                'assets/icons/delete.json',
+                controller: _iconController,
               ),
-              onPressed: () => _onPressDeleteDictionary(context),
-            )
+            ),
           ],
         ),
       ),

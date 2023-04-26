@@ -11,7 +11,7 @@ class DictionariesAppBar extends StatefulWidget implements PreferredSizeWidget {
   final String? fromLanguage;
   final String? toLanguage;
   final GlobalKey<ScaffoldState> scaffoldKey;
-  DictionariesAppBar({
+  const DictionariesAppBar({
     this.fromLanguage,
     this.toLanguage,
     required this.scaffoldKey,
@@ -38,13 +38,19 @@ class _DictionariesAppBarState extends State<DictionariesAppBar> {
     context.read<DictionaryScreenCubit>().swapLanguages();
   }
 
+  void _onTapMenu(BuildContext context) {
+    widget.scaffoldKey.currentState?.openDrawer();
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<DictionaryScreenCubit, DictionariesScreenState>(
         builder: (context, state) {
+      final isDark = Theme.of(context).brightness == Brightness.dark;
+
       return AppBar(
         titleSpacing: 5,
-        backgroundColor: kAppBarColor,
+        backgroundColor: isDark ? kAppBarColorDarkMode : kAppBarColorLightMode,
         // leadingWidth: 40,
         automaticallyImplyLeading: false,
         title: Column(
@@ -59,7 +65,7 @@ class _DictionariesAppBarState extends State<DictionariesAppBar> {
                       Theme.of(context).textTheme.headlineSmall!.fontSize),
               // textAlign: TextAlign.left,
             ),
-            SizedBox(height: 5),
+            const SizedBox(height: 5),
             Row(
               mainAxisSize: MainAxisSize.max,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -74,11 +80,11 @@ class _DictionariesAppBarState extends State<DictionariesAppBar> {
                           : state.fromLanguage ?? defaultLang,
                       alignment: Alignment.center,
                       style: TextStyle(
-                          color: Colors.black,
+                          // color: isDark ? Colors.black,
                           fontSize:
-                              Theme.of(context).textTheme.bodyLarge!.fontSize),
+                              Theme.of(context).textTheme.titleLarge!.fontSize),
                       underline: Container(),
-                      dropdownColor: Theme.of(context).canvasColor,
+                      // dropdownColor: Theme.of(context).canvasColor,
                       selectedItemBuilder: (context) {
                         return state.fromLanguages
                             .map((lang) => Center(
@@ -114,22 +120,22 @@ class _DictionariesAppBarState extends State<DictionariesAppBar> {
                 Flexible(
                   flex: 4,
                   child: Container(
-                    alignment: Alignment.centerLeft,
+                    alignment: Alignment.center,
                     width: double.infinity,
                     child: DropdownButton<String>(
-                        // alignment: Alignment.centerLeft,
                         isDense: true,
+                        alignment: Alignment.center,
                         value: state.dictionaryList.isEmpty
                             ? defaultLang
                             : state.toLanguage?.toLowerCase() ?? defaultLang,
                         style: TextStyle(
-                            color: Colors.black,
+                            // color: Colors.black,
                             fontSize: Theme.of(context)
                                 .textTheme
-                                .bodyLarge!
+                                .titleLarge!
                                 .fontSize),
                         underline: Container(),
-                        dropdownColor: Colors.white,
+                        // dropdownColor: Colors.white,
                         selectedItemBuilder: (context) {
                           return state.toLanguages
                               .map((lang) => Center(
@@ -145,7 +151,8 @@ class _DictionariesAppBarState extends State<DictionariesAppBar> {
                             .map((lang) => DropdownMenuItem(
                                   value: lang.toLowerCase(),
                                   child: Padding(
-                                    padding: const EdgeInsets.all(16.0),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 16.0),
                                     child: Text(lang.toCapital()),
                                   ),
                                 ))
@@ -164,8 +171,7 @@ class _DictionariesAppBarState extends State<DictionariesAppBar> {
         leading: IconButton(
           icon: const Icon(Icons.menu),
           onPressed: () {
-            widget.scaffoldKey.currentState?.openDrawer();
-            // Scaffold.of(context).openDrawer();
+            _onTapMenu(context);
           },
         ),
         // actions: [

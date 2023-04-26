@@ -1,4 +1,4 @@
-name: MyDictionary
+name: my_dictionary
 publish_to: 'none'
 
 version: 1.0.0+1
@@ -40,9 +40,13 @@ dependencies:
     path: packages/features/search_word_screen
   flashcards_screen:
     path: packages/features/flashcards_screen
+  settings_screen:
+    path: packages/features/settings_screen
   components:
     path: packages/components
   go_router: ^6.2.0
+  equatable:
+  flutter_bloc:
 
 
 dev_dependencies:

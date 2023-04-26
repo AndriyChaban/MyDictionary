@@ -1,11 +1,10 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'package:translation_screen/src/translation_screen_cubit.dart';
 
 class StyledTappableText extends StatefulWidget {
-  StyledTappableText({
+  const StyledTappableText({
     Key? key,
     required this.text,
     required this.onWordTap,
@@ -292,7 +291,7 @@ class TextNode {
   }) {
     return TextNode(
       text: text ?? this.text,
-      isSoundWidget: isWidget ?? this.isSoundWidget,
+      isSoundWidget: isWidget ?? isSoundWidget,
       isSelectable: isSelectable ?? this.isSelectable,
       isRef: isRef ?? this.isRef,
       isItalic: isItalic ?? this.isItalic,
@@ -347,14 +346,14 @@ class SelectableSpanWidget extends StatelessWidget {
       child: Text(
         text,
         style: TextStyle(
-          height: 0.7,
-          backgroundColor: isSelected ? Colors.yellow : Colors.transparent,
-          fontStyle: isItalic ? FontStyle.italic : FontStyle.normal,
-          fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-          decoration:
-              isUnderline ? TextDecoration.underline : TextDecoration.none,
-          color: color,
-        ),
+            height: 0.7,
+            backgroundColor: isSelected ? Colors.yellow : Colors.transparent,
+            fontStyle: isItalic ? FontStyle.italic : FontStyle.normal,
+            fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+            decoration:
+                isUnderline ? TextDecoration.underline : TextDecoration.none,
+            color: color,
+            fontSize: Theme.of(context).textTheme.bodyLarge!.fontSize),
       ),
     );
   }

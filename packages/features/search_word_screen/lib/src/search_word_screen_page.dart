@@ -19,6 +19,7 @@ class SearchWordScreen extends StatefulWidget {
   final DictionaryProvider dictionaryProvider;
   final GlobalKey<ScaffoldState> scaffoldKey;
   final bool requestFocus;
+  final Function(BuildContext, dynamic) pop;
 
   const SearchWordScreen(
       {Key? key,
@@ -26,7 +27,8 @@ class SearchWordScreen extends StatefulWidget {
       required this.scaffoldKey,
       required this.userRepository,
       required this.dictionaryProvider,
-      this.requestFocus = true})
+      this.requestFocus = true,
+      required this.pop})
       : super(key: key);
 
   @override
@@ -36,8 +38,11 @@ class SearchWordScreen extends StatefulWidget {
 class _SearchWordScreenState extends State<SearchWordScreen> {
   final _searchController = TextEditingController();
   final _searchBarFocusNode = FocusNode();
+  final _scrollController = ScrollController();
 
   void _onSearchTermChanged(BuildContext context) {
+    _scrollController.animateTo(0,
+        duration: const Duration(milliseconds: 200), curve: Curves.easeInOut);
     if (_searchController.text.replaceAll(RegExp(r'\s'), '').isEmpty) {
       _searchController.text = '';
     }
@@ -67,6 +72,7 @@ class _SearchWordScreenState extends State<SearchWordScreen> {
         appBar: SearchWordAppBar(
           scaffoldKey: widget.scaffoldKey,
           searchFocusNode: _searchBarFocusNode,
+          pop: widget.pop,
         ),
         body: Builder(builder: (context) {
           return Column(
@@ -100,6 +106,7 @@ class _SearchWordScreenState extends State<SearchWordScreen> {
                 builder: (context, results) {
                   return Expanded(
                     child: ListView.separated(
+                      controller: _scrollController,
                       itemBuilder: (BuildContext context, int index) {
                         return ShortTranslationCard(
                           headword: results[index].headword,
@@ -108,7 +115,9 @@ class _SearchWordScreenState extends State<SearchWordScreen> {
                         );
                       },
                       separatorBuilder: (BuildContext context, int index) =>
-                          const DividerCommon(),
+                          const DividerCommon(
+                        color: Colors.white38,
+                      ),
                       itemCount: results.length,
                     ),
                   );

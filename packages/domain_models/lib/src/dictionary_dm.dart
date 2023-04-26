@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-import 'models.dart';
+import 'domain_models.dart';
 
 class DictionaryDM extends Equatable {
   final String name;
@@ -8,17 +8,19 @@ class DictionaryDM extends Equatable {
   final String contentLanguage;
   final List<CardDM> cards;
   final bool active;
+  final int entriesNumber;
 
   DictionaryDM(
       {required this.name,
       required this.indexLanguage,
       required this.contentLanguage,
       this.active = false,
+      required this.entriesNumber,
       this.cards = const <CardDM>[]});
 
   @override
   List<Object> get props =>
-      [name, indexLanguage, contentLanguage, cards, active];
+      [name, indexLanguage, contentLanguage, cards, active, entriesNumber];
 
   DictionaryDM copyWith({
     String? name,
@@ -26,6 +28,7 @@ class DictionaryDM extends Equatable {
     String? contentLanguage,
     List<CardDM>? cards,
     bool? active,
+    int? entriesNumber,
   }) {
     return DictionaryDM(
       name: name ?? this.name,
@@ -33,6 +36,7 @@ class DictionaryDM extends Equatable {
       contentLanguage: contentLanguage ?? this.contentLanguage,
       cards: cards ?? this.cards,
       active: active ?? this.active,
+      entriesNumber: entriesNumber ?? this.entriesNumber,
     );
   }
 }

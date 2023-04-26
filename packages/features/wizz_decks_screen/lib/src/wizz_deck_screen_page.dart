@@ -192,16 +192,19 @@ class _WizzDecksScreenState extends State<WizzDecksScreen> {
                 fromLanguage: fromLanguage, toLanguage: toLanguage),
       child: WillPopScope(
         onWillPop: () async {
+          if (isFromTranslationScreen) _backToSearchWordScreen(context);
           return false;
         },
         child: BlocBuilder<WizzDeckScreenCubit, WizzDeckScreenState>(
             builder: (context, state) {
           final cubit = context.read<WizzDeckScreenCubit>();
+          final isDark = Theme.of(context).brightness == Brightness.dark;
           return Stack(
             children: [
               Scaffold(
                   appBar: AppBar(
-                    backgroundColor: kAppBarColor,
+                    backgroundColor:
+                        isDark ? kAppBarColorDarkMode : kAppBarColorLightMode,
                     centerTitle: true,
                     leading: IconButton(
                       icon: const Icon(Icons.menu),
@@ -351,7 +354,7 @@ class _WizzDecksScreenState extends State<WizzDecksScreen> {
                                           MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text(
-                                          'Please pick a dictionary',
+                                          'Please pick the deck or create new',
                                           style: TextStyle(
                                               color: Theme.of(context)
                                                   .canvasColor),
@@ -448,106 +451,102 @@ class _WizzDecksScreenState extends State<WizzDecksScreen> {
                                                   '${deck.sessionNumber} training session${deck.sessionNumber != 1 ? 's' : ''}',
                                                   textAlign: TextAlign.left,
                                                 ),
-                                                const DividerCommon(),
-                                                Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceAround,
-                                                  children: [
-                                                    InkWell(
-                                                      onTap: () =>
-                                                          _onStartTraining(
-                                                              context,
-                                                              deck,
-                                                              true,
-                                                              index),
-                                                      child: Container(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                    .symmetric(
-                                                                horizontal: 5),
-                                                        // decoration:
-                                                        //     BoxDecoration(
-                                                        //         borderRadius:
-                                                        //             BorderRadius
-                                                        //                 .circular(
-                                                        //                     15),
-                                                        //         border:
-                                                        //             Border.all(
-                                                        //           width: 2,
-                                                        //           color: Colors
-                                                        //               .green,
-                                                        //         )
-                                                        //     ),
-                                                        child: Row(
-                                                          children: [
-                                                            const Icon(
-                                                              Icons
-                                                                  .play_circle_fill_rounded,
-                                                              color:
-                                                                  Colors.green,
-                                                            ),
-                                                            Text(
-                                                                ' ${deck.fromLanguage.substring(0, 2).toCapital()}'),
-                                                            const Icon(
-                                                              Icons
-                                                                  .arrow_forward,
-                                                              size: 20,
-                                                            ),
-                                                            Text(deck.toLanguage
-                                                                .substring(0, 2)
-                                                                .toCapital())
-                                                          ],
+                                                if (!isFromTranslationScreen)
+                                                  const DividerCommon(),
+                                                if (!isFromTranslationScreen)
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceAround,
+                                                    children: [
+                                                      InkWell(
+                                                        onTap: () =>
+                                                            _onStartTraining(
+                                                                context,
+                                                                deck,
+                                                                true,
+                                                                index),
+                                                        child: Container(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                      .symmetric(
+                                                                  horizontal:
+                                                                      5),
+                                                          child: Row(
+                                                            children: [
+                                                              const Icon(
+                                                                Icons
+                                                                    .play_circle_fill_rounded,
+                                                                color: Colors
+                                                                    .green,
+                                                              ),
+                                                              Text(
+                                                                  ' ${deck.fromLanguage.substring(0, 2).toCapital()}'),
+                                                              const Icon(
+                                                                Icons
+                                                                    .arrow_forward,
+                                                                size: 20,
+                                                              ),
+                                                              Text(deck
+                                                                  .toLanguage
+                                                                  .substring(
+                                                                      0, 2)
+                                                                  .toCapital())
+                                                            ],
+                                                          ),
                                                         ),
                                                       ),
-                                                    ),
-                                                    InkWell(
-                                                      onTap: () =>
-                                                          _onStartTraining(
-                                                              context,
-                                                              deck,
-                                                              false,
-                                                              index),
-                                                      child: Container(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                    .symmetric(
-                                                                horizontal: 5),
-                                                        // decoration:
-                                                        //     BoxDecoration(
-                                                        //         borderRadius:
-                                                        //             BorderRadius
-                                                        //                 .circular(
-                                                        //                     15),
-                                                        //         border:
-                                                        //             Border.all(
-                                                        //           width: 2,
-                                                        //           color: Colors
-                                                        //               .green,
-                                                        //         )),
-                                                        child: Row(
-                                                          children: [
-                                                            const Icon(
-                                                              Icons
-                                                                  .play_circle_fill_rounded,
-                                                              color:
-                                                                  Colors.green,
-                                                            ),
-                                                            Text(
-                                                                ' ${deck.fromLanguage.substring(0, 2).toCapital()}'),
-                                                            const Icon(
-                                                              Icons.arrow_back,
-                                                              size: 20,
-                                                            ),
-                                                            Text(deck.toLanguage
-                                                                .substring(0, 2)
-                                                                .toCapital())
-                                                          ],
+                                                      InkWell(
+                                                        onTap: () =>
+                                                            _onStartTraining(
+                                                                context,
+                                                                deck,
+                                                                false,
+                                                                index),
+                                                        child: Container(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                      .symmetric(
+                                                                  horizontal:
+                                                                      5),
+                                                          // decoration:
+                                                          //     BoxDecoration(
+                                                          //         borderRadius:
+                                                          //             BorderRadius
+                                                          //                 .circular(
+                                                          //                     15),
+                                                          //         border:
+                                                          //             Border.all(
+                                                          //           width: 2,
+                                                          //           color: Colors
+                                                          //               .green,
+                                                          //         )),
+                                                          child: Row(
+                                                            children: [
+                                                              const Icon(
+                                                                Icons
+                                                                    .play_circle_fill_rounded,
+                                                                color: Colors
+                                                                    .green,
+                                                              ),
+                                                              Text(
+                                                                  ' ${deck.fromLanguage.substring(0, 2).toCapital()}'),
+                                                              const Icon(
+                                                                Icons
+                                                                    .arrow_back,
+                                                                size: 20,
+                                                              ),
+                                                              Text(deck
+                                                                  .toLanguage
+                                                                  .substring(
+                                                                      0, 2)
+                                                                  .toCapital())
+                                                            ],
+                                                          ),
                                                         ),
                                                       ),
-                                                    ),
-                                                  ],
-                                                )
+                                                    ],
+                                                  )
                                               ],
                                             ),
                                             trailing:

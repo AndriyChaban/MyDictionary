@@ -1,5 +1,4 @@
 name: user_repository
-version: 0.0.1
 publish_to: none
 
 environment:
@@ -9,6 +8,9 @@ environment:
 dependencies:
   key_value_storage:
     path: ../key_value_storage
+  domain_models:
+    path: ../domain_models
+  rxdart: ^0.27.7
 
 
 dev_dependencies:

@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'dart:isolate';
 
-import 'package:db_service/src/models/card_db.dart';
+// import 'package:db_service/src/models/card_db.dart';
 import 'package:isar/isar.dart';
 import '../db_service.dart';
 
@@ -42,7 +42,7 @@ class DBService {
         }
 
         // print('writing database');
-        isar.writeTxnSync<Card?>(() {
+        final _ = isar.writeTxnSync<Card?>(() {
           for (CardDB wordCard in dictionary.cardsList) {
             final card = Card()
               ..headword = wordCard.headword

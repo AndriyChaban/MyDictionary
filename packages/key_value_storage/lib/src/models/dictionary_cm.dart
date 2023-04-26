@@ -12,11 +12,14 @@ class DictionaryCM extends HiveObject {
   String contentLanguage;
   @HiveField(3)
   bool active;
+  @HiveField(4)
+  int entriesNumber;
 
   DictionaryCM({
     required this.dictionaryName,
     required this.indexLanguage,
     required this.contentLanguage,
+    this.entriesNumber = 0,
     this.active = false,
   });
 }

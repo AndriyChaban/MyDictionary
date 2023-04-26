@@ -1,48 +1,71 @@
-import 'package:components/components.dart';
-import 'package:domain_models/domain_models.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../search_word_screen_bloc.dart';
 
-// import '../settings_state.dart';
+import 'package:domain_models/domain_models.dart';
+import 'package:components/components.dart';
+
+import '../search_word_screen_bloc.dart';
 
 class SearchWordAppBar extends AppBar {
   SearchWordAppBar({
-    Key? key,
+    super.key,
     required this.scaffoldKey,
     required this.searchFocusNode,
+    required this.pop,
   });
   final GlobalKey<ScaffoldState> scaffoldKey;
   final FocusNode searchFocusNode;
+  final void Function(BuildContext, dynamic) pop;
 
   @override
   State<SearchWordAppBar> createState() => _MainAppBarState();
 }
 
 class _MainAppBarState extends State<SearchWordAppBar> {
-  // Color dropDownTextColor;
-
   void _onSwapLanguages() {
     context
         .read<SearchWordScreenBloc>()
         .add(const SearchWordScreenEventSwapLanguages());
+    widget.searchFocusNode.requestFocus();
   }
 
   void _onLanguageToChanged(BuildContext context, String languageTo) {
     context
         .read<SearchWordScreenBloc>()
         .add(SearchWordScreenEventLanguageToChanged(languageTo));
+    widget.searchFocusNode.requestFocus();
   }
 
   void _onLanguageFromChanged(BuildContext context, String languageFrom) {
     context
         .read<SearchWordScreenBloc>()
         .add(SearchWordScreenEventLanguageFromChanged(languageFrom));
+    widget.searchFocusNode.requestFocus();
   }
 
   void _onTapMenu() {
     widget.scaffoldKey.currentState?.openDrawer();
     widget.searchFocusNode.unfocus();
+  }
+
+  void _onTapClearHistory(BuildContext context) async {
+    widget.searchFocusNode.nextFocus();
+    final bloc = context.read<SearchWordScreenBloc>();
+    final response = await showDialog<bool>(
+        context: context,
+        builder: (context) {
+          return ConfirmCancelDialog(
+              title: 'Clear History?',
+              message:
+                  'History for the direction ${bloc.state.fromLanguage.toCapital()}-to-'
+                  ' ${bloc.state.toLanguage.toCapital()}'
+                  ' will be deleted',
+              onCancel: () => widget.pop(context, false),
+              onConfirm: () => widget.pop(context, true));
+        });
+    if (response == true) {
+      bloc.add(const SearchWordScreenEventClearHistory());
+    }
   }
 
   @override
@@ -59,8 +82,21 @@ class _MainAppBarState extends State<SearchWordAppBar> {
                     d.contentLanguage == state.fromLanguage &&
                     d.indexLanguage == state.toLanguage)
                 .isNotEmpty;
+        final isDark = Theme.of(context).brightness == Brightness.dark;
         return AppBar(
-          backgroundColor: kAppBarColor,
+          backgroundColor:
+              isDark ? kAppBarColorDarkMode : kAppBarColorLightMode,
+          actions: [
+            if (state.fromLanguage.isNotEmpty && state.toLanguage.isNotEmpty)
+              PopupMenuButton(itemBuilder: (context) {
+                return [
+                  PopupMenuItem(
+                    onTap: () => _onTapClearHistory(context),
+                    child: const Text('Clear History'),
+                  ),
+                ];
+              })
+          ],
           leading: IconButton(
             icon: const Icon(Icons.menu),
             onPressed: _onTapMenu,
@@ -78,9 +114,9 @@ class _MainAppBarState extends State<SearchWordAppBar> {
                       value: state.fromLanguage,
                       alignment: Alignment.center,
                       style: TextStyle(
-                        color: Colors.black,
+                        color: isDark ? Colors.white : Colors.black,
                         fontSize:
-                            Theme.of(context).textTheme.bodyLarge!.fontSize,
+                            Theme.of(context).textTheme.titleMedium!.fontSize,
                       ),
                       underline: Container(),
                       dropdownColor: Theme.of(context).canvasColor,
@@ -137,12 +173,12 @@ class _MainAppBarState extends State<SearchWordAppBar> {
                   child: DropdownButton(
                       value: state.toLanguage,
                       style: TextStyle(
-                        color: Colors.black,
+                        color: isDark ? Colors.white : Colors.black,
                         fontSize:
-                            Theme.of(context).textTheme.bodyLarge!.fontSize,
+                            Theme.of(context).textTheme.titleMedium!.fontSize,
                       ),
                       underline: Container(),
-                      dropdownColor: Colors.white,
+                      // dropdownColor: Colors.white,
                       selectedItemBuilder: (context) {
                         return context
                             .read<SearchWordScreenBloc>()

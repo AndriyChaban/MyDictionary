@@ -17,8 +17,9 @@ class FlashCardsScreenAppBar extends StatelessWidget
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return AppBar(
-      backgroundColor: kAppBarColor,
+      backgroundColor: isDark ? kAppBarColorDarkMode : kAppBarColorLightMode,
       leading: Column(
         children: [
           IconButton(icon: const Icon(Icons.menu), onPressed: onTapMenu),
@@ -28,7 +29,7 @@ class FlashCardsScreenAppBar extends StatelessWidget
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Hero(
-              tag: 'deck-name-${index}',
+              tag: 'deck-name-$index',
               child: Text('Deck:   ${deck.name.toCapital()}')),
           Row(
             mainAxisAlignment: MainAxisAlignment.start,

@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:components/components.dart';
 import 'package:flutter/material.dart';
 
 class CreateImportDeckFAB extends StatefulWidget {
@@ -72,6 +73,7 @@ class _CreateImportDeckFABState extends State<CreateImportDeckFAB>
       {required VoidCallback onPressed,
       required String text,
       required IconData iconData}) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Material(
       color: Colors.transparent,
       child: ScaleTransition(
@@ -79,10 +81,13 @@ class _CreateImportDeckFABState extends State<CreateImportDeckFAB>
         child: ClipRRect(
           child: Container(
             decoration: BoxDecoration(
-                color: Colors.white,
+                // color: Colors.white,
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
-                    width: 2, color: Theme.of(context).primaryColor)),
+                    width: 2,
+                    color: isDark
+                        ? kPrimaryColor
+                        : Theme.of(context).primaryColor)),
             child: TextButton.icon(
               icon: Icon(iconData),
               onPressed: onPressed,

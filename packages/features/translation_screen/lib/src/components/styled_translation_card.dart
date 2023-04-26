@@ -23,27 +23,7 @@ class StyledTranslationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // final extraText = text
-    //     .replaceAll('<m1>', '\t<m1>')
-    //     .replaceAll('<m2>', '\t\t<m2>')
-    //     .replaceAll('<m3>', '\t\t\t<m3>');
-    // final textExtract = RegExp(r'<trn>(.+)</trn>')
-    //     .firstMatch(extraText)
-    //     ?.group(1)
-    //     ?.replaceAll(RegExp(r'<.*?>'), '');
-    // Map<String, StyledTextTagBase> tags = {
-    //   'b': StyledTextTag(style: TextStyle(fontWeight: FontWeight.bold)),
-    //   'i': StyledTextTag(style: TextStyle(fontStyle: FontStyle.italic)),
-    //   'u':
-    //       StyledTextTag(style: TextStyle(decoration: TextDecoration.underline)),
-    //   'c': StyledTextTag(style: TextStyle(color: Colors.green)),
-    //   'trn': StyledTextTag(style: TextStyle(color: Colors.black)),
-    //   // 'p': StyledTextTag(style: TextStyle(color: Colors.green)),
-    //   "'": StyledTextTag(style: TextStyle(color: Colors.red)),
-    //   'ex': StyledTextTag(style: TextStyle(color: Colors.grey)),
-    //   't': StyledTextTag(style: TextStyle(color: Color(0xFF80211C))),
-    //   's': StyledTextIconTag(Icons.volume_up_rounded),
-    // };
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final updatedText = text
         .replaceAll('[', '<')
         .replaceAll(']', '>')
@@ -57,11 +37,18 @@ class StyledTranslationCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Expanded(child: DividerCommon()),
+              Expanded(
+                  child: DividerCommon(
+                color: isDark ? kAppBarColorDarkMode : kAppBarColorLightMode,
+              )),
               IconButton(
                   onPressed: onAddToWizzDeck,
                   icon: const Icon(Icons.add_reaction_outlined)),
-              Text(dictionaryName, style: const TextStyle(color: Colors.grey)),
+              Text(dictionaryName,
+                  style: TextStyle(
+                      color: Colors.grey,
+                      fontSize:
+                          Theme.of(context).textTheme.bodyLarge!.fontSize)),
             ],
           ),
           ListTile(
@@ -74,7 +61,10 @@ class StyledTranslationCard extends StatelessWidget {
                     Text(
                       headwordCleaned,
                       maxLines: 3,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize:
+                              Theme.of(context).textTheme.bodyLarge!.fontSize),
                     ),
                   ],
                 ),

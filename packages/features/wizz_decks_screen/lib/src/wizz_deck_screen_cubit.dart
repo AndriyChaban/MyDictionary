@@ -44,7 +44,7 @@ class WizzDeckScreenCubit extends Cubit<WizzDeckScreenState> {
       await wizzTrainingModule.createNewWizzDeck(deck);
       getListOfAvailableDecks();
     } catch (e) {
-      print(e);
+      // print(e);
     }
   }
 

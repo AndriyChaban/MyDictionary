@@ -21,6 +21,7 @@ class DictionaryProvider {
   late Directory dictionaryDSLDirectory;
   late Directory dictionaryDBDirectory;
   bool _isBuisy = false;
+  late final int historyLength;
 
   DictionaryProvider._initializeProvider() {
     // for each active dict in keyValueStorage, based on current language,
@@ -30,7 +31,8 @@ class DictionaryProvider {
   static Future<DictionaryProvider> initializeProvider(
       {required KeyValueStorage keyValueStorage,
       required DBService dbService,
-      required GoogleAPIService googleApiService}) async {
+      required GoogleAPIService googleApiService,
+      int historyLength = 50}) async {
     final appDir = await getApplicationDocumentsDirectory();
     final dictionaryDBDirectory = Directory(join(appDir.path, 'dictsDB'));
     final dictionaryDSLDirectory = Directory(join(appDir.path, 'dictsDSL'));
@@ -41,43 +43,33 @@ class DictionaryProvider {
       ..dictionaryDBDirectory = dictionaryDBDirectory
       ..keyValueStorage = keyValueStorage
       ..dbService = dbService
+      ..historyLength = historyLength
       ..googleApiService = googleApiService;
   }
 
-  Future<DictionaryDM> createDictionary(String filePath) async {
+  Future<DictionaryDM> createDictionary(String filePath, Sink sink) async {
     if (_isBuisy) throw DictionaryCreationIsInProgress();
     _isBuisy = true;
-    // print(filePath);
     final dictBox = await keyValueStorage.getDictionariesBox();
-    // messageSink?.add('Start parsing ${basename(filePath)}');
-    // TODO copy file from local storage
+    sink.add('Copying file...');
     final copiedFilePath =
         await _copyFromToDictDirectory(filePath, fromAsset: false);
-    // final copiedFilePath = await _copyFromAssetsToDictDirectory(filePath);
-    // parse copied file into DictionaryDM
-    // print('start parsing');
+    sink.add('Parsing dictionary file...');
     final parsedDictionary = await compute(_parseDslDictionary, copiedFilePath);
-    // if (dictBox.containsKey(parsedDictionary.name)) {
-    //   print('WTF???');
-    //   return false;
-    // }
-    // create DB
     try {
-      // compute(
-      //   dbService.createDictionary, [ parsedDictionary.toDBModel(), dictionaryDBDirectory.path]
-      // );
-      // print('start creating DB');
-      // messageSink?.add('Start creating database');
+      sink.add('Creating database...');
       await dbService.createDictionary(
         parsedDictionary.toDBModel(),
         dictionaryDBDirectory.path,
       );
-      //TODO delete dsl after successful parsing???
-      // File(copiedFilePath).deleteSync();
+      sink.add('Deleting dsl file...');
+      File(copiedFilePath).deleteSync();
       // update keyValueStorage
       await dictBox.put(parsedDictionary.name,
           parsedDictionary.toCacheModel()..active = true);
       _isBuisy = false;
+      sink.add(parsedDictionary.name);
+      sink.close();
       return parsedDictionary;
     } catch (e) {
       _isBuisy = false;
@@ -112,10 +104,10 @@ class DictionaryProvider {
     }
   }
 
-  Future<void> openDictionary(String dictionaryName) async {
-    // check if it exists in keyValueStorage and DB
-    //
-  }
+  // Future<void> openDictionary(String dictionaryName) async {
+  //   // check if it exists in keyValueStorage and DB
+  //   //
+  // }
 
   Future<List<DictionaryDM>> getAllDictionariesWordTranslation(
       {required String word,
@@ -180,11 +172,15 @@ class DictionaryProvider {
         text: card.text,
         dictionaryName: dictionaryName);
     if (historyDict != null) {
-      historyDict.cards = historyDict.cards
-          .where((c) => c.headword != card.headword)
-          .take(50)
-          .toList()
-        ..add(newCard);
+      final filteredCards =
+          historyDict.cards.where((c) => c.headword != card.headword).toList();
+      if (filteredCards.length <= historyLength) {
+        historyDict.cards = filteredCards..add(newCard);
+      } else {
+        historyDict.cards = filteredCards
+          ..removeAt(0)
+          ..add(newCard);
+      }
       historyDict.save();
     } else {
       historyBox.put(
@@ -201,7 +197,15 @@ class DictionaryProvider {
     final historyBox = await keyValueStorage.getHistoryDictionariesBox();
     final historyDict = historyBox.get('$fromLanguage-$toLanguage');
     if (historyDict == null) return [];
+    if (historyDict.cards.length > historyLength) {
+      historyDict.cards.removeRange(historyLength, historyDict.cards.length);
+    }
     return historyDict.cards.map((c) => c.toDomainModel()).toList();
+  }
+
+  Future<void> clearHistory({required String from, required String to}) async {
+    final historyBox = await keyValueStorage.getHistoryDictionariesBox();
+    historyBox.delete('$from-$to');
   }
 
   Future<String> _copyFromToDictDirectory(String filePath,
@@ -237,16 +241,6 @@ class DictionaryProvider {
   }
 
   DictionaryDM _parseDslDictionary(String filePath) {
-    /// replace: " &quot
-    ///           ' &apos
-    ///           & &amp
-    ///           < &lt
-    ///           > &gt
-
-    // replace [] with <>
-    // replace [c gray] <gray>
-    // [c] <green>
-
     final dictFile = File(filePath).readAsStringSync();
     final nameRegexp = RegExp(r'^#name(.*)$',
         multiLine: true, dotAll: false, caseSensitive: false);
@@ -306,7 +300,8 @@ class DictionaryProvider {
           name: name,
           indexLanguage: indexLanguage.toLowerCase(),
           contentLanguage: contentsLanguage.toLowerCase(),
-          cards: cardsList);
+          cards: cardsList,
+          entriesNumber: cardsList.length);
     } catch (e) {
       throw DictionaryParsingException();
     }

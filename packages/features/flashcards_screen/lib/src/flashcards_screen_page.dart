@@ -148,18 +148,21 @@ class _FlashCardsScreenState extends State<FlashCardsScreen> {
                 // backgroundColor: Colors.black54,
                 body: BlocBuilder<FlashCardsScreenCubit, FlashCardsScreenState>(
                   builder: (context, state) {
-                    return Column(
+                    return Flex(
+                      direction: Axis.vertical,
                       mainAxisSize: MainAxisSize.max,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        AnimatedProgressBar(
-                          maxValue: state.listOfCards.length,
-                          currentValue: state.currentProgress,
+                        Flexible(
+                          flex: 1,
+                          child: AnimatedProgressBar(
+                            maxValue: state.listOfCards.length,
+                            currentValue: state.currentProgress,
+                          ),
                         ),
-                        Expanded(
-                          // flex: 7,
-                          // fit: FlexFit.loose,
+                        Flexible(
+                          flex: 8,
                           child: PageView.builder(
                             controller: _pageController,
                             physics: const NeverScrollableScrollPhysics(),

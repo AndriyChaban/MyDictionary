@@ -1,3 +1,3 @@
 library domain_models;
 
-export './src/models.dart';
+export './src/domain_models.dart';

@@ -70,7 +70,7 @@ class _AnimatedProgressBarState extends State<AnimatedProgressBar>
             },
           ),
           Text(
-              '   ${((widget.currentValue - 1) / widget.maxValue).toStringAsFixed(2)}%'),
+              '   ${((widget.currentValue - 1) * 100 / widget.maxValue).toStringAsFixed(0)}%'),
         ],
       ),
     );

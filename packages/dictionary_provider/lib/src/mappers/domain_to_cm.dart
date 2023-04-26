@@ -5,5 +5,6 @@ extension DictionaryDomainToCache on DictionaryDM {
   DictionaryCM toCacheModel() => DictionaryCM(
       dictionaryName: name,
       indexLanguage: indexLanguage,
-      contentLanguage: contentLanguage);
+      contentLanguage: contentLanguage,
+      entriesNumber: entriesNumber);
 }

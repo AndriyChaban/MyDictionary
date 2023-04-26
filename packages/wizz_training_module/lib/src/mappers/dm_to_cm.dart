@@ -8,7 +8,8 @@ extension WizzDeckDMtoCM on WizzDeckDM {
         fromLanguage: fromLanguage,
         toLanguage: toLanguage,
         cards: cards.map((c) => c.toCache()).toList(),
-        sessionNumber: sessionNumber);
+        sessionNumber: sessionNumber,
+        timeStamp: timeStamp);
   }
 }
 

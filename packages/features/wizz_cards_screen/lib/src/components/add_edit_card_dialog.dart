@@ -143,16 +143,6 @@ class _AddEditWizzCardDialogState extends State<AddEditWizzCardDialog> {
   }
 
   void _onOpenCard() {
-    print('open card');
-    // final payload = {
-    //   'headword': widget.cardForEditing?.word ??
-    //       widget.cardFromDictionary?.headword ??
-    //       'None',
-    //   'meaning': widget.cardForEditing?.meaning,
-    //   'examples': widget.cardForEditing?.examples,
-    //   'fullText':
-    //       widget.cardFromDictionary?.text ?? widget.cardForEditing?.fullText
-    // };
     final card = WizzCardDM(
         word: widget.cardForEditing?.word ??
             widget.cardFromDictionary?.headword ??

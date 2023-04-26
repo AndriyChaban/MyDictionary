@@ -36,7 +36,9 @@ class ShortTranslationCard extends StatelessWidget {
               Text(
                 headwordCleaned,
                 maxLines: 3,
-                style: const TextStyle(fontWeight: FontWeight.bold),
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: Theme.of(context).textTheme.bodyLarge!.fontSize),
               ),
               Text(dictionaryName),
             ],
@@ -45,7 +47,9 @@ class ShortTranslationCard extends StatelessWidget {
         subtitle: Text(
           textExtract,
           maxLines: 3,
-          style: const TextStyle(height: 1.2),
+          style: TextStyle(
+              height: 1.2,
+              fontSize: Theme.of(context).textTheme.bodyLarge!.fontSize),
         ));
   }
 }

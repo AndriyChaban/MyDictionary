@@ -57,7 +57,7 @@ class TranslationScreenCubit extends Cubit<TranslationScreenState> {
           listOfDictionariesWithTranslations:
               listOfDictionariesWithTranslations));
     } catch (e) {
-      print(e);
+      // print(e);
     }
   }
 

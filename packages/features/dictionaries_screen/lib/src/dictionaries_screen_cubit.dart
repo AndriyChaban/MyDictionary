@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dictionary_provider/dictionary_provider.dart';
 import 'package:domain_models/domain_models.dart';
 import 'package:equatable/equatable.dart';
@@ -5,7 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path/path.dart';
 import 'package:user_repository/user_repository.dart';
 
-part 'dictionaries_screen state.dart';
+part 'dictionaries_screen_state.dart';
 
 const defaultLang = 'all';
 
@@ -54,11 +56,6 @@ class DictionaryScreenCubit extends Cubit<DictionariesScreenState> {
     try {
       await dictionaryProvider.updateDictionaryStatusChanged(
           dictionary: changedDictionary, status: status);
-      // String from = state.fromLanguage ?? defaultLang;
-      // String to = state.toLanguage ?? defaultLang;
-      // final allDictionaries = await dictionaryProvider.listOfAllDictionaries;
-      // final filteredDictionaries = _filterDictionaries(
-      //     allDictionaries: allDictionaries, fromLanguage: from, toLanguage: to);
       emit(state.copyWith(
           message: null,
           dictionaryList: state.dictionaryList.map((d) {
@@ -75,13 +72,27 @@ class DictionaryScreenCubit extends Cubit<DictionariesScreenState> {
       emit(state.copyWith(isLoading: false, message: 'Wrong filetype'));
       return;
     }
-    emit(state.copyWith(isLoading: true, message: 'Creating dictionary...'));
-    await Future.delayed(const Duration(seconds: 1));
+    final streamController = StreamController<String>();
     try {
-      final dictionary = await dictionaryProvider.createDictionary(filePath);
-      await initialLoad(message: 'Created dictionary ${dictionary.name}');
+      final sink = streamController.sink;
+      String? last;
+      streamController.stream.listen((event) {
+        last = event;
+        emit(state.copyWith(isLoading: true, message: event));
+      }, onDone: () async {
+        await initialLoad(message: 'Created dictionary $last');
+        streamController.close();
+      }, onError: (e) {
+        streamController.close();
+        emit(
+          state.copyWith(
+              isLoading: false,
+              message: 'Something went wrong is wrong with dictionary file'),
+        );
+      });
+      await dictionaryProvider.createDictionary(filePath, sink);
     } catch (e) {
-      print(e);
+      streamController.close();
       emit(
         state.copyWith(
             isLoading: false,
@@ -104,8 +115,9 @@ class DictionaryScreenCubit extends Cubit<DictionariesScreenState> {
           forceAllDicts: true, dictionaries: allDictionaries);
       final listTo = _listOfAllActiveToLanguages(
           forceAllDicts: true, dictionaries: allDictionaries);
-      if (!listFrom.contains(from))
+      if (!listFrom.contains(from)) {
         from = listFrom.isEmpty ? null : listFrom.first;
+      }
       if (!listTo.contains(to)) to = listTo.isEmpty ? null : listTo.first;
       await initialLoad(message: 'Successfully deleted ${dictionary.name}');
     } catch (e) {
@@ -122,7 +134,6 @@ class DictionaryScreenCubit extends Cubit<DictionariesScreenState> {
         fromLanguage: fromLanguage,
         forceAllDicts: true,
         dictionaries: allDictionaries);
-    print(toLanguages);
     String toLanguage =
         toLanguages.contains(state.toLanguage) && state.toLanguage != null
             ? state.toLanguage!

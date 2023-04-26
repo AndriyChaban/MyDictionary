@@ -6,7 +6,8 @@ extension DictionaryCacheToDomain on DictionaryCM {
       name: dictionaryName,
       indexLanguage: indexLanguage,
       contentLanguage: contentLanguage,
-      active: active);
+      active: active,
+      entriesNumber: entriesNumber);
 }
 
 extension HistoryCardCacheToDomain on HistoryCardCM {

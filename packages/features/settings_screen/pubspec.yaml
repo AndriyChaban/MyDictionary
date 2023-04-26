@@ -1,0 +1,29 @@
+name: settings_screen
+publish_to: none
+
+environment:
+  sdk: '>=2.19.3 <3.0.0'
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  components:
+    path: ../../components
+  domain_models:
+    path: ../../domain_models
+  user_repository:
+    path: ../../user_repository
+  flutter_bloc: ^8.1.2
+  equatable: ^2.0.5
+  animated_toggle_switch: ^0.6.2
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+
+flutter:
+

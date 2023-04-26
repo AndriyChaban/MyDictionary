@@ -22,13 +22,14 @@ class WizzDeckCMAdapter extends TypeAdapter<WizzDeckCM> {
       fromLanguage: fields[1] as String,
       toLanguage: fields[2] as String,
       cards: (fields[3] as List).cast<WizzCardCM>(),
+      timeStamp: fields[5] as DateTime,
     );
   }
 
   @override
   void write(BinaryWriter writer, WizzDeckCM obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(6)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -38,7 +39,9 @@ class WizzDeckCMAdapter extends TypeAdapter<WizzDeckCM> {
       ..writeByte(3)
       ..write(obj.cards)
       ..writeByte(4)
-      ..write(obj.sessionNumber);
+      ..write(obj.sessionNumber)
+      ..writeByte(5)
+      ..write(obj.timeStamp);
   }
 
   @override

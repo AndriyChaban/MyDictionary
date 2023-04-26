@@ -18,7 +18,7 @@ class SelectableStyledTranslationCard extends StatelessWidget {
         .replaceAll(r'\<', '[')
         .replaceAll(r'\>', ']');
     return SingleChildScrollView(
-      padding: EdgeInsets.all(15),
+      padding: const EdgeInsets.all(15),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         // crossAxisAlignment: CrossAxisAlignment.start,
@@ -112,8 +112,8 @@ List<InlineSpan> _createChildren(BuildContext context, String text) {
     for (var textMatch in textPatchMatches) {
       bool betweenRef =
           _isBetween(tag: 'ref', textMatch: textMatch, fullString: line);
-      bool betweenTrn =
-          _isBetween(tag: 'trn', textMatch: textMatch, fullString: line);
+      // bool betweenTrn =
+      //     _isBetween(tag: 'trn', textMatch: textMatch, fullString: line);
       bool betweenC =
           _isBetween(tag: 'c', textMatch: textMatch, fullString: line);
       bool betweenP =
@@ -126,8 +126,8 @@ List<InlineSpan> _createChildren(BuildContext context, String text) {
           _isBetween(tag: 'i', textMatch: textMatch, fullString: line);
       bool betweenEx =
           _isBetween(tag: 'ex', textMatch: textMatch, fullString: line);
-      bool betweenLang =
-          _isBetween(tag: 'lang', textMatch: textMatch, fullString: line);
+      // bool betweenLang =
+      //     _isBetween(tag: 'lang', textMatch: textMatch, fullString: line);
       bool betweenT =
           _isBetween(tag: 't', textMatch: textMatch, fullString: line);
       bool betweenGap =
@@ -139,7 +139,7 @@ List<InlineSpan> _createChildren(BuildContext context, String text) {
         spans.add(WidgetSpan(
             child: IconButton(
           onPressed: () {},
-          icon: Icon(Icons.volume_up_sharp),
+          icon: const Icon(Icons.volume_up_sharp),
         )));
       } else if (!betweenRef) {
         final words = textMatch.group(1)!.split(RegExp(r'\s'));
@@ -198,7 +198,7 @@ List<InlineSpan> _createChildren(BuildContext context, String text) {
         }
       }
     }
-    spans.add(TextSpan(text: '\n'));
+    spans.add(const TextSpan(text: '\n'));
   }
   return spans;
 }

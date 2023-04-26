@@ -6,3 +6,4 @@ export 'helpers.dart';
 export 'constants.dart';
 export 'wizz_deck_dm.dart';
 export 'wizz_card_dm.dart';
+export 'user_prefs_dm.dart';

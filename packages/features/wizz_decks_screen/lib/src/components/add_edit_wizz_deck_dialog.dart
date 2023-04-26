@@ -46,10 +46,12 @@ class _AddEditWizzDeckDialogState extends State<AddEditWizzDeckDialog> {
             ? widget.dictionary!.contentLanguage
             : widget.toLanguage ?? klistIfLanguages.first;
     _textController.text = isEdit ? widget.deck!.name : '';
-    _textController.selection = TextSelection(
-      baseOffset: 0,
-      extentOffset: _textController.text.length,
-    );
+    if (isEdit) {
+      _textController.selection = TextSelection(
+        baseOffset: 0,
+        extentOffset: _textController.text.length,
+      );
+    }
   }
 
   @override
@@ -70,7 +72,8 @@ class _AddEditWizzDeckDialogState extends State<AddEditWizzDeckDialog> {
           name: _textController.text,
           fromLanguage: fromLanguage,
           toLanguage: toLanguage,
-          cards: isEdit ? widget.deck!.cards : []);
+          cards: isEdit ? widget.deck!.cards : [],
+          timeStamp: DateTime.now());
       if (widget.popCallback != null && mounted) {
         widget.popCallback!(context, newDeck);
       }
@@ -100,9 +103,9 @@ class _AddEditWizzDeckDialogState extends State<AddEditWizzDeckDialog> {
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(5),
                       color: Theme.of(context).primaryColor),
-                  child: Icon(
+                  child: const Icon(
                     Icons.add,
-                    color: Theme.of(context).canvasColor,
+                    color: Colors.white,
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -166,7 +169,7 @@ class _AddEditWizzDeckDialogState extends State<AddEditWizzDeckDialog> {
             ),
             const SizedBox(height: 15),
             TextFormField(
-              autofocus: false,
+              autofocus: true,
               controller: _textController,
               decoration: InputDecoration(
                 contentPadding: const EdgeInsets.all(10),

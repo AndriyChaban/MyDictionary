@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 void buildInfoSnackBar(BuildContext context, String message) {
-  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+  ScaffoldMessenger.of(context).clearSnackBars();
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
     // width: MediaQuery.of(context).size.width / 2,
     behavior: SnackBarBehavior.floating,

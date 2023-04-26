@@ -14,6 +14,8 @@ class WizzDeckCM extends HiveObject {
   final List<WizzCardCM> cards;
   @HiveField(4)
   final int sessionNumber;
+  @HiveField(5)
+  final DateTime timeStamp;
 
   WizzDeckCM({
     this.sessionNumber = 0,
@@ -21,6 +23,7 @@ class WizzDeckCM extends HiveObject {
     required this.fromLanguage,
     required this.toLanguage,
     required this.cards,
+    required this.timeStamp,
   });
 }
 

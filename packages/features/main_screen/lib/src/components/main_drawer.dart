@@ -7,13 +7,17 @@ class MainDrawer extends StatelessWidget {
       this.onAddDictionary,
       required this.onPressedManageDictionaries,
       required this.onPressedTranslateWord,
-      required this.onPressedWizzDecks})
+      required this.onPressedWizzDecks,
+      required this.drawerWidth,
+      required this.onPressedSettings})
       : super(key: key);
 
   final Function()? onAddDictionary;
   final void Function(BuildContext) onPressedManageDictionaries;
   final void Function(BuildContext) onPressedTranslateWord;
   final void Function(BuildContext) onPressedWizzDecks;
+  final void Function(BuildContext) onPressedSettings;
+  final double drawerWidth;
 
   void _onInstalledDictionariesTap(BuildContext context) {
     Navigator.pop(context);
@@ -30,12 +34,20 @@ class MainDrawer extends StatelessWidget {
     onPressedWizzDecks(context);
   }
 
+  void _onSettingsTap(BuildContext context) {
+    Navigator.pop(context);
+    onPressedSettings(context);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final style = TextStyle(color: Theme.of(context).canvasColor);
-    const headersStyle = TextStyle(color: Colors.orange, fontSize: 15);
+    const style = TextStyle(color: Colors.white);
+    const headersStyle = TextStyle(
+        color: kPrimaryColor, fontSize: 15, fontWeight: FontWeight.bold);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Drawer(
-      backgroundColor: Colors.black.withOpacity(0.65),
+      backgroundColor: isDark ? kAppBarColorDarkMode : kAppBarColorLightMode,
+      width: drawerWidth,
       shape: const Border(),
       child: NestedScrollView(
           headerSliverBuilder: (context, innerBoxIsScrolled) {
@@ -65,30 +77,34 @@ class MainDrawer extends StatelessWidget {
                   const SizedBox(height: 10),
                   TextButton.icon(
                     onPressed: () => _onTranslateWordTap(context),
-                    icon: Icon(
+                    icon: const Icon(
                       Icons.translate,
-                      color: Theme.of(context).canvasColor,
+                      color: Colors.white,
                     ),
-                    label: Text(
+                    label: const Text(
                       'Translate word',
                       style: style,
                     ),
                   ),
-                  const DividerCommon(),
+                  const DividerCommon(
+                    color: Colors.white38,
+                  ),
                   const Text('Dictionaries', style: headersStyle),
                   const SizedBox(height: 10),
                   TextButton.icon(
                     onPressed: () => _onInstalledDictionariesTap(context),
-                    icon: Icon(
+                    icon: const Icon(
                       Icons.library_add_check,
-                      color: Theme.of(context).canvasColor,
+                      color: Colors.white,
                     ),
-                    label: Text(
+                    label: const Text(
                       'Manage Dictionaries',
                       style: style,
                     ),
                   ),
-                  const DividerCommon(),
+                  const DividerCommon(
+                    color: Colors.white38,
+                  ),
                   const Text('Wizz Decks', style: headersStyle),
                   ElevatedButton.icon(
                     onPressed: () => _onWizzDeckPush(context),
@@ -96,23 +112,25 @@ class MainDrawer extends StatelessWidget {
                         elevation: 15,
                         backgroundColor: headersStyle.color,
                         shape: const StadiumBorder()),
-                    icon: Icon(
+                    icon: const Icon(
                       Icons.wind_power_rounded,
-                      color: Theme.of(context).canvasColor,
+                      color: Colors.white,
                     ),
-                    label: Text(
+                    label: const Text(
                       'Manage Training Wizz Decks',
                       style: style,
                     ),
                   ),
-                  const DividerCommon(),
+                  const DividerCommon(
+                    color: Colors.white38,
+                  ),
                   TextButton.icon(
-                    onPressed: () {},
-                    icon: Icon(
+                    onPressed: () => _onSettingsTap(context),
+                    icon: const Icon(
                       Icons.settings,
-                      color: Theme.of(context).canvasColor,
+                      color: Colors.white,
                     ),
-                    label: Text(
+                    label: const Text(
                       'Settings',
                       style: style,
                     ),

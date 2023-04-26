@@ -2,7 +2,7 @@ import 'package:equatable/equatable.dart';
 
 class CardDM extends Equatable {
   final String headword;
-  String text;
+  final String text;
 
   CardDM({
     required this.headword,

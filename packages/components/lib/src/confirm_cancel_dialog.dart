@@ -28,7 +28,7 @@ class ConfirmCancelDialog extends StatelessWidget {
           ? Text(
               message!,
               softWrap: true,
-              // textAlign: TextAlign.center,
+              textAlign: TextAlign.center,
             )
           : null,
       actionsAlignment: MainAxisAlignment.spaceBetween,
@@ -38,15 +38,15 @@ class ConfirmCancelDialog extends StatelessWidget {
             onPressed: onCancel,
             child: const Text(
               'CANCEL',
-              style: TextStyle(color: Colors.black54),
+              // style: TextStyle(color: Colors.black54),
             )),
         ElevatedButton(
             onPressed: onConfirm,
-            style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).primaryColor),
-            child: Text(
+            // style: ElevatedButton.styleFrom(
+            //     backgroundColor: Theme.of(context).primaryColor),
+            child: const Text(
               'CONFIRM',
-              style: TextStyle(color: Theme.of(context).canvasColor),
+              // style: TextStyle(color: Theme.of(context).canvasColor),
             )),
       ],
     );

@@ -1,6 +1,4 @@
-// import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
-// import 'package:path/path.dart';
 import 'package:equatable/equatable.dart';
 
 import 'package:dictionary_provider/dictionary_provider.dart';
@@ -16,7 +14,6 @@ class SearchWordScreenBloc
       {required this.userRepository, required this.dictionaryProvider})
       : super(const SearchWordScreenStateInitial()) {
     _registerEventsHandler();
-    // print('init MSBloc');
   }
 
   final DictionaryProvider dictionaryProvider;
@@ -48,8 +45,8 @@ class SearchWordScreenBloc
         await _handleLanguageToChange(event, emitter);
       } else if (event is SearchWordScreenEventSwapLanguages) {
         await _handleSwapLanguages(emitter);
-        // } else if (event is MainScreenEventDictionaryStatusChanged) {
-        //   await _handleDictionaryStatusChanged(event, emitter);
+      } else if (event is SearchWordScreenEventClearHistory) {
+        await _handleClearHistory(emitter);
       } else if (event is SearchWordScreenEventFakeLoading) {
         await _handleFakeLoading(emitter);
       }
@@ -57,19 +54,15 @@ class SearchWordScreenBloc
   }
 
   Future<void> _handleFakeLoading(Emitter emitter) async {
-    print('start');
     emitter(state.copyWith(isLoading: true));
     await Future.delayed(const Duration(seconds: 3));
     emitter(state.copyWith(isLoading: false));
-    print('finish');
   }
 
   Future<void> _handleLoadingInitial(Emitter emitter, {String? message}) async {
-    // print('Loading initial');
     String? fromLanguage = await userRepository.getFromLanguage;
     String? toLanguage = await userRepository.getToLanguage;
     final dictionaries = await dictionaryProvider.listOfAllDictionaries;
-    // print(fromLanguage);
     if ((fromLanguage != null && fromLanguage.isNotEmpty) &&
         (toLanguage == null || toLanguage.isEmpty)) {
       toLanguage = dictionaries
@@ -107,51 +100,6 @@ class SearchWordScreenBloc
       ),
     );
   }
-  //
-  // Future<void> _handleAddDictionary(
-  //     MainScreenEventAddDictionary event, Emitter emitter) async {
-  //   if (extension(event.filePath) != '.dsl') {
-  //     emitter(state.copyWith(isLoading: false, message: 'Wrong filetype'));
-  //     return;
-  //   }
-  //   emitter(state.copyWith(isLoading: true, message: 'Creating dictionary...'));
-  //   await Future.delayed(const Duration(seconds: 1));
-  //   try {
-  //     final dictionary =
-  //     await dictionaryProvider.createDictionary(event.filePath);
-  //     await _handleLoadingInitial(emitter,
-  //         message: 'Created dictionary ${dictionary.name}');
-  //   } catch (e) {
-  //     print(e);
-  //     emitter(
-  //       state.copyWith(
-  //           isLoading: false, message: 'Smth is wrong with dictionary file'),
-  //     );
-  //   }
-  // }
-
-  // Future<void> _handleDeleteDictionary(
-  //     MainScreenEventDeleteDictionary event, Emitter emitter) async {
-  //   emitter(state.copyWith(isLoading: true, message: ''));
-  //   try {
-  //     dictionaryProvider.deleteDictionary(event.dictionary);
-  //     // final from = await userRepository.getFromLanguage;
-  //     // final to = await userRepository.getToLanguage;
-  //     final from = state.fromLanguage;
-  //     final to = state.toLanguage;
-  //     //TODO check picked languages!
-  //     if (from == event.dictionary.indexLanguage &&
-  //         to == event.dictionary.contentLanguage) {
-  //       userRepository.saveFromLanguage(null);
-  //       userRepository.saveToLanguage(null);
-  //     }
-  //     await _handleLoadingInitial(emitter);
-  //   } catch (e) {
-  //     print('Could not delete dictionary');
-  //     emitter(state.copyWith(
-  //         isLoading: false, message: 'Could not delete dictionary'));
-  //   }
-  // }
 
   Future<void> _handleSearchTermChanged(
       SearchWordScreenEventSearchTermChanged event, Emitter emitter) async {
@@ -205,7 +153,6 @@ class SearchWordScreenBloc
   Future<void> _handleLanguageFromChange(
       SearchWordScreenEventLanguageFromChanged event, Emitter emitter) async {
     if (state.fromLanguage == event.languageFrom) return;
-    // emitter(state.copyWith(itemsList: [], searchTerm: ''));
     final activeToLanguages = listOfAllActiveToLanguages(
         fromLanguage: event.languageFrom, forceAllDicts: true);
     String toLanguage = activeToLanguages.contains(state.toLanguage)
@@ -278,32 +225,14 @@ class SearchWordScreenBloc
         toLanguage: state.fromLanguage));
   }
 
-  // Future<void> _handleDictionaryStatusChanged(
-  //     MainScreenEventDictionaryStatusChanged event, Emitter emitter) async {
-  //   try {
-  //     await dictionaryProvider.updateDictionaryStatusChanged(
-  //         dictionary: event.changedDictionary, status: event.status);
-  //     String from = state.fromLanguage;
-  //     String to = state.toLanguage;
-  //     final dictionaries = await dictionaryProvider.listOfAllDictionaries;
-  //     emit(state.copyWith(dictionaryList: dictionaries, message: ''));
-  //     if (!listOfAllActiveFromLanguages().contains(from)) {
-  //       from = listOfAllActiveFromLanguages().first;
-  //       userRepository.saveFromLanguage(from);
-  //     }
-  //     if (!listOfAllActiveToLanguages(fromLanguage: from).contains(to)) {
-  //       to = listOfAllActiveToLanguages(fromLanguage: from).first;
-  //       userRepository.saveToLanguage(to);
-  //     }
-  //     emitter(state.copyWith(
-  //         fromLanguage: from,
-  //         toLanguage: to,
-  //         message: '',
-  //         dictionaryList: dictionaries));
-  //   } catch (e) {
-  //     emitter(state.copyWith(message: e.toString()));
-  //   }
-  // }
+  Future<void> _handleClearHistory(Emitter emitter) async {
+    await dictionaryProvider.clearHistory(
+        from: state.fromLanguage, to: state.toLanguage);
+    if (state.searchTerm.isEmpty) {
+      // final itemsList = await _getHistory();
+      emitter(state.copyWith(itemsList: []));
+    }
+  }
 
   List<CardDM> _getListOfFilteredSortedCardsFromDicts(
       List<DictionaryDM> resultsDicts) {

@@ -14,10 +14,9 @@ class SearchWordScreenEventFakeLoading extends SearchWordScreenEvent {
   const SearchWordScreenEventFakeLoading();
 }
 
-// class SearchWordScreenEventAddDictionary extends SearchWordScreenEvent {
-//   const SearchWordScreenEventAddDictionary(this.filePath);
-//   final String filePath;
-// }
+class SearchWordScreenEventClearHistory extends SearchWordScreenEvent {
+  const SearchWordScreenEventClearHistory();
+}
 
 // class MainScreenEventDeleteDictionary extends SearchWordScreenEvent {
 //   const MainScreenEventDeleteDictionary(this.dictionary);

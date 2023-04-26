@@ -1,4 +1,4 @@
-import 'package:flutter_mimir/flutter_mimir.dart';
+// import 'package:flutter_mimir/flutter_mimir.dart';
 
 class DictionaryMimirModel {
   final String dictionaryName;

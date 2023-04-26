@@ -17,6 +17,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.2.0"
+  animated_toggle_switch:
+    dependency: transitive
+    description:
+      name: animated_toggle_switch
+      sha256: "3c6d98dcd53cb93253a9418b888b3fcd9452a55fe1a7a390bd48c0a410a41634"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.6.2"
   archive:
     dependency: transitive
     description:
@@ -245,7 +253,7 @@ packages:
     source: path
     version: "0.0.1"
   equatable:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: equatable
       sha256: c2b87cb7756efdf69892005af546c56c0b5037f54d2a88269b4f347a505e3ca2
@@ -312,7 +320,7 @@ packages:
     source: hosted
     version: "2.3.1"
   flutter_bloc:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: flutter_bloc
       sha256: "434951eea948dbe87f737b674281465f610b8259c16c097b8163ce138749a775"
@@ -710,10 +718,25 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.24.0"
+  rxdart:
+    dependency: transitive
+    description:
+      name: rxdart
+      sha256: "0c7c0cedd93788d996e33041ffecda924cc54389199cde4e6a34b440f50044cb"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.27.7"
   search_word_screen:
     dependency: "direct main"
     description:
       path: "packages/features/search_word_screen"
+      relative: true
+    source: path
+    version: "0.0.0"
+  settings_screen:
+    dependency: "direct main"
+    description:
+      path: "packages/features/settings_screen"
       relative: true
     source: path
     version: "0.0.0"
@@ -846,7 +869,7 @@ packages:
       path: "packages/user_repository"
       relative: true
     source: path
-    version: "0.0.1"
+    version: "0.0.0"
   uuid:
     dependency: transitive
     description:

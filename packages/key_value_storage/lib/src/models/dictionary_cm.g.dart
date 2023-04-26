@@ -20,6 +20,7 @@ class DictionaryCMAdapter extends TypeAdapter<DictionaryCM> {
       dictionaryName: fields[0] as String,
       indexLanguage: fields[1] as String,
       contentLanguage: fields[2] as String,
+      entriesNumber: fields[4] as int,
       active: fields[3] as bool,
     );
   }
@@ -27,7 +28,7 @@ class DictionaryCMAdapter extends TypeAdapter<DictionaryCM> {
   @override
   void write(BinaryWriter writer, DictionaryCM obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(5)
       ..writeByte(0)
       ..write(obj.dictionaryName)
       ..writeByte(1)
@@ -35,7 +36,9 @@ class DictionaryCMAdapter extends TypeAdapter<DictionaryCM> {
       ..writeByte(2)
       ..write(obj.contentLanguage)
       ..writeByte(3)
-      ..write(obj.active);
+      ..write(obj.active)
+      ..writeByte(4)
+      ..write(obj.entriesNumber);
   }
 
   @override

@@ -32,23 +32,24 @@ class CompleteTrainingDialog extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         Text(
-          'Successes: $numberOfSuccesses',
+          'Correct: $numberOfSuccesses',
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 10),
         Text(
-          'Failures: ${listOfCards.length - numberOfSuccesses}',
+          'Wrong: ${listOfCards.length - numberOfSuccesses}',
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 10),
         Center(
           child: ElevatedButton(
             onPressed: onPressedOk,
-            style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).primaryColor),
-            child: Text(
+            // style: ElevatedButton.styleFrom(
+            //     backgroundColor: Theme.of(context).primaryColor),
+            child: const Text(
               'OK',
-              style: TextStyle(color: Theme.of(context).canvasColor),
+              // style: TextStyle(color: kPrimaryColor
+              // ),
             ),
           ),
         )

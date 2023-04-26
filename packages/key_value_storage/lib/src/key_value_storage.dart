@@ -26,8 +26,9 @@ class KeyValueStorage {
       ..registerAdapter(DictionaryCMAdapter())
       ..registerAdapter(WizzDeckCMAdapter())
       ..registerAdapter(WizzCardCMAdapter())
-      // ..registerAdapter(ShowFrequencyCMAdapter())
+      ..registerAdapter(UserPrefsCMAdapter())
       ..registerAdapter(DarkModeCMAdapter())
+      ..registerAdapter(AppLanguageCMAdapter())
       ..registerAdapter(HistoryDictionaryCMAdapter())
       ..registerAdapter(HistoryCardCMAdapter());
   }
@@ -36,8 +37,8 @@ class KeyValueStorage {
       _openHiveBox<DictionaryCM>(_dictionariesBoxKey);
   Future<Box<WizzDeckCM>> getWizzDecksBox() =>
       _openHiveBox<WizzDeckCM>(_wizzDecksBoxKey);
-  Future<Box<String?>> getUserPrefsBox() =>
-      _openHiveBox<String?>(_userPrefsBoxKey);
+  Future<Box<UserPrefsCM>> getUserPrefsBox() =>
+      _openHiveBox<UserPrefsCM>(_userPrefsBoxKey);
   Future<Box<HistoryDictionaryCM>> getHistoryDictionariesBox() =>
       _openHiveBox<HistoryDictionaryCM>(_historyDictionariesBoxKey);
 

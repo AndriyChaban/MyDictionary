@@ -40,21 +40,24 @@ class TranslationScreen extends StatelessWidget {
           dictionaryProvider: dictionaryProvider)
         ..getWordTranslations(word),
       child: Builder(builder: (context) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
         return Scaffold(
           appBar: AppBar(
+            backgroundColor:
+                isDark ? kAppBarColorDarkMode : kAppBarColorLightMode,
             leading: IconButton(
               onPressed: onAppBarBackPressed,
               icon: const Icon(Icons.arrow_back_outlined),
             ),
             title: Text(word),
-            actions: [
-              PopupMenuButton(itemBuilder: (context) {
-                return [
-                  const PopupMenuItem(child: Text('item 1')),
-                  const PopupMenuItem(child: Text('item 2'))
-                ];
-              })
-            ],
+            // actions: [
+            //   PopupMenuButton(itemBuilder: (context) {
+            //     return [
+            //       const PopupMenuItem(child: Text('item 1')),
+            //       const PopupMenuItem(child: Text('item 2'))
+            //     ];
+            //   })
+            // ],
           ),
           body: BlocBuilder<TranslationScreenCubit, TranslationScreenState>(
             builder: (context, state) {

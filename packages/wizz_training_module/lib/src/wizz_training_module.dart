@@ -86,7 +86,8 @@ class WizzTrainingModule {
           fromLanguage: fromLanguage,
           toLanguage: toLanguage,
           sessionNumber: sessionNumber,
-          cards: cards);
+          cards: cards,
+          timeStamp: DateTime.now());
       final wizzDecksBox = await keyValueStorage.getWizzDecksBox();
       if (wizzDecksBox.containsKey(deckKeyFormat(deck)) && !force) {
         throw XmlFileParsingKeyExistsException();
