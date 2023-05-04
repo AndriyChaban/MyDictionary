@@ -142,8 +142,8 @@ class _DictionaryTileState extends State<DictionaryTile>
 
   @override
   void dispose() {
-    super.dispose();
     _iconController.dispose();
+    super.dispose();
   }
 
   @override

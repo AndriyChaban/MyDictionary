@@ -44,9 +44,11 @@ dependencies:
     path: packages/features/settings_screen
   components:
     path: packages/components
-  go_router: ^6.2.0
-  equatable:
-  flutter_bloc:
+  go_router: 7.0.0
+#  equatable:
+#  flutter_bloc:
+#  flutter_mimir:
+#  mimir:
 
 
 dev_dependencies:
@@ -62,6 +64,7 @@ flutter:
    - assets/
    - assets/icons/
    - assets/pictures/
+   - assets/word_forms/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:fuzzywuzzy/fuzzywuzzy.dart' as fuzzy;
 
 import 'package:db_service/db_service.dart';
 import 'package:domain_models/domain_models.dart';
@@ -15,13 +16,14 @@ import './mappers/mappers.dart';
 
 class DictionaryProvider {
   late final KeyValueStorage keyValueStorage;
-  late final DBService dbService;
+  late final DBService _dbService;
   late final GoogleAPIService googleApiService;
 
   late Directory dictionaryDSLDirectory;
   late Directory dictionaryDBDirectory;
   bool _isBuisy = false;
   late final int historyLength;
+  final _lookupLanguages = ['french', 'spanish'];
 
   DictionaryProvider._initializeProvider() {
     // for each active dict in keyValueStorage, based on current language,
@@ -42,7 +44,7 @@ class DictionaryProvider {
       ..dictionaryDSLDirectory = dictionaryDSLDirectory
       ..dictionaryDBDirectory = dictionaryDBDirectory
       ..keyValueStorage = keyValueStorage
-      ..dbService = dbService
+      .._dbService = dbService
       ..historyLength = historyLength
       ..googleApiService = googleApiService;
   }
@@ -58,10 +60,30 @@ class DictionaryProvider {
     final parsedDictionary = await compute(_parseDslDictionary, copiedFilePath);
     try {
       sink.add('Creating database...');
-      await dbService.createDictionary(
+      await _dbService.createIsarDictionary(
         parsedDictionary.toDBModel(),
         dictionaryDBDirectory.path,
       );
+      sink.add('Creating conjugation table...');
+      String? wordReversedLookupFilePath;
+      String? wordFormsLookupFilePath;
+      final lang = parsedDictionary.indexLanguage.toLowerCase();
+      if (_lookupLanguages.contains(lang)) {
+        wordReversedLookupFilePath =
+            'assets/word_forms/${lang}_verbs_reversed.json';
+        wordFormsLookupFilePath =
+            'assets/word_forms/${lang}_verbs_lookup_modified.json';
+        final wordReversedLookupString =
+            await rootBundle.loadString(wordReversedLookupFilePath);
+        final wordFormsLookupString =
+            await rootBundle.loadString(wordFormsLookupFilePath);
+        await _dbService.createIsarConjugationForms(
+            language: lang,
+            directory: dictionaryDBDirectory.path,
+            wordReversedLookup: wordReversedLookupString,
+            wordFormsLookup: wordFormsLookupString);
+      }
+
       sink.add('Deleting dsl file...');
       File(copiedFilePath).deleteSync();
       // update keyValueStorage
@@ -73,6 +95,7 @@ class DictionaryProvider {
       return parsedDictionary;
     } catch (e) {
       _isBuisy = false;
+      print(e);
       throw DatabaseException();
     }
   }
@@ -82,7 +105,7 @@ class DictionaryProvider {
       final dictBox = await keyValueStorage.getDictionariesBox();
       if (!dictBox.containsKey(dictionary.name))
         throw DictionaryKeyDoesNotExistException();
-      dbService.deleteDictionary(
+      _dbService.deleteIsarDictionary(
           dictionary.toDBModel(), dictionaryDBDirectory.path);
       await dictBox.delete(dictionary.name);
     } catch (e) {
@@ -120,7 +143,8 @@ class DictionaryProvider {
       if (dict.indexLanguage.toLowerCase() == translateFrom &&
           dict.contentLanguage.toLowerCase() == translateTo) {
         results.add(dict.copyWith(
-            cards: (await _getSingleDictionaryWordTranslations(dict.name, word,
+            cards: (await _getIsarSingleDictionaryWordTranslations(
+                dict.name, word,
                 startsWith: startsWith))));
       }
     }
@@ -141,14 +165,32 @@ class DictionaryProvider {
     return dictionariesBox.values.map((dict) => dict.toDomainModel()).toList();
   }
 
-  List<CardDM> _getSingleDictionaryWordTranslations(
+  List<CardDM> _getIsarSingleDictionaryWordTranslations(
       String dictionaryName, String word,
       {bool startsWith = true}) {
-    final dictionaryInstance = dbService.getDictionaryInstance(
+    final dictionaryInstance = _dbService.getIsarDictionaryInstance(
         dictionaryName: dictionaryName, directory: dictionaryDBDirectory.path);
     if (dictionaryInstance == null) throw DictionaryDBDoesNotExistException();
-    final queryStart = dictionaryInstance.cards.filter();
-
+    final queryStart = dictionaryInstance.cardIsars.filter();
+    // if (!_dictMap.containsKey(dictionaryName)) {
+    //   _dictMap[dictionaryName] = dictionaryInstance.cards
+    //       .where()
+    //       .findAllSync()
+    //       .map((e) => e.headword!)
+    //       .toList();
+    // }
+    final allHeadwords = dictionaryInstance.cardIsars
+        .filter()
+        .headwordStartsWith(word[0])
+        .headwordProperty()
+        .findAllSync();
+    final results = fuzzy.extractTop<String?>(
+        query: word,
+        choices: allHeadwords,
+        limit: 20,
+        cutoff: 60,
+        getter: (w) => w!);
+    print(results);
     final queryFinal = startsWith
         ? queryStart.headwordStartsWith(word, caseSensitive: false)
         : queryStart.headwordEqualTo(word, caseSensitive: true);
@@ -159,6 +201,10 @@ class DictionaryProvider {
         .map((card) => card.toDomainModel())
         .toList();
   }
+
+  // List<CardDM> _getMimirSingleDictionaryWordTranslations(
+  //     String dictionaryName, String word,
+  //     {bool startsWith = true}) {}
 
   void addCardToHistory(
       {required CardDM card,

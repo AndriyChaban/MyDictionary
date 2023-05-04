@@ -85,7 +85,7 @@ class _MyDictionaryAppState extends State<MyDictionaryApp> {
 
   void _onWordClicked(BuildContext context, String word) {
     GoRouter.of(context)
-        .pushNamed(TranslationScreen.routeName, params: {'word': word});
+        .pushNamed(TranslationScreen.routeName, pathParameters: {'word': word});
   }
 
   void _onAddCardToWizzDeck(BuildContext context, DictionaryDM dictionary) {
@@ -163,20 +163,21 @@ class _MyDictionaryAppState extends State<MyDictionaryApp> {
 
   void _backToSearchWordScreen(BuildContext context, String word) {
     requestFocus = false;
-    context.goNamed(TranslationScreen.routeName, params: {'word': word});
+    context
+        .goNamed(TranslationScreen.routeName, pathParameters: {'word': word});
   }
 
   void _onPushToSimpleTranslationCard(BuildContext context, dynamic payload) {
     final extra = payload as WizzCardDM;
     GoRouter.of(context).pushNamed(SimpleTranslationCard.routeName,
-        extra: extra, params: {'word': extra.word});
+        extra: extra, pathParameters: {'word': extra.word});
   }
 
   void _onPushToWizzCardsScreen(BuildContext context, dynamic payload) {
     final WizzDeckDM deck = payload['deck'];
     // final DictionaryDM dictionary = payload['dictionaryFromTranslationScreen'];
     GoRouter.of(context).pushNamed(WizzCardsScreen.routeName,
-        extra: payload, params: {'deck': deck.name});
+        extra: payload, pathParameters: {'deck': deck.name});
   }
 
   void _onPressedStartLearning(
@@ -251,7 +252,7 @@ class _MyDictionaryAppState extends State<MyDictionaryApp> {
                       transitionDuration: const Duration(milliseconds: 200),
                       child: TranslationScreen(
                         key: state.pageKey,
-                        word: state.params['word']!,
+                        word: state.pathParameters['word']!,
                         dictionaryProvider: widget.dictionaryProvider,
                         userRepository: widget.userRepository,
                         onAppBarBackPressed: () =>

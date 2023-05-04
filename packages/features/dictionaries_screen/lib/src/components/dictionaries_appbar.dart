@@ -80,7 +80,7 @@ class _DictionariesAppBarState extends State<DictionariesAppBar> {
                           : state.fromLanguage ?? defaultLang,
                       alignment: Alignment.center,
                       style: TextStyle(
-                          // color: isDark ? Colors.black,
+                          color: isDark ? Colors.white : Colors.black,
                           fontSize:
                               Theme.of(context).textTheme.titleLarge!.fontSize),
                       underline: Container(),
@@ -129,7 +129,7 @@ class _DictionariesAppBarState extends State<DictionariesAppBar> {
                             ? defaultLang
                             : state.toLanguage?.toLowerCase() ?? defaultLang,
                         style: TextStyle(
-                            // color: Colors.black,
+                            color: isDark ? Colors.white : Colors.black,
                             fontSize: Theme.of(context)
                                 .textTheme
                                 .titleLarge!

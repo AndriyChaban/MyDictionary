@@ -5,7 +5,7 @@ import 'package:domain_models/domain_models.dart';
 //   DictionaryDM toDomainModel() => DictionaryDM(name: this.dictionaryName, indexLanguage: this., contentLanguage: contentLanguage)
 // }
 
-extension CardToDomain on Card {
+extension CardToDomain on CardIsar {
   CardDM toDomainModel() =>
       CardDM(headword: this.headword!, text: this.fullCardText!);
 }
